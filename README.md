@@ -158,12 +158,19 @@ de las entregas y pings GPS de los conductores.
 
 ```bash
 npm run build                              # API (nest build) + web (next build)
-npx jest --workspace=apps/api              # 20 pruebas de los parsers
+cd apps/api && npx jest                    # 20 pruebas de los parsers
 ```
 
 Los parsers críticos —mapeo de columnas, ventanas horarias, normalización de direcciones y
 asignación de colores— tienen pruebas unitarias porque son la superficie donde el archivo real
 de operaciones rompe supuestos.
+
+`.github/workflows/ci.yml` corre eso mismo en cada PR, más un job aparte que levanta un
+contenedor PostGIS y **ejecuta las migraciones de verdad**: aplica `migrate deploy`, siembra, y
+luego comprueba en SQL que los triggers hayan poblado `geom` a partir de `lat`/`lng`, que la
+coordenada sobreviva el viaje de ida y vuelta (desviación < 1 cm) y que existan los cinco
+índices GIST. Los triggers y los índices espaciales viven en SQL crudo, fuera del alcance de
+`prisma validate`, así que leer el archivo no prueba nada: hay que correrlo contra el motor.
 
 ## Límites conocidos
 

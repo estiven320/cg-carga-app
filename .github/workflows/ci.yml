@@ -1,0 +1,164 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Una PR que se actualiza cancela su corrida anterior: no tiene sentido gastar
+# runners validando un commit que ya fue reemplazado.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Lo que un desarrollador corre en su maquina antes de hacer push.
+  # ---------------------------------------------------------------------------
+  build-and-test:
+    name: Build y pruebas
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      # El cliente de Prisma es codigo generado: sin esto no compilan los
+      # servicios que importan @prisma/client.
+      - name: Generar cliente de Prisma
+        run: npx prisma generate
+        working-directory: apps/api
+        env:
+          DATABASE_URL: postgresql://cgcarga:cgcarga@localhost:5432/cgcarga?schema=public
+
+      - name: API · typecheck
+        run: npx tsc --noEmit -p tsconfig.json
+        working-directory: apps/api
+
+      - name: API · build
+        run: npx nest build
+        working-directory: apps/api
+
+      - name: API · pruebas unitarias
+        run: npx jest --ci
+        working-directory: apps/api
+
+      - name: Web · typecheck
+        run: npx tsc --noEmit
+        working-directory: apps/web
+
+      - name: Web · build
+        run: npx next build
+        working-directory: apps/web
+
+  # ---------------------------------------------------------------------------
+  # Las migraciones tocan PostGIS (triggers, indices GIST, extensiones) y eso no
+  # se puede validar leyendo el SQL: hace falta ejecutarlo contra el motor real.
+  # ---------------------------------------------------------------------------
+  migrations:
+    name: Migraciones y PostGIS
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_USER: cgcarga
+          POSTGRES_PASSWORD: cgcarga
+          POSTGRES_DB: cgcarga
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U cgcarga -d cgcarga"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://cgcarga:cgcarga@localhost:5432/cgcarga?schema=public
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Generar cliente de Prisma
+        run: npx prisma generate
+        working-directory: apps/api
+
+      - name: Aplicar migraciones
+        run: npx prisma migrate deploy
+        working-directory: apps/api
+
+      - name: Sembrar datos de demostracion
+        run: npx ts-node prisma/seed.ts
+        working-directory: apps/api
+
+      # Verificacion real de los triggers: el seed escribe unicamente lat/lng,
+      # asi que si `geom` quedo poblada es porque el trigger corrio. Tambien se
+      # comprueba que las coordenadas sobrevivan el viaje de ida y vuelta y que
+      # los indices espaciales existan.
+      - name: Verificar sincronizacion lat/lng -> geom
+        run: |
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 <<'SQL'
+          DO $$
+          DECLARE
+            total      int;
+            with_geom  int;
+            drift_m    double precision;
+            gist_count int;
+          BEGIN
+            SELECT count(*), count(geom) INTO total, with_geom
+            FROM orders WHERE lat IS NOT NULL;
+
+            IF total = 0 THEN
+              RAISE EXCEPTION 'El seed no dejo ordenes con coordenadas; la verificacion no probaria nada';
+            END IF;
+
+            IF with_geom <> total THEN
+              RAISE EXCEPTION 'El trigger no poblo geom en % de % ordenes', total - with_geom, total;
+            END IF;
+
+            SELECT max(ST_Distance(geom, ST_SetSRID(ST_MakePoint(lng, lat), 4326)::geography))
+            INTO drift_m
+            FROM orders WHERE geom IS NOT NULL;
+
+            IF drift_m > 0.01 THEN
+              RAISE EXCEPTION 'geom no coincide con lat/lng: desviacion maxima % m', drift_m;
+            END IF;
+
+            SELECT count(*) INTO gist_count
+            FROM pg_indexes
+            WHERE schemaname = 'public'
+              AND indexname IN ('orders_geom_gix', 'geocode_cache_geom_gix',
+                                'delivery_proofs_geom_gix', 'driver_pings_geom_gix',
+                                'drivers_last_geom_gix');
+
+            IF gist_count <> 5 THEN
+              RAISE EXCEPTION 'Faltan indices GIST: se encontraron % de 5', gist_count;
+            END IF;
+
+            RAISE NOTICE 'OK: % ordenes con geom sincronizada, 5 indices GIST presentes', total;
+          END $$;
+          SQL
+
+      # Reaplicar el seed debe ser inocuo: la importacion del Excel usa el mismo
+      # patron de upsert y se reejecuta cada vez que se corrige la programacion.
+      - name: Verificar idempotencia del seed
+        run: npx ts-node prisma/seed.ts
+        working-directory: apps/api
