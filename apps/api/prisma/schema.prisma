@@ -1,0 +1,481 @@
+// =============================================================================
+// CG CARGA TMS - Esquema de datos
+// PostgreSQL 16 + PostGIS 3.4 + Prisma ORM
+//
+// Notas de diseno:
+//  * Las columnas `geom` son `geography(Point, 4326)` y se declaran como
+//    `Unsupported(...)` porque Prisma aun no tipa PostGIS de forma nativa.
+//    Se escriben/leen con `$queryRaw` (ver PrismaService.setOrderGeometry y
+//    OrdersService.findInBoundingBox). Los campos `lat`/`lng` se mantienen
+//    duplicados como Float para lectura rapida desde el frontend sin casts.
+//  * `GeocodeCache` es la pieza que mantiene el costo en $0: toda direccion
+//    resuelta por Nominatim queda persistida y las importaciones siguientes
+//    no vuelven a salir a la red.
+// =============================================================================
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [postgis(schema: "public")]
+}
+
+// ============================== ENUMS ========================================
+
+enum UserRole {
+  ADMIN
+  DISPATCHER
+  VIEWER
+}
+
+enum RouteStatus {
+  DRAFT // creada por la importacion, sin conductor
+  ASSIGNED // conductor asignado, sin iniciar
+  IN_PROGRESS // conductor en ruta
+  COMPLETED // todas las ordenes en estado final
+  CANCELLED
+}
+
+enum OrderStatus {
+  PENDING // importada, esperando asignacion
+  ASSIGNED // pertenece a una ruta con conductor
+  IN_TRANSIT // el conductor inicio el recorrido
+  ARRIVED // check-in en el punto de entrega
+  DELIVERED // entregada con POD
+  PARTIAL // entrega parcial (novedad)
+  FAILED // no entregada
+  RESCHEDULED // reprogramada para otra fecha
+  CANCELLED
+}
+
+enum GeocodeStatus {
+  PENDING // aun no se consulto Nominatim
+  RESOLVED // coordenada confiable
+  LOW_CONFIDENCE // Nominatim respondio pero con importancia baja / tipo generico
+  MANUAL // corregida a mano por el despachador
+  NOT_FOUND // Nominatim no devolvio resultados
+  ERROR // fallo de red / rate limit agotado
+}
+
+enum GeocodeSource {
+  NOMINATIM
+  CACHE
+  MANUAL
+  DRIVER_GPS // el conductor marco la coordenada real al entregar
+}
+
+enum ProofType {
+  PHOTO
+  SIGNATURE
+  DOCUMENT
+  NOTE
+}
+
+enum EventType {
+  IMPORTED
+  ASSIGNED
+  GEOCODED
+  ROUTE_STARTED
+  ARRIVED
+  DELIVERED
+  FAILED
+  RESCHEDULED
+  COMMENT
+  NOTIFICATION_SENT
+  LOCATION_PING
+}
+
+enum ImportStatus {
+  PROCESSING
+  COMPLETED
+  COMPLETED_WITH_ERRORS
+  FAILED
+}
+
+enum NotificationChannel {
+  WHATSAPP
+  SYSTEM
+}
+
+enum NotificationStatus {
+  QUEUED
+  SENT
+  FAILED
+}
+
+// ============================== USUARIOS =====================================
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  fullName     String   @map("full_name")
+  role         UserRole @default(DISPATCHER)
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  importBatches ImportBatch[]
+  events        OrderEvent[]
+
+  @@map("users")
+}
+
+// ============================== CLIENTES =====================================
+
+/// Cliente/destinatario. La clave natural es `Numero de documento` del Excel:
+/// el mismo NIT/CC puede repetirse en muchos despachos, por eso se hace upsert.
+model Client {
+  id             String  @id @default(uuid()) @db.Uuid
+  documentNumber String  @unique @map("document_number")
+  name           String
+  phone          String?
+  email          String?
+
+  /// Ultima direccion conocida (se refresca en cada importacion).
+  defaultAddress  String? @map("default_address")
+  defaultLocality String? @map("default_locality")
+
+  notes     String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  orders Order[]
+
+  @@index([name])
+  @@map("clients")
+}
+
+// ============================== CONDUCTORES ==================================
+
+model Driver {
+  id             String  @id @default(uuid()) @db.Uuid
+  documentNumber String  @unique @map("document_number")
+  fullName       String  @map("full_name")
+  /// Numero en formato E.164 sin '+' (ej: 573001112233). Se usa para WhatsApp.
+  phone          String  @unique
+  vehiclePlate   String? @map("vehicle_plate")
+  vehicleCapacityKg Decimal? @map("vehicle_capacity_kg") @db.Decimal(10, 2)
+  active         Boolean @default(true)
+
+  /// Ultima posicion reportada por la app Flutter (lectura rapida sin PostGIS).
+  lastLat      Float?    @map("last_lat")
+  lastLng      Float?    @map("last_lng")
+  lastPingAt   DateTime? @map("last_ping_at")
+  lastGeom     Unsupported("geography(Point, 4326)")? @map("last_geom")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  routes    Route[]
+  pings     DriverPing[]
+  proofs    DeliveryProof[]
+
+  @@index([active])
+  @@map("drivers")
+}
+
+/// Rastro GPS enviado por la app movil. Tabla de alto volumen: particionar por
+/// fecha o purgar con un cron si el historico crece (ver docs/OPERACION.md).
+model DriverPing {
+  id        BigInt   @id @default(autoincrement())
+  driverId  String   @map("driver_id") @db.Uuid
+  routeId   String?  @map("route_id") @db.Uuid
+  lat       Float
+  lng       Float
+  geom      Unsupported("geography(Point, 4326)")?
+  accuracyM Float?   @map("accuracy_m")
+  speedKmh  Float?   @map("speed_kmh")
+  heading   Float?
+  batteryPct Int?    @map("battery_pct")
+  recordedAt DateTime @map("recorded_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  driver Driver @relation(fields: [driverId], references: [id], onDelete: Cascade)
+  route  Route? @relation(fields: [routeId], references: [id], onDelete: SetNull)
+
+  @@index([driverId, recordedAt])
+  @@index([routeId, recordedAt])
+  @@map("driver_pings")
+}
+
+// ============================== RUTAS ========================================
+
+/// Agrupacion de ordenes por `N/RUTA` del Excel para una fecha de despacho.
+/// `color` se asigna de forma determinista en la importacion para que el pin
+/// de Leaflet de una ruta siempre tenga el mismo color entre recargas.
+model Route {
+  id   String @id @default(uuid()) @db.Uuid
+  /// Valor crudo de la columna `N/RUTA` (ej: "R-01", "3", "ZONA NORTE").
+  code String
+  name String?
+  /// Fecha de despacho (sin hora) a la que pertenece la ruta.
+  dispatchDate DateTime @map("dispatch_date") @db.Date
+
+  status RouteStatus @default(DRAFT)
+  /// Color hex (#RRGGBB) para los marcadores/polilineas en el mapa.
+  color  String      @db.VarChar(7)
+
+  driverId String? @map("driver_id") @db.Uuid
+
+  // Totales denormalizados: los recalcula RoutesService.refreshTotals().
+  totalOrders    Int     @default(0) @map("total_orders")
+  deliveredCount Int     @default(0) @map("delivered_count")
+  failedCount    Int     @default(0) @map("failed_count")
+  totalWeightKg  Decimal @default(0) @map("total_weight_kg") @db.Decimal(12, 2)
+  totalUnits     Int     @default(0) @map("total_units")
+  totalItems     Int     @default(0) @map("total_items")
+
+  startedAt   DateTime? @map("started_at")
+  completedAt DateTime? @map("completed_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  driver        Driver?        @relation(fields: [driverId], references: [id], onDelete: SetNull)
+  orders        Order[]
+  pings         DriverPing[]
+  notifications Notification[]
+
+  /// Una ruta por codigo y fecha: la reimportacion del mismo Excel es idempotente.
+  @@unique([code, dispatchDate])
+  @@index([dispatchDate, status])
+  @@index([driverId, dispatchDate])
+  @@map("routes")
+}
+
+// ============================== ORDENES ======================================
+
+/// Una fila de la hoja de programacion = una orden de entrega.
+model Order {
+  id       String  @id @default(uuid()) @db.Uuid
+  routeId  String  @map("route_id") @db.Uuid
+  clientId String  @map("client_id") @db.Uuid
+
+  /// `Numero de documento` de la fila (remision/factura). Se conserva crudo.
+  documentNumber String @map("document_number")
+  /// `Nombre de cliente/proveedor` tal como venia en el Excel.
+  clientNameRaw  String @map("client_name_raw")
+
+  // --- Direccion (columnas `Direccion` y `Localidad / Municipio`) ---
+  address          String
+  locality         String?
+  /// Direccion normalizada que efectivamente se envio a Nominatim.
+  addressNormalized String? @map("address_normalized")
+
+  // --- Georreferenciacion ---
+  lat            Float?
+  lng            Float?
+  geom           Unsupported("geography(Point, 4326)")?
+  geocodeStatus  GeocodeStatus  @default(PENDING) @map("geocode_status")
+  geocodeSource  GeocodeSource? @map("geocode_source")
+  geocodeScore   Float?         @map("geocode_score")
+  geocodeLabel   String?        @map("geocode_label")
+  geocodedAt     DateTime?      @map("geocoded_at")
+
+  // --- Carga (columnas `Peso Kg`, `Unidades`, `Items`) ---
+  weightKg Decimal @default(0) @map("weight_kg") @db.Decimal(10, 2)
+  units    Int     @default(0)
+  items    Int     @default(0)
+
+  // --- `COMENTARIOS + TENER EN CUENTA` ---
+  comments        String? @db.Text
+  /// Ventana horaria extraida del texto de comentarios por TimeWindowParser.
+  timeWindowStart String? @map("time_window_start") @db.VarChar(5) // "HH:mm"
+  timeWindowEnd   String? @map("time_window_end") @db.VarChar(5)
+  requiresAppointment Boolean @default(false) @map("requires_appointment")
+
+  // --- Operacion ---
+  status      OrderStatus @default(PENDING)
+  sequence    Int?
+  rowNumber   Int?        @map("row_number")
+  deliveredAt DateTime?   @map("delivered_at")
+  failureReason String?   @map("failure_reason")
+  receivedBy    String?   @map("received_by")
+  receivedByDocument String? @map("received_by_document")
+
+  importBatchId String? @map("import_batch_id") @db.Uuid
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  route       Route          @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  client      Client         @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  importBatch ImportBatch?   @relation(fields: [importBatchId], references: [id], onDelete: SetNull)
+  proofs      DeliveryProof[]
+  events      OrderEvent[]
+
+  /// Evita duplicar la misma remision dentro de la misma ruta al reimportar.
+  @@unique([routeId, documentNumber])
+  @@index([status])
+  @@index([geocodeStatus])
+  @@index([clientId])
+  @@map("orders")
+}
+
+// ============================== POD ==========================================
+
+/// Evidencia de entrega subida desde la app Flutter hacia MinIO.
+/// El binario NUNCA toca Postgres: aqui solo viaja la llave del objeto.
+model DeliveryProof {
+  id      String    @id @default(uuid()) @db.Uuid
+  orderId String    @map("order_id") @db.Uuid
+  driverId String?  @map("driver_id") @db.Uuid
+  type    ProofType @default(PHOTO)
+
+  /// Bucket y llave del objeto en MinIO (ej: pod/2026/09/03/<orderId>/<uuid>.jpg)
+  bucket    String
+  objectKey String @map("object_key")
+  mimeType  String @map("mime_type")
+  sizeBytes Int    @map("size_bytes")
+  /// SHA-256 del binario: idempotencia de reintentos de la app movil offline.
+  checksum  String? @db.VarChar(64)
+
+  /// Coordenada real donde se tomo la foto (sirve para auditar la entrega).
+  lat  Float?
+  lng  Float?
+  geom Unsupported("geography(Point, 4326)")?
+  /// Distancia en metros entre la foto y la direccion geocodificada.
+  distanceToTargetM Float? @map("distance_to_target_m")
+
+  note       String?
+  capturedAt DateTime  @map("captured_at")
+  uploadedAt DateTime  @default(now()) @map("uploaded_at")
+
+  order  Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  driver Driver? @relation(fields: [driverId], references: [id], onDelete: SetNull)
+
+  @@unique([orderId, checksum])
+  @@index([orderId])
+  @@map("delivery_proofs")
+}
+
+// ============================== TRAZABILIDAD =================================
+
+model OrderEvent {
+  id      String    @id @default(uuid()) @db.Uuid
+  orderId String    @map("order_id") @db.Uuid
+  userId  String?   @map("user_id") @db.Uuid
+  type    EventType
+  message String?
+  payload Json?
+  lat     Float?
+  lng     Float?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  user  User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([orderId, createdAt])
+  @@map("order_events")
+}
+
+// ============================== CACHE DE GEOCODIFICACION =====================
+
+/// Corazon de la estrategia de costo $0.
+///
+/// Flujo: ImportService -> GeocodingService.geocode(address, locality)
+///   1. normaliza la direccion (mayusculas, sin tildes, abreviaturas CO)
+///   2. calcula `queryHash` = sha256(normalized) y busca aqui
+///   3. HIT vigente  -> devuelve coordenada sin salir a la red (0 ms, 0 costo)
+///      MISS/expirado -> encola en NominatimQueue (1 req/s) y persiste el
+///                       resultado, incluidos los negativos, para no volver a
+///                       preguntar por una direccion que ya se sabe que falla.
+model GeocodeCache {
+  id String @id @default(uuid()) @db.Uuid
+
+  /// sha256 de `normalizedQuery`. Clave de busqueda O(1).
+  queryHash       String  @unique @map("query_hash") @db.VarChar(64)
+  rawQuery        String  @map("raw_query")
+  normalizedQuery String  @map("normalized_query")
+  locality        String?
+  countryCode     String  @default("co") @map("country_code") @db.VarChar(2)
+
+  lat  Float?
+  lng  Float?
+  geom Unsupported("geography(Point, 4326)")?
+
+  displayName String?       @map("display_name")
+  osmType     String?       @map("osm_type")
+  osmId       BigInt?       @map("osm_id")
+  osmClass    String?       @map("osm_class")
+  placeRank   Int?          @map("place_rank")
+  importance  Float?
+  boundingBox Json?         @map("bounding_box")
+  raw         Json?
+
+  status    GeocodeStatus @default(PENDING)
+  /// Resultados negativos tambien se cachean, con TTL mas corto.
+  hitCount  Int           @default(0) @map("hit_count")
+  lastHitAt DateTime?     @map("last_hit_at")
+  expiresAt DateTime?     @map("expires_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@index([expiresAt])
+  @@map("geocode_cache")
+}
+
+// ============================== IMPORTACION ==================================
+
+model ImportBatch {
+  id        String       @id @default(uuid()) @db.Uuid
+  filename  String
+  sheetName String       @map("sheet_name")
+  /// Fecha de despacho deducida del nombre de la hoja o enviada por el usuario.
+  dispatchDate DateTime  @map("dispatch_date") @db.Date
+  status    ImportStatus @default(PROCESSING)
+
+  totalRows    Int @default(0) @map("total_rows")
+  importedRows Int @default(0) @map("imported_rows")
+  skippedRows  Int @default(0) @map("skipped_rows")
+  failedRows   Int @default(0) @map("failed_rows")
+
+  geocodeHits    Int @default(0) @map("geocode_hits")
+  geocodeMisses  Int @default(0) @map("geocode_misses")
+  geocodeFailures Int @default(0) @map("geocode_failures")
+
+  /// [{ row, column, message }]
+  errors Json?
+
+  createdById String?  @map("created_by_id") @db.Uuid
+  startedAt   DateTime @default(now()) @map("started_at")
+  finishedAt  DateTime? @map("finished_at")
+
+  createdBy User?   @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  orders    Order[]
+
+  @@index([dispatchDate])
+  @@map("import_batches")
+}
+
+// ============================== NOTIFICACIONES ===============================
+
+model Notification {
+  id      String              @id @default(uuid()) @db.Uuid
+  routeId String?             @map("route_id") @db.Uuid
+  channel NotificationChannel @default(WHATSAPP)
+  status  NotificationStatus  @default(QUEUED)
+
+  /// Destino en formato E.164 sin '+'.
+  recipient String
+  template  String?
+  body      String  @db.Text
+
+  providerMessageId String?  @map("provider_message_id")
+  error             String?
+  attempts          Int      @default(0)
+  sentAt            DateTime? @map("sent_at")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  route Route? @relation(fields: [routeId], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt])
+  @@map("notifications")
+}

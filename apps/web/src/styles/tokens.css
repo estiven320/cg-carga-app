@@ -1,0 +1,77 @@
+/* ===========================================================================
+ * TOKENS DE DISENO — punto unico de personalizacion visual
+ * ---------------------------------------------------------------------------
+ * ORIGEN: el enlace de Stitch (stitch.withgoogle.com/projects/...) NO pudo
+ * leerse desde este entorno: el proxy de red bloquea ese dominio y, ademas,
+ * los proyectos de Stitch requieren sesion de Google, por lo que no son
+ * accesibles de forma publica.
+ *
+ * Para no bloquear la entrega, la interfaz se construyo con un sistema de
+ * tokens completo y una paleta oscura de sala de control (estandar en TMS:
+ * el mapa domina la pantalla y el cromo de la UI debe retroceder).
+ *
+ * PARA APLICAR EL DISENO REAL DE STITCH:
+ *   1. En Stitch, exporta el tema o copia los hex de la paleta.
+ *   2. Reemplaza SOLO los valores de este archivo.
+ *   3. No hay que tocar ningun componente: todos consumen estas variables a
+ *      traves de Tailwind (ver tailwind.config.ts).
+ * ========================================================================= */
+
+:root {
+  /* --- Superficies (de mas profunda a mas elevada) --- */
+  --surface-base: #0b1017;
+  --surface-sunken: #070b11;
+  --surface-raised: #121a24;
+  --surface-overlay: #182230;
+
+  /* --- Bordes --- */
+  --border-subtle: #1f2b3a;
+  --border-strong: #2c3b4e;
+
+  /* --- Texto --- */
+  --content-primary: #e8eef6;
+  --content-secondary: #9fb0c3;
+  --content-muted: #64748b;
+  --content-inverse: #0b1017;
+
+  /* --- Marca / acento --- */
+  --brand: #2dd4bf;
+  --brand-soft: rgba(45, 212, 191, 0.14);
+  --brand-strong: #14b8a6;
+
+  /* --- Estados de entrega --- */
+  --status-pending: #94a3b8;
+  --status-transit: #38bdf8;
+  --status-delivered: #22c55e;
+  --status-failed: #ef4444;
+  --status-warning: #f59e0b;
+
+  /* --- Forma --- */
+  --radius-card: 14px;
+  --radius-control: 10px;
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+  --shadow-overlay: 0 12px 40px -8px rgba(0, 0, 0, 0.7);
+
+  /* --- Tipografia --- */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, 'JetBrains Mono', Menlo, monospace;
+}
+
+/* Variante clara: el dashboard respeta la preferencia del sistema y el toggle
+   manual (data-theme) sin duplicar componentes. */
+:root[data-theme='light'] {
+  --surface-base: #f4f7fa;
+  --surface-sunken: #e8edf3;
+  --surface-raised: #ffffff;
+  --surface-overlay: #ffffff;
+  --border-subtle: #dde5ee;
+  --border-strong: #c4d0de;
+  --content-primary: #0f1c2b;
+  --content-secondary: #4a5c70;
+  --content-muted: #7b8ca0;
+  --content-inverse: #ffffff;
+  --brand: #0d9488;
+  --brand-soft: rgba(13, 148, 136, 0.12);
+  --brand-strong: #0f766e;
+  --shadow-card: 0 1px 2px rgba(15, 28, 43, 0.06), 0 8px 24px -14px rgba(15, 28, 43, 0.18);
+}
