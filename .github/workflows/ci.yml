@@ -115,7 +115,10 @@ jobs:
       # los indices espaciales existan.
       - name: Verificar sincronizacion lat/lng -> geom
         run: |
-          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 <<'SQL'
+          # `?schema=public` es un parametro propio de Prisma; libpq no lo
+          # reconoce y psql aborta con "invalid URI query parameter".
+          # Se recorta la query string antes de pasar la URL a psql.
+          psql "${DATABASE_URL%%\?*}" -v ON_ERROR_STOP=1 <<'SQL'
           DO $$
           DECLARE
             total      int;
