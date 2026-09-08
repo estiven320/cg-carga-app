@@ -1,0 +1,37 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.4.0/schema.json",
+  "name": "v067",
+  "position": {
+    "x": 16,
+    "y": 192,
+    "z": 67,
+    "width": 1248,
+    "height": 60,
+    "tabOrder": 67
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "El maestro de clientes traía 9 nombres repetidos con códigos distintos (errores de digitación); el modelo conserva uno por nombre para poder relacionarlo. Corregir esos códigos en el origen evita que se repartan las ventas de un mismo cliente.",
+                    "textStyle": {
+                      "fontSize": "11pt",
+                      "fontWeight": "normal",
+                      "color": "#666666"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

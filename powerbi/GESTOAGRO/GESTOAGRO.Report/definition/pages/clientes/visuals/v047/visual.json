@@ -1,0 +1,148 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.4.0/schema.json",
+  "name": "v047",
+  "position": {
+    "x": 260,
+    "y": 460,
+    "z": 47,
+    "width": 1004,
+    "height": 244,
+    "tabOrder": 47
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Fact_Guias"
+                    }
+                  },
+                  "Property": "Cliente"
+                }
+              },
+              "queryRef": "Fact_Guias.Cliente",
+              "nativeQueryRef": "Cliente"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Fact_Guias"
+                    }
+                  },
+                  "Property": "Ciudad"
+                }
+              },
+              "queryRef": "Fact_Guias.Ciudad",
+              "nativeQueryRef": "Ciudad"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Fact_Guias"
+                    }
+                  },
+                  "Property": "Vendedor"
+                }
+              },
+              "queryRef": "Fact_Guias.Vendedor",
+              "nativeQueryRef": "Vendedor"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Medidas"
+                    }
+                  },
+                  "Property": "Guías"
+                }
+              },
+              "queryRef": "_Medidas.Guías",
+              "nativeQueryRef": "Guías"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Medidas"
+                    }
+                  },
+                  "Property": "Peso Total KG"
+                }
+              },
+              "queryRef": "_Medidas.Peso Total KG",
+              "nativeQueryRef": "Peso Total KG"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Medidas"
+                    }
+                  },
+                  "Property": "Guías sin Confirmar"
+                }
+              },
+              "queryRef": "_Medidas.Guías sin Confirmar",
+              "nativeQueryRef": "Guías sin Confirmar"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "_Medidas"
+                  }
+                },
+                "Property": "Peso Total KG"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "objects": {
+      "title": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Detalle por cliente'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

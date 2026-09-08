@@ -1,0 +1,158 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.4.0/schema.json",
+  "name": "v070",
+  "position": {
+    "x": 16,
+    "y": 488,
+    "z": 70,
+    "width": 1248,
+    "height": 216,
+    "tabOrder": 70
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Fact_Guias"
+                    }
+                  },
+                  "Property": "GuiaID"
+                }
+              },
+              "queryRef": "Fact_Guias.GuiaID",
+              "nativeQueryRef": "GuiaID"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Fact_Guias"
+                    }
+                  },
+                  "Property": "Cliente"
+                }
+              },
+              "queryRef": "Fact_Guias.Cliente",
+              "nativeQueryRef": "Cliente"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Fact_Guias"
+                    }
+                  },
+                  "Property": "Cliente en Maestro"
+                }
+              },
+              "queryRef": "Fact_Guias.Cliente en Maestro",
+              "nativeQueryRef": "Cliente en Maestro"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Fact_Guias"
+                    }
+                  },
+                  "Property": "Ciudad"
+                }
+              },
+              "queryRef": "Fact_Guias.Ciudad",
+              "nativeQueryRef": "Ciudad"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Fact_Guias"
+                    }
+                  },
+                  "Property": "Origen Ciudad"
+                }
+              },
+              "queryRef": "Fact_Guias.Origen Ciudad",
+              "nativeQueryRef": "Origen Ciudad"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Fact_Guias"
+                    }
+                  },
+                  "Property": "Ruta"
+                }
+              },
+              "queryRef": "Fact_Guias.Ruta",
+              "nativeQueryRef": "Ruta"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Fact_Guias"
+                    }
+                  },
+                  "Property": "Peso KG"
+                }
+              },
+              "queryRef": "Fact_Guias.Peso KG",
+              "nativeQueryRef": "Peso KG"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Fact_Guias"
+                    }
+                  },
+                  "Property": "Fecha Recibido"
+                }
+              },
+              "queryRef": "Fact_Guias.Fecha Recibido",
+              "nativeQueryRef": "Fecha Recibido"
+            }
+          ]
+        }
+      }
+    },
+    "objects": {
+      "title": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Guías para revisar'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

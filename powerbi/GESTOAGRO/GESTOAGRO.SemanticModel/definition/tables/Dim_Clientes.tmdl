@@ -1,0 +1,112 @@
+/// Maestro de clientes, deduplicado por nombre normalizado.
+table Dim_Clientes
+	lineageTag: 3eef27bb-9a31-5c8b-84b0-c08669284fc0
+
+	column ClienteKey
+		dataType: string
+		isHidden
+		lineageTag: a69df29e-464b-5ef7-aa69-55ceb17409d1
+		summarizeBy: none
+		sourceColumn: ClienteKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Código SN'
+		dataType: string
+		lineageTag: dd89d5da-e920-520a-990c-0c8c4d36a6ce
+		summarizeBy: none
+		sourceColumn: Código SN
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Nombre SN'
+		dataType: string
+		lineageTag: 3305349b-ddfa-5342-9737-6e75c1e1d03b
+		summarizeBy: none
+		sourceColumn: Nombre SN
+
+		annotation SummarizationSetBy = Automatic
+
+	column Ciudad
+		dataType: string
+		lineageTag: 0e391720-a9b8-5295-befb-96ac202a3cbc
+		summarizeBy: none
+		sourceColumn: Ciudad
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Dirección'
+		dataType: string
+		lineageTag: a3027f5c-076e-58a2-b4c4-8a114f410b43
+		summarizeBy: none
+		sourceColumn: Dirección
+
+		annotation SummarizationSetBy = Automatic
+
+	column Calle
+		dataType: string
+		lineageTag: 76e46900-6c02-5158-8e53-9f0439e1df6c
+		summarizeBy: none
+		sourceColumn: Calle
+
+		annotation SummarizationSetBy = Automatic
+
+	column Barrio
+		dataType: string
+		lineageTag: 5706309a-0352-5c8a-9eb9-c080271e73dd
+		summarizeBy: none
+		sourceColumn: Barrio
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Teléfono'
+		dataType: string
+		lineageTag: cf3ad13b-28b8-5b58-875f-c41e640ca962
+		summarizeBy: none
+		sourceColumn: Teléfono
+
+		annotation SummarizationSetBy = Automatic
+
+	column Correo
+		dataType: string
+		lineageTag: c7ccc7f9-0746-504d-a048-353c2486b064
+		summarizeBy: none
+		sourceColumn: Correo
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Lista de Precios'
+		dataType: string
+		lineageTag: 733fa7e7-2193-57c3-b4bb-bf06fa8aa32c
+		summarizeBy: none
+		sourceColumn: Lista de Precios
+
+		annotation SummarizationSetBy = Automatic
+
+	column Vendedor
+		dataType: string
+		lineageTag: 24e51397-3207-5028-bbce-f56588b79e8b
+		summarizeBy: none
+		sourceColumn: Vendedor
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Clientes = m
+		mode: import
+		source =
+				let
+				    Origen = fnHoja("Dim_Clientes"),
+				    NoNulos = Table.SelectRows(Origen, each [#"Nombre SN"] <> null and Text.Trim(Text.From([#"Nombre SN"])) <> ""),
+				    Renombrado = Table.RenameColumns(NoNulos, {{"Nombre de dirección", "Dirección"}, {"BARRIO", "Barrio"}, {"Teléfono móvil", "Teléfono"}, {"Correo electrónico", "Correo"}, {"Nombre de la lista de precios", "Lista de Precios"}, {"Nombre de empleado del departamento de ventas", "Vendedor"}}),
+				    Tipos = Table.TransformColumnTypes(Renombrado, {{"Código SN", type text}, {"Nombre SN", type text}, {"Dirección", type text}, {"Calle", type text}, {"Barrio", type text}, {"Ciudad", type text}, {"Teléfono", type text}, {"Correo", type text}, {"Lista de Precios", type text}, {"Vendedor", type text}}),
+				    CiudadUp = Table.TransformColumns(Tipos, {{"Ciudad", each if _ = null then null else Text.Upper(Text.Trim(_)), type text}}),
+				    ConKey = Table.AddColumn(CiudadUp, "ClienteKey", each Text.Upper(Text.Trim([#"Nombre SN"])), type text),
+				    // "Nombre SN" trae 9 nombres duplicados (codigos con error de digitacion).
+				    // Se conserva un solo registro por nombre para que la relacion sea 1 a varios.
+				    Ordenado = Table.Sort(ConKey, {{"Código SN", Order.Ascending}}),
+				    Unicos = Table.Distinct(Ordenado, {"ClienteKey"}),
+				    Final = Table.SelectColumns(Unicos, {"ClienteKey", "Código SN", "Nombre SN", "Ciudad", "Dirección", "Calle", "Barrio", "Teléfono", "Correo", "Lista de Precios", "Vendedor"})
+				in
+				    Final
+
+	annotation PBI_ResultType = Table

@@ -1,0 +1,245 @@
+/// Tabla técnica que agrupa todas las medidas del modelo.
+table _Medidas
+	lineageTag: 59ba7b7b-0b47-51ae-a7b6-c9edb9916e6b
+
+	/// Número de guías (una fila por planilla + pedido + factura).
+	measure 'Guías' = COUNTROWS(Fact_Guias)
+		formatString: #,0
+		displayFolder: 01 Volumen
+		lineageTag: 81eaf0f7-5ba5-562a-9065-faefbddce2db
+
+	/// Planillas distintas despachadas.
+	measure Planillas = DISTINCTCOUNT(Fact_Guias[Planilla])
+		formatString: #,0
+		displayFolder: 01 Volumen
+		lineageTag: 44e2279c-e00c-5520-b939-15782bf2e43b
+
+	/// Clientes distintos con al menos una guía.
+	measure 'Clientes Atendidos' = DISTINCTCOUNT(Fact_Guias[ClienteKey])
+		formatString: #,0
+		displayFolder: 01 Volumen
+		lineageTag: 3d872178-d25f-56a3-8542-af2bea078d17
+
+	/// Rutas distintas cubiertas.
+	measure 'Rutas Atendidas' = DISTINCTCOUNT(Fact_Guias[Ruta])
+		formatString: #,0
+		displayFolder: 01 Volumen
+		lineageTag: a1d51f57-00b5-5367-a3dc-4f843db8606c
+
+	/// Kilos despachados.
+	measure 'Peso Total KG' = SUM(Fact_Guias[Peso KG])
+		formatString: #,0
+		displayFolder: 01 Volumen
+		lineageTag: 311c4ddf-de32-5124-a03a-a0e6c2c024ef
+
+	/// Kilos promedio por guía.
+	measure 'Peso Promedio KG' = AVERAGE(Fact_Guias[Peso KG])
+		formatString: #,0.0
+		displayFolder: 01 Volumen
+		lineageTag: c6cb3825-658f-59a7-9aad-11a4ed92bcad
+
+	/// Guías promedio que lleva cada planilla.
+	measure 'Guías por Planilla' = DIVIDE([Guías], [Planillas])
+		formatString: #,0.0
+		displayFolder: 01 Volumen
+		lineageTag: 0a242ed1-6fd7-527e-ad9e-7a0efde03119
+
+	/// Kilos promedio por planilla.
+	measure 'Peso por Planilla' = DIVIDE([Peso Total KG], [Planillas])
+		formatString: #,0
+		displayFolder: 01 Volumen
+		lineageTag: a822036e-d6a4-5c49-9ef7-637d6ffd55d5
+
+	/// Conductores distintos con despachos.
+	measure 'Transportadores Activos' = DISTINCTCOUNT(Fact_Guias[Transportador])
+		formatString: #,0
+		displayFolder: 02 Transporte
+		lineageTag: 59f44dec-6a59-5d0c-bfdd-bac9cbcf3a68
+
+	/// Vehículos distintos usados.
+	measure 'Placas Activas' = DISTINCTCOUNT(Fact_Guias[Placa])
+		formatString: #,0
+		displayFolder: 02 Transporte
+		lineageTag: 22e38517-ff69-54a3-97a2-ca5d626ed4c3
+
+	/// Guías promedio por vehículo.
+	measure 'Guías por Placa' = DIVIDE([Guías], [Placas Activas])
+		formatString: #,0.0
+		displayFolder: 02 Transporte
+		lineageTag: ceb97b38-e634-5084-a4e2-b83aecd6704d
+
+	/// Guías con fecha de recibido registrada.
+	measure 'Guías Recibidas' = CALCULATE([Guías], NOT ISBLANK(Fact_Guias[Fecha Recibido]))
+		formatString: #,0
+		displayFolder: 03 Cumplimiento (a hoy)
+		lineageTag: 59a39158-6737-599a-8d3a-dfaa695bd50a
+
+	/// Guías sin fecha de recibido: no se sabe si llegaron.
+	measure 'Guías sin Confirmar' = CALCULATE([Guías], ISBLANK(Fact_Guias[Fecha Recibido]))
+		formatString: #,0
+		displayFolder: 03 Cumplimiento (a hoy)
+		lineageTag: 1dfa0248-d8ba-5239-b287-9e2f042919b0
+
+	/// Proporción de guías sin confirmación de entrega.
+	measure '% Sin Confirmar' = DIVIDE([Guías sin Confirmar], [Guías])
+		formatString: 0.0%
+		displayFolder: 03 Cumplimiento (a hoy)
+		lineageTag: f6f9659c-7565-5f17-a3de-5e3ae867ae33
+
+	/// Guías cuya fecha límite ya pasó y siguen sin recibido.
+	measure 'Guías Vencidas' = CALCULATE([Guías], Fact_Guias[Estado a Hoy] = "Vencido")
+		formatString: #,0
+		displayFolder: 03 Cumplimiento (a hoy)
+		lineageTag: 668b9979-4394-5605-be10-0278217ba13c
+
+	/// Proporción de guías vencidas a la fecha de hoy.
+	measure '% Vencidas' = DIVIDE([Guías Vencidas], [Guías])
+		formatString: 0.0%
+		displayFolder: 03 Cumplimiento (a hoy)
+		lineageTag: 30a23769-f2fe-5e92-859c-1cabe53733e1
+
+	/// Kilos comprometidos en guías vencidas.
+	measure 'Peso Vencido KG' = CALCULATE([Peso Total KG], Fact_Guias[Estado a Hoy] = "Vencido")
+		formatString: #,0
+		displayFolder: 03 Cumplimiento (a hoy)
+		lineageTag: 91857fc2-d9c6-53b1-b3bf-46388363ca1f
+
+	/// Días de mora promedio por guía.
+	measure 'Días de Mora (prom)' = AVERAGE(Fact_Guias[Días de Mora])
+		formatString: #,0.0
+		displayFolder: 03 Cumplimiento (a hoy)
+		lineageTag: 164a969c-bee7-50ec-9fcb-ff3b7ffb7c0e
+
+	/// Peor caso de mora.
+	measure 'Días de Mora (máx)' = MAX(Fact_Guias[Días de Mora])
+		formatString: #,0
+		displayFolder: 03 Cumplimiento (a hoy)
+		lineageTag: a7bb39ba-4cf6-5044-a406-ccc407aaeda3
+
+	/// Suma de días de mora, útil para priorizar rutas.
+	measure 'Días de Mora (total)' = SUM(Fact_Guias[Días de Mora])
+		formatString: #,0
+		displayFolder: 03 Cumplimiento (a hoy)
+		lineageTag: 7d368aef-bba2-54bd-abe4-85553ad75912
+
+	/// Vencidas según la columna Semáforo del archivo, congelada a su fecha de creación.
+	measure 'Guías Vencidas (Excel)' = CALCULATE([Guías], Fact_Guias[Semáforo Origen] = "VENCIDO")
+		formatString: #,0
+		displayFolder: 04 Cumplimiento (Excel)
+		lineageTag: 27888166-8c01-511b-bdab-f0fd7f077a05
+
+	/// Por vencer según la columna Semáforo del archivo.
+	measure 'Guías Por Vencer (Excel)' = CALCULATE([Guías], Fact_Guias[Semáforo Origen] = "Por vencer")
+		formatString: #,0
+		displayFolder: 04 Cumplimiento (Excel)
+		lineageTag: d82173e5-d753-5794-863c-5e94a491df4d
+
+	/// En plazo según la columna Semáforo del archivo.
+	measure 'Guías En Plazo (Excel)' = CALCULATE([Guías], Fact_Guias[Semáforo Origen] = "En plazo")
+		formatString: #,0
+		displayFolder: 04 Cumplimiento (Excel)
+		lineageTag: 9353dbd4-01fa-5fa2-9c9c-8c62411b2697
+
+	/// Proporción de vencidas según el semáforo del archivo.
+	measure '% Vencidas (Excel)' = DIVIDE([Guías Vencidas (Excel)], [Guías])
+		formatString: 0.0%
+		displayFolder: 04 Cumplimiento (Excel)
+		lineageTag: 2f048a51-6d9d-5ac9-ad49-67f0444c6be3
+
+	/// Días de mora tal como venían calculados en el archivo.
+	measure 'Días de Mora Origen (total)' = SUM(Fact_Guias[Días Mora Origen])
+		formatString: #,0
+		displayFolder: 04 Cumplimiento (Excel)
+		lineageTag: 3dc7bc78-1515-51b1-bae3-6d51db9c286a
+
+	/// Líneas de devolución registradas.
+	measure Devoluciones = COALESCE(COUNTROWS(Fact_Devoluciones), 0)
+		formatString: #,0
+		displayFolder: 05 Devoluciones
+		lineageTag: 0470a9e1-a930-5674-9257-e96ebd30f60e
+
+	/// Unidades devueltas.
+	measure 'Unidades Devueltas' = SUM(Fact_Devoluciones[Cantidad Devuelta])
+		formatString: #,0
+		displayFolder: 05 Devoluciones
+		lineageTag: 480236b2-85d1-59a2-8b54-b121e64387f2
+
+	/// Kilos devueltos.
+	measure 'Peso Devuelto KG' = SUM(Fact_Devoluciones[Peso Devuelto KG])
+		formatString: #,0
+		displayFolder: 05 Devoluciones
+		lineageTag: 41dc1e82-5016-54d7-8048-1edffbfbee60
+
+	/// Valor de las devoluciones.
+	measure 'Valor Devoluciones' = SUM(Fact_Devoluciones[Valor Devolución])
+		formatString: "$"#,0
+		displayFolder: 05 Devoluciones
+		lineageTag: eda82d6c-aa45-52ab-ac16-a4aea38baf65
+
+	/// Kilos devueltos sobre kilos despachados.
+	measure '% Peso Devuelto' = DIVIDE([Peso Devuelto KG], [Peso Total KG])
+		formatString: 0.00%
+		displayFolder: 05 Devoluciones
+		lineageTag: c12653b7-bcf5-57f1-b872-d59b337945e1
+
+	/// Días promedio para cerrar una devolución.
+	measure 'Días de Gestión (prom)' = AVERAGE(Fact_Devoluciones[Días de Gestión])
+		formatString: #,0.0
+		displayFolder: 05 Devoluciones
+		lineageTag: b99bab9c-7c92-5727-a03b-b86cab95f1ff
+
+	/// Guías sin ciudad ni en la guía ni en el maestro de clientes.
+	measure 'Guías sin Ciudad' = CALCULATE([Guías], Fact_Guias[Ciudad] = "SIN CIUDAD")
+		formatString: #,0
+		displayFolder: 06 Calidad de datos
+		lineageTag: 501404ab-9449-5acb-a09c-fda0bc245aa7
+
+	/// Guías sin ruta asignada.
+	measure 'Guías sin Ruta' = CALCULATE([Guías], Fact_Guias[Ruta] = "SIN RUTA")
+		formatString: #,0
+		displayFolder: 06 Calidad de datos
+		lineageTag: cc572176-dbbf-5b55-85e9-0f6ca1bc5157
+
+	/// Guías despachadas con peso 0 kg.
+	measure 'Guías con Peso Cero' = CALCULATE([Guías], Fact_Guias[Peso KG] = 0)
+		formatString: #,0
+		displayFolder: 06 Calidad de datos
+		lineageTag: 2d87b8cc-85f3-5a8f-85e1-41e9af03073c
+
+	/// Guías cuyo nombre de cliente no aparece en Dim_Clientes.
+	measure 'Guías con Cliente Fuera del Maestro' = CALCULATE([Guías], Fact_Guias[Cliente en Maestro] = FALSE())
+		formatString: #,0
+		displayFolder: 06 Calidad de datos
+		lineageTag: a4472e7f-695c-5a30-8b9c-dbc270f9d2cd
+
+	/// Guías con al menos un problema de datos.
+	measure 'Guías con Alerta de Datos' = CALCULATE([Guías], FILTER(Fact_Guias, Fact_Guias[Ciudad] = "SIN CIUDAD" || Fact_Guias[Ruta] = "SIN RUTA" || Fact_Guias[Peso KG] = 0 || Fact_Guias[Cliente en Maestro] = FALSE()))
+		formatString: #,0
+		displayFolder: 06 Calidad de datos
+		lineageTag: 482bd815-c7fe-562b-9802-84538ef1b1f1
+
+	/// Proporción de guías con algún dato incompleto.
+	measure '% Guías con Alerta' = DIVIDE([Guías con Alerta de Datos], [Guías])
+		formatString: 0.0%
+		displayFolder: 06 Calidad de datos
+		lineageTag: 8f917e55-44a8-54a9-ad76-60793c8f396f
+
+	column Grupo
+		dataType: string
+		isHidden
+		lineageTag: 02c7d116-7343-5f77-9628-1f06a9507de9
+		summarizeBy: none
+		sourceColumn: Grupo
+
+		annotation SummarizationSetBy = Automatic
+
+	partition _Medidas = m
+		mode: import
+		source =
+				let
+				    Origen = Table.FromRows({{"Medidas"}}, {"Grupo"}),
+				    Tipos = Table.TransformColumnTypes(Origen, {{"Grupo", type text}})
+				in
+				    Tipos
+
+	annotation PBI_ResultType = Table

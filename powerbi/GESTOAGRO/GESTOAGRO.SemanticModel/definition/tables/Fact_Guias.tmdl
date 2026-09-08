@@ -1,0 +1,322 @@
+/// Una fila por guía despachada (planilla + pedido + factura). Une Fact_Despachos (peso y transporte) con Fact_Cumplidos (plazo y estado).
+table Fact_Guias
+	lineageTag: 5c224106-1753-5316-8900-548b9b1ac5a9
+
+	/// Clave de la guía: planilla-pedido-factura.
+	column GuiaID
+		dataType: string
+		lineageTag: 31161439-ee86-5018-9c51-8174d5be8dae
+		summarizeBy: none
+		sourceColumn: GuiaID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Planilla
+		dataType: int64
+		formatString: 0
+		lineageTag: 59a1c9e7-73df-53b0-9757-cd0c9c379e65
+		summarizeBy: none
+		sourceColumn: Planilla
+
+		annotation SummarizationSetBy = Automatic
+
+	column Pedido
+		dataType: int64
+		formatString: 0
+		lineageTag: 315eaf3b-7f33-5433-88f6-6fc66003c2bb
+		summarizeBy: none
+		sourceColumn: Pedido
+
+		annotation SummarizationSetBy = Automatic
+
+	column Factura
+		dataType: int64
+		formatString: 0
+		lineageTag: b0c6642f-4f75-5875-a86f-c049b74eaedf
+		summarizeBy: none
+		sourceColumn: Factura
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Nombre del cliente tal como viene en el despacho.
+	column Cliente
+		dataType: string
+		lineageTag: a526802d-0a2e-5d93-82d1-f096846616d3
+		summarizeBy: none
+		sourceColumn: Cliente
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Nombre normalizado; une la guía con el maestro de clientes.
+	column ClienteKey
+		dataType: string
+		isHidden
+		lineageTag: 8e627b60-be8e-51ba-9084-eef2c6e74bd3
+		summarizeBy: none
+		sourceColumn: ClienteKey
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Falso si el cliente no existe en Dim_Clientes.
+	column 'Cliente en Maestro'
+		dataType: boolean
+		lineageTag: b6558fd2-2133-5caf-bfd1-06089f327f6b
+		summarizeBy: none
+		sourceColumn: Cliente en Maestro
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Vendedor asignado según el maestro de clientes.
+	column Vendedor
+		dataType: string
+		lineageTag: 5e94e610-5fa1-5842-aa41-93a07fee9872
+		summarizeBy: none
+		sourceColumn: Vendedor
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Ciudad de la guía; si falta, la del maestro; si no, SIN CIUDAD.
+	column Ciudad
+		dataType: string
+		lineageTag: 44092c58-2c4c-5ea5-b3ae-961aed1c216e
+		summarizeBy: none
+		sourceColumn: Ciudad
+
+		annotation SummarizationSetBy = Automatic
+
+	/// De dónde salió la ciudad: guía, maestro o sin dato.
+	column 'Origen Ciudad'
+		dataType: string
+		lineageTag: ae596204-1bac-5f61-a9f6-72f6dd717b5e
+		summarizeBy: none
+		sourceColumn: Origen Ciudad
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Ruta de cumplidos; si falta, la de despachos; si no, SIN RUTA.
+	column Ruta
+		dataType: string
+		lineageTag: b9d5b65e-2770-5c7e-b906-65a3fa944dae
+		summarizeBy: none
+		sourceColumn: Ruta
+
+		annotation SummarizationSetBy = Automatic
+
+	column Transportadora
+		dataType: string
+		lineageTag: 9b9bdfc0-4ff3-52ff-b28e-d488972386f6
+		summarizeBy: none
+		sourceColumn: Transportadora
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Conductor.
+	column Transportador
+		dataType: string
+		lineageTag: fa44eee6-5faf-5e72-80f4-8bb72b09c139
+		summarizeBy: none
+		sourceColumn: Transportador
+
+		annotation SummarizationSetBy = Automatic
+
+	column Placa
+		dataType: string
+		lineageTag: 2601811e-ac66-5a6b-9ac9-291e77853571
+		summarizeBy: none
+		sourceColumn: Placa
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Peso KG'
+		dataType: double
+		formatString: #,0.00
+		lineageTag: dd14e363-80c2-5e4f-89ac-a7085caf9e49
+		summarizeBy: none
+		sourceColumn: Peso KG
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Fecha Despacho'
+		dataType: dateTime
+		formatString: dd/mm/yyyy
+		lineageTag: 5476cee3-0a15-5924-8755-95a913625fce
+		summarizeBy: none
+		sourceColumn: Fecha Despacho
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	/// Días pactados para la entrega.
+	column 'Plazo Días'
+		dataType: int64
+		formatString: 0
+		lineageTag: b03e55e9-03cb-5cdc-860d-3671dbf25dcc
+		summarizeBy: none
+		sourceColumn: Plazo Días
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Fecha Límite'
+		dataType: dateTime
+		formatString: dd/mm/yyyy
+		lineageTag: dc47ad97-e434-5bd4-80ca-2cd3a3516eb4
+		summarizeBy: none
+		sourceColumn: Fecha Límite
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Días Transcurridos'
+		dataType: int64
+		formatString: 0
+		lineageTag: b057c1c4-46ee-5eda-91a0-b3f734bca7a8
+		summarizeBy: none
+		sourceColumn: Días Transcurridos
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Mora calculada en el archivo de Excel.
+	column 'Días Mora Origen'
+		dataType: int64
+		formatString: 0
+		lineageTag: bdcfba12-7553-50b7-9e06-fddbacde2ab9
+		summarizeBy: none
+		sourceColumn: Días Mora Origen
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Semáforo del archivo, congelado a la fecha en que se generó.
+	column 'Semáforo Origen'
+		dataType: string
+		lineageTag: 14111f25-b3bd-50e7-bd6e-7f37df2d3776
+		summarizeBy: none
+		sourceColumn: Semáforo Origen
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Sin diligenciar en el archivo actual.
+	column 'Estado Cumplido'
+		dataType: string
+		lineageTag: 88964316-c0c1-5d48-b3ee-3ed42e56eaca
+		summarizeBy: none
+		sourceColumn: Estado Cumplido
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Sin diligenciar en el archivo actual.
+	column 'Fecha Recibido'
+		dataType: dateTime
+		formatString: dd/mm/yyyy
+		lineageTag: a4354859-c0f9-5103-94dc-6ed1df850925
+		summarizeBy: none
+		sourceColumn: Fecha Recibido
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	/// Sin diligenciar en el archivo actual.
+	column Responsable
+		dataType: string
+		lineageTag: 03347724-3f8f-541a-9d2c-44643abe8f26
+		summarizeBy: none
+		sourceColumn: Responsable
+
+		annotation SummarizationSetBy = Automatic
+
+	column Observaciones
+		dataType: string
+		lineageTag: f7eadb94-cb78-53c1-8a32-6c2f510b1b21
+		summarizeBy: none
+		sourceColumn: Observaciones
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Estado recalculado contra la fecha actual. A diferencia de 'Semáforo Origen', se actualiza cada vez que se abre el informe.
+	column 'Estado a Hoy' = SWITCH(TRUE(), NOT ISBLANK(Fact_Guias[Fecha Recibido]) && Fact_Guias[Fecha Recibido] <= Fact_Guias[Fecha Límite], "Cumplido en plazo", NOT ISBLANK(Fact_Guias[Fecha Recibido]), "Cumplido con mora", TODAY() > Fact_Guias[Fecha Límite], "Vencido", TODAY() = Fact_Guias[Fecha Límite], "Vence hoy", "En plazo")
+		dataType: string
+		lineageTag: 968c3c49-b033-548b-b5c2-89ec69a1373a
+		summarizeBy: none
+		sortByColumn: 'Estado a Hoy Orden'
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Orden de presentación del estado, de mejor a peor.
+	column 'Estado a Hoy Orden' = SWITCH(Fact_Guias[Estado a Hoy], "Cumplido en plazo", 1, "Cumplido con mora", 2, "En plazo", 3, "Vence hoy", 4, "Vencido", 5, 9)
+		dataType: int64
+		formatString: 0
+		lineageTag: 7c3d61ab-9936-51b4-925f-0fc3593a4822
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Días entre la fecha límite y la de recibido; si no hay recibido, se cuenta contra hoy.
+	column 'Días de Mora' = MAX(0, INT(COALESCE(Fact_Guias[Fecha Recibido], TODAY()) - Fact_Guias[Fecha Límite]))
+		dataType: int64
+		formatString: 0
+		lineageTag: ecd0556e-b0c9-5412-8440-b2a178b7e56a
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Tramo de peso de la guía.
+	column 'Rango de Peso' = SWITCH(TRUE(), Fact_Guias[Peso KG] = 0, "00 · Sin peso", Fact_Guias[Peso KG] < 100, "01 · Menos de 100 kg", Fact_Guias[Peso KG] < 500, "02 · 100 a 500 kg", Fact_Guias[Peso KG] < 1000, "03 · 500 a 1.000 kg", Fact_Guias[Peso KG] < 5000, "04 · 1.000 a 5.000 kg", "05 · Más de 5.000 kg")
+		dataType: string
+		lineageTag: 17778342-dac2-5e55-954c-4864bba697c0
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Fact_Guias = m
+		mode: import
+		source =
+				let
+				    // ---- Despachos: aporta peso y datos de transporte ----
+				    Desp0 = fnHoja("Fact_Despachos"),
+				    Desp1 = Table.SelectColumns(Desp0, {"# Planilla", "# Pedido", "# Factura", "NOMBRE CLIENTE", "PESO KG", "EMPRESA TRANSPORTE", "TRANSPORTADOR", "PLACA", "RUTA", "FECHA DESPACHO"}),
+				    Desp2 = Table.RenameColumns(Desp1, {{"# Planilla", "Planilla"}, {"# Pedido", "Pedido"}, {"# Factura", "Factura"}, {"NOMBRE CLIENTE", "Cliente"}, {"PESO KG", "Peso KG"}, {"EMPRESA TRANSPORTE", "Transportadora"}, {"TRANSPORTADOR", "Transportador"}, {"PLACA", "Placa"}, {"RUTA", "Ruta Despacho"}, {"FECHA DESPACHO", "Fecha Despacho"}}),
+				    Desp3 = Table.SelectRows(Desp2, each [Planilla] <> null),
+				    Desp4 = Table.TransformColumnTypes(Desp3, {{"Planilla", Int64.Type}, {"Pedido", Int64.Type}, {"Factura", Int64.Type}, {"Cliente", type text}, {"Peso KG", type number}, {"Transportadora", type text}, {"Transportador", type text}, {"Placa", type text}, {"Ruta Despacho", type text}, {"Fecha Despacho", type date}}),
+
+				    // ---- Cumplidos: aporta plazo, fecha limite y estado de entrega ----
+				    Cum0 = fnHoja("Fact_Cumplidos"),
+				    Cum1 = Table.SelectColumns(Cum0, {"# Planilla", "# Pedido", "# Factura", "Ciudad", "Ruta", "Plazo (días)", "Fecha límite", "Estado cumplido", "Fecha recibido", "Días transcurridos", "Días de mora", "Semáforo", "Responsable", "Observaciones"}),
+				    Cum2 = Table.RenameColumns(Cum1, {{"# Planilla", "Planilla"}, {"# Pedido", "Pedido"}, {"# Factura", "Factura"}, {"Ciudad", "Ciudad Guia"}, {"Ruta", "Ruta Cumplido"}, {"Plazo (días)", "Plazo Días"}, {"Fecha límite", "Fecha Límite"}, {"Estado cumplido", "Estado Cumplido"}, {"Fecha recibido", "Fecha Recibido"}, {"Días transcurridos", "Días Transcurridos"}, {"Días de mora", "Días Mora Origen"}, {"Semáforo", "Semáforo Origen"}}),
+				    Cum3 = Table.SelectRows(Cum2, each [Planilla] <> null),
+				    Cum4 = Table.TransformColumnTypes(Cum3, {{"Planilla", Int64.Type}, {"Pedido", Int64.Type}, {"Factura", Int64.Type}, {"Ciudad Guia", type text}, {"Ruta Cumplido", type text}, {"Plazo Días", Int64.Type}, {"Fecha Límite", type date}, {"Estado Cumplido", type text}, {"Fecha Recibido", type date}, {"Días Transcurridos", Int64.Type}, {"Días Mora Origen", Int64.Type}, {"Semáforo Origen", type text}, {"Responsable", type text}, {"Observaciones", type text}}),
+
+				    // ---- Union por clave compuesta Planilla + Pedido + Factura (unica, 183/183) ----
+				    Union0 = Table.NestedJoin(Desp4, {"Planilla", "Pedido", "Factura"}, Cum4, {"Planilla", "Pedido", "Factura"}, "cum", JoinKind.LeftOuter),
+				    Union1 = Table.ExpandTableColumn(Union0, "cum", {"Ciudad Guia", "Ruta Cumplido", "Plazo Días", "Fecha Límite", "Estado Cumplido", "Fecha Recibido", "Días Transcurridos", "Días Mora Origen", "Semáforo Origen", "Responsable", "Observaciones"}),
+
+				    // ---- Clave de cliente normalizada y enriquecimiento desde el maestro ----
+				    Key0 = Table.AddColumn(Union1, "ClienteKey", each Text.Upper(Text.Trim([Cliente])), type text),
+				    Key1 = Table.NestedJoin(Key0, {"ClienteKey"}, Dim_Clientes, {"ClienteKey"}, "cli", JoinKind.LeftOuter),
+				    Key2 = Table.ExpandTableColumn(Key1, "cli", {"ClienteKey", "Ciudad", "Vendedor"}, {"ClienteKeyMaestro", "Ciudad Maestro", "Vendedor"}),
+
+				    // ---- Ciudad: la de la guia; si falta, la del maestro de clientes ----
+				    Ciu0 = Table.AddColumn(Key2, "Ciudad", each
+				        if [Ciudad Guia] <> null and Text.Trim([Ciudad Guia]) <> "" then Text.Upper(Text.Trim([Ciudad Guia]))
+				        else if [Ciudad Maestro] <> null and Text.Trim([Ciudad Maestro]) <> "" then Text.Upper(Text.Trim([Ciudad Maestro]))
+				        else "SIN CIUDAD", type text),
+				    Ciu1 = Table.AddColumn(Ciu0, "Origen Ciudad", each
+				        if [Ciudad Guia] <> null and Text.Trim([Ciudad Guia]) <> "" then "Guía"
+				        else if [Ciudad Maestro] <> null and Text.Trim([Ciudad Maestro]) <> "" then "Maestro de clientes"
+				        else "Sin dato", type text),
+
+				    // ---- Ruta: la de cumplidos; si falta, la de despachos ----
+				    Rut0 = Table.AddColumn(Ciu1, "Ruta", each
+				        if [Ruta Cumplido] <> null and Text.Trim([Ruta Cumplido]) <> "" then Text.Upper(Text.Trim([Ruta Cumplido]))
+				        else if [Ruta Despacho] <> null and Text.Trim([Ruta Despacho]) <> "" then Text.Upper(Text.Trim([Ruta Despacho]))
+				        else "SIN RUTA", type text),
+
+				    Cal0 = Table.AddColumn(Rut0, "Cliente en Maestro", each [ClienteKeyMaestro] <> null, type logical),
+				    Cal1 = Table.AddColumn(Cal0, "GuiaID", each Text.From([Planilla]) & "-" & Text.From([Pedido]) & "-" & Text.From([Factura]), type text),
+
+				    Final = Table.SelectColumns(Cal1, {"GuiaID", "Planilla", "Pedido", "Factura", "Cliente", "ClienteKey", "Cliente en Maestro", "Vendedor", "Ciudad", "Origen Ciudad", "Ruta", "Transportadora", "Transportador", "Placa", "Peso KG", "Fecha Despacho", "Plazo Días", "Fecha Límite", "Días Transcurridos", "Días Mora Origen", "Semáforo Origen", "Estado Cumplido", "Fecha Recibido", "Responsable", "Observaciones"})
+				in
+				    Final
+
+	annotation PBI_ResultType = Table

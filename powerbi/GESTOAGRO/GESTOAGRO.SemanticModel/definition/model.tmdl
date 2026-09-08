@@ -1,0 +1,21 @@
+model Model
+	culture: es-CO
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	discourageImplicitMeasures
+	sourceQueryCulture: es-CO
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation PBI_QueryOrder = ["RutaArchivo", "fnHoja", "Fact_Guias", "Fact_Devoluciones", "Dim_Calendario", "Dim_Clientes", "Dim_Productos", "Dim_Transportadora", "Dim_Ruta", "_Medidas"]
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+ref table Fact_Guias
+ref table Fact_Devoluciones
+ref table Dim_Calendario
+ref table Dim_Clientes
+ref table Dim_Productos
+ref table Dim_Transportadora
+ref table Dim_Ruta
+ref table _Medidas

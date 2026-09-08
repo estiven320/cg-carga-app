@@ -1,0 +1,99 @@
+/// Catálogo de productos. Sin relación activa con las guías porque el detalle por producto solo aparece en devoluciones.
+table Dim_Productos
+	lineageTag: 41326ecd-b8d9-565a-a1b9-cdbb57a39030
+
+	column 'Código Producto'
+		dataType: string
+		lineageTag: 77033225-cff6-552b-83e8-99cb3ff593cd
+		summarizeBy: none
+		sourceColumn: Código Producto
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Descripción Producto'
+		dataType: string
+		lineageTag: 28dd9a04-3542-522f-ab9d-5549efcd7cb2
+		summarizeBy: none
+		sourceColumn: Descripción Producto
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Línea'
+		dataType: string
+		lineageTag: c16229a6-5e99-591c-860a-aba62f0226aa
+		summarizeBy: none
+		sourceColumn: Línea
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Descripción Línea'
+		dataType: string
+		lineageTag: 9d2bb49a-63ba-5a16-8b98-0287fc84681a
+		summarizeBy: none
+		sourceColumn: Descripción Línea
+
+		annotation SummarizationSetBy = Automatic
+
+	column Grupo
+		dataType: string
+		lineageTag: 1f2446b6-ed5c-5155-8abf-d01f4d376636
+		summarizeBy: none
+		sourceColumn: Grupo
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Descripción Grupo'
+		dataType: string
+		lineageTag: d175b6f6-70ed-562c-826a-52e4d69f842f
+		summarizeBy: none
+		sourceColumn: Descripción Grupo
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Peso KG'
+		dataType: double
+		formatString: #,0.00
+		lineageTag: ce6d201a-7d37-5fdc-a170-7bdfd1f27292
+		summarizeBy: none
+		sourceColumn: Peso KG
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Unidad Empaque'
+		dataType: string
+		lineageTag: b0a3f847-1989-5b6e-ac0e-7865d1a0de26
+		summarizeBy: none
+		sourceColumn: Unidad Empaque
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Estado Peso'
+		dataType: string
+		lineageTag: 02876259-a5a8-58cc-9c6a-44f774d8cc44
+		summarizeBy: none
+		sourceColumn: Estado Peso
+
+		annotation SummarizationSetBy = Automatic
+
+	column Referencia
+		dataType: string
+		lineageTag: 9151d9d5-70ed-5eff-8356-5ec1076c9cca
+		summarizeBy: none
+		sourceColumn: Referencia
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Productos = m
+		mode: import
+		source =
+				let
+				    Origen = fnHoja("Dim_Productos"),
+				    NoNulos = Table.SelectRows(Origen, each [#"COD PRODUCTO"] <> null),
+				    Renombrado = Table.RenameColumns(NoNulos, {{"COD PRODUCTO", "Código Producto"}, {"LINEA", "Línea"}, {"COD LINEA", "Código Línea"}, {"DESCRIPCION LINEA", "Descripción Línea"}, {"DESCRIPCION PRODUCTO", "Descripción Producto"}, {"PESO KG", "Peso KG"}, {"UND_EMPAQUE", "Unidad Empaque"}, {"GRUPO", "Grupo"}, {"COD GRUPO", "Código Grupo"}, {"DESCRIPCION GRUPO", "Descripción Grupo"}, {"REFERENCIA", "Referencia"}}),
+				    Tipos = Table.TransformColumnTypes(Renombrado, {{"Código Producto", type text}, {"Línea", type text}, {"Código Línea", type text}, {"Descripción Línea", type text}, {"Descripción Producto", type text}, {"Peso KG", type number}, {"Unidad Empaque", type text}, {"Estado Peso", type text}, {"Grupo", type text}, {"Código Grupo", type text}, {"Descripción Grupo", type text}, {"Referencia", type text}}),
+				    Unicos = Table.Distinct(Tipos, {"Código Producto"}),
+				    Final = Table.SelectColumns(Unicos, {"Código Producto", "Descripción Producto", "Línea", "Descripción Línea", "Grupo", "Descripción Grupo", "Peso KG", "Unidad Empaque", "Estado Peso", "Referencia"})
+				in
+				    Final
+
+	annotation PBI_ResultType = Table

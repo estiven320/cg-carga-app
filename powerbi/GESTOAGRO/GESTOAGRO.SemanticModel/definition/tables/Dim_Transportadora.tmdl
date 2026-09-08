@@ -1,0 +1,37 @@
+/// Empresas de transporte, derivadas de las guías.
+table Dim_Transportadora
+	lineageTag: 0cb302a2-b8a6-575c-8497-3300984c7a67
+
+	column Transportadora
+		dataType: string
+		lineageTag: 66cb39ce-6abb-5b37-876b-b2e1c827f595
+		summarizeBy: none
+		sourceColumn: Transportadora
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Flota propia, tercero o persona natural. Supuesto editable en la consulta.
+	column 'Tipo Transportadora'
+		dataType: string
+		lineageTag: f6bca7c3-b841-5da9-b668-8a505045269a
+		summarizeBy: none
+		sourceColumn: Tipo Transportadora
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Transportadora = m
+		mode: import
+		source =
+				let
+				    Base = Table.Distinct(Table.SelectColumns(Fact_Guias, {"Transportadora"})),
+				    NoNulos = Table.SelectRows(Base, each [Transportadora] <> null),
+				    // Supuesto editable: CG CARGA y GESTO AGRO se tratan como flota propia.
+				    Tipo = Table.AddColumn(NoNulos, "Tipo Transportadora", each
+				        if List.Contains({"CG CARGA SAS", "GESTO AGRO S.A.S"}, [Transportadora]) then "Flota propia"
+				        else if [Transportadora] = "PERSONA NATURAL" then "Persona natural"
+				        else "Tercero", type text),
+				    Ordenado = Table.Sort(Tipo, {{"Transportadora", Order.Ascending}})
+				in
+				    Ordenado
+
+	annotation PBI_ResultType = Table

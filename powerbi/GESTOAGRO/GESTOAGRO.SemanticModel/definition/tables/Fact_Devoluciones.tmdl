@@ -1,0 +1,289 @@
+/// Devoluciones de mercancía. La hoja de origen está vacía: la tabla existe con su estructura lista para cuando se empiece a diligenciar.
+table Fact_Devoluciones
+	lineageTag: e0228af3-0fd0-574c-a117-4576e95fd635
+
+	column Consecutivo
+		dataType: int64
+		formatString: 0
+		lineageTag: 8e67c2c3-73d7-5001-8ce6-d71f06296b49
+		summarizeBy: none
+		sourceColumn: Consecutivo
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Fecha Registro'
+		dataType: dateTime
+		formatString: dd/mm/yyyy
+		lineageTag: e99792da-c5e0-5b8e-9cdc-fe86ee319ac0
+		summarizeBy: none
+		sourceColumn: Fecha Registro
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Planilla
+		dataType: int64
+		formatString: 0
+		lineageTag: b859f8e6-37ea-58d9-8ef9-e5c38863227d
+		summarizeBy: none
+		sourceColumn: Planilla
+
+		annotation SummarizationSetBy = Automatic
+
+	column Pedido
+		dataType: int64
+		formatString: 0
+		lineageTag: 06142971-d55c-5baf-b82c-ea7c41de88c7
+		summarizeBy: none
+		sourceColumn: Pedido
+
+		annotation SummarizationSetBy = Automatic
+
+	column Factura
+		dataType: int64
+		formatString: 0
+		lineageTag: 8076e52b-58a2-57c3-ad6a-8a138244f830
+		summarizeBy: none
+		sourceColumn: Factura
+
+		annotation SummarizationSetBy = Automatic
+
+	column Cliente
+		dataType: string
+		lineageTag: 3a6b47a6-902f-5ca6-a6cb-6d5f3a19e322
+		summarizeBy: none
+		sourceColumn: Cliente
+
+		annotation SummarizationSetBy = Automatic
+
+	column ClienteKey
+		dataType: string
+		isHidden
+		lineageTag: 017a093b-6ee2-5630-b495-b3a91bd218b2
+		summarizeBy: none
+		sourceColumn: ClienteKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Código SN'
+		dataType: string
+		lineageTag: a425470a-bbbe-5402-979f-2e758064609d
+		summarizeBy: none
+		sourceColumn: Código SN
+
+		annotation SummarizationSetBy = Automatic
+
+	column Ciudad
+		dataType: string
+		lineageTag: 9a48bf10-a90f-535d-a238-e7f14e53b2fb
+		summarizeBy: none
+		sourceColumn: Ciudad
+
+		annotation SummarizationSetBy = Automatic
+
+	column Vendedor
+		dataType: string
+		lineageTag: d2380e94-653b-59e7-ab48-c7b170b8abdb
+		summarizeBy: none
+		sourceColumn: Vendedor
+
+		annotation SummarizationSetBy = Automatic
+
+	column Ruta
+		dataType: string
+		lineageTag: 1eb637cf-be74-53ef-a10f-d515036fdc7b
+		summarizeBy: none
+		sourceColumn: Ruta
+
+		annotation SummarizationSetBy = Automatic
+
+	column Transportadora
+		dataType: string
+		lineageTag: 84324b77-aa9d-58a5-ac87-cb300f142b50
+		summarizeBy: none
+		sourceColumn: Transportadora
+
+		annotation SummarizationSetBy = Automatic
+
+	column Transportador
+		dataType: string
+		lineageTag: e8a7c344-da46-5f70-98a2-71e8fa9c6149
+		summarizeBy: none
+		sourceColumn: Transportador
+
+		annotation SummarizationSetBy = Automatic
+
+	column Placa
+		dataType: string
+		lineageTag: 36e859eb-77a1-5e39-9962-98da03c98448
+		summarizeBy: none
+		sourceColumn: Placa
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Fecha Despacho'
+		dataType: dateTime
+		formatString: dd/mm/yyyy
+		lineageTag: 32f255b2-020d-5de6-a418-4b5d9fd2b283
+		summarizeBy: none
+		sourceColumn: Fecha Despacho
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Código Producto'
+		dataType: string
+		lineageTag: dd9c2dce-5008-50bf-8754-d7c6319085a5
+		summarizeBy: none
+		sourceColumn: Código Producto
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Descripción Producto'
+		dataType: string
+		lineageTag: 4f43e92a-19a5-553b-85f0-5d420bbf4616
+		summarizeBy: none
+		sourceColumn: Descripción Producto
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Unidad Empaque'
+		dataType: string
+		lineageTag: 2a6e3579-1a8c-5b97-84ce-b9c4f51df85e
+		summarizeBy: none
+		sourceColumn: Unidad Empaque
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Peso Unitario KG'
+		dataType: double
+		formatString: #,0.00
+		lineageTag: 1d7c2bf9-c199-5ad2-91ed-21b8f9f26f24
+		summarizeBy: none
+		sourceColumn: Peso Unitario KG
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Cantidad Devuelta'
+		dataType: double
+		formatString: #,0.00
+		lineageTag: 06d80f27-b2d4-53e6-9598-d4a944412f1c
+		summarizeBy: none
+		sourceColumn: Cantidad Devuelta
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Peso Devuelto KG'
+		dataType: double
+		formatString: #,0.00
+		lineageTag: 8f1643cd-c61f-50b6-abfa-7d2185124d83
+		summarizeBy: none
+		sourceColumn: Peso Devuelto KG
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Valor Unitario'
+		dataType: double
+		formatString: "$"#,0.00
+		lineageTag: bf3ab902-7f65-5a10-ab5e-330b7336a863
+		summarizeBy: none
+		sourceColumn: Valor Unitario
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Valor Devolución'
+		dataType: double
+		formatString: "$"#,0.00
+		lineageTag: a29878f3-58d8-5298-b0f7-24cf57b45bf4
+		summarizeBy: none
+		sourceColumn: Valor Devolución
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Motivo Devolución'
+		dataType: string
+		lineageTag: f99e3626-9334-5434-8d49-738b83909b8c
+		summarizeBy: none
+		sourceColumn: Motivo Devolución
+
+		annotation SummarizationSetBy = Automatic
+
+	column Estado
+		dataType: string
+		lineageTag: 3915ed51-f2a3-58c7-b045-48e9d8110c12
+		summarizeBy: none
+		sourceColumn: Estado
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Fecha Recepción Bodega'
+		dataType: dateTime
+		formatString: dd/mm/yyyy
+		lineageTag: c35c78df-fc4a-572e-9261-d37ac3681e01
+		summarizeBy: none
+		sourceColumn: Fecha Recepción Bodega
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Nota Crédito'
+		dataType: string
+		lineageTag: dbc45ac6-38a0-59bd-88b4-6d52a8001c81
+		summarizeBy: none
+		sourceColumn: Nota Crédito
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Fecha Nota Crédito'
+		dataType: dateTime
+		formatString: dd/mm/yyyy
+		lineageTag: d3a2c776-eb34-5424-b232-c6e85894d702
+		summarizeBy: none
+		sourceColumn: Fecha Nota Crédito
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Días de Gestión'
+		dataType: int64
+		formatString: 0
+		lineageTag: 189cc22c-54d0-5d88-b179-22de6e86295d
+		summarizeBy: none
+		sourceColumn: Días de Gestión
+
+		annotation SummarizationSetBy = Automatic
+
+	column Responsable
+		dataType: string
+		lineageTag: 1d12f3f9-269d-5e8c-acfe-06b90b96b3e6
+		summarizeBy: none
+		sourceColumn: Responsable
+
+		annotation SummarizationSetBy = Automatic
+
+	column Observaciones
+		dataType: string
+		lineageTag: 9dd73e5b-ff62-55c5-83e3-d1572c294269
+		summarizeBy: none
+		sourceColumn: Observaciones
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Fact_Devoluciones = m
+		mode: import
+		source =
+				let
+				    Origen = fnHoja("Fact_Devoluciones"),
+				    Renombrado = Table.RenameColumns(Origen, {{"Fecha registro", "Fecha Registro"}, {"# Pedido", "Pedido"}, {"# Factura", "Factura"}, {"# Planilla", "Planilla"}, {"Cód. producto", "Código Producto"}, {"Descripción producto", "Descripción Producto"}, {"Und. empaque", "Unidad Empaque"}, {"Peso unit. (KG)", "Peso Unitario KG"}, {"Cant. devuelta", "Cantidad Devuelta"}, {"Peso devuelto (KG)", "Peso Devuelto KG"}, {"Valor unitario", "Valor Unitario"}, {"Valor devolución", "Valor Devolución"}, {"Motivo devolución", "Motivo Devolución"}, {"Fecha despacho", "Fecha Despacho"}, {"Fecha recep. bodega", "Fecha Recepción Bodega"}, {"# Nota crédito", "Nota Crédito"}, {"Fecha nota crédito", "Fecha Nota Crédito"}, {"Días de gestión", "Días de Gestión"}}),
+				    NoNulos = Table.SelectRows(Renombrado, each [Consecutivo] <> null),
+				    Tipos = Table.TransformColumnTypes(NoNulos, {{"Consecutivo", Int64.Type}, {"Fecha Registro", type date}, {"Pedido", Int64.Type}, {"Factura", Int64.Type}, {"Planilla", Int64.Type}, {"Cliente", type text}, {"Código SN", type text}, {"Ciudad", type text}, {"Vendedor", type text}, {"Ruta", type text}, {"Transportadora", type text}, {"Transportador", type text}, {"Placa", type text}, {"Fecha Despacho", type date}, {"Código Producto", type text}, {"Descripción Producto", type text}, {"Unidad Empaque", type text}, {"Peso Unitario KG", type number}, {"Cantidad Devuelta", type number}, {"Peso Devuelto KG", type number}, {"Valor Unitario", type number}, {"Valor Devolución", type number}, {"Motivo Devolución", type text}, {"Estado", type text}, {"Fecha Recepción Bodega", type date}, {"Nota Crédito", type text}, {"Fecha Nota Crédito", type date}, {"Días de Gestión", Int64.Type}, {"Responsable", type text}, {"Observaciones", type text}}),
+				    ConKey = Table.AddColumn(Tipos, "ClienteKey", each if [Cliente] = null then null else Text.Upper(Text.Trim([Cliente])), type text),
+				    Final = Table.SelectColumns(ConKey, {"Consecutivo", "Fecha Registro", "Planilla", "Pedido", "Factura", "Cliente", "ClienteKey", "Código SN", "Ciudad", "Vendedor", "Ruta", "Transportadora", "Transportador", "Placa", "Fecha Despacho", "Código Producto", "Descripción Producto", "Unidad Empaque", "Peso Unitario KG", "Cantidad Devuelta", "Peso Devuelto KG", "Valor Unitario", "Valor Devolución", "Motivo Devolución", "Estado", "Fecha Recepción Bodega", "Nota Crédito", "Fecha Nota Crédito", "Días de Gestión", "Responsable", "Observaciones"})
+				in
+				    Final
+
+	annotation PBI_ResultType = Table

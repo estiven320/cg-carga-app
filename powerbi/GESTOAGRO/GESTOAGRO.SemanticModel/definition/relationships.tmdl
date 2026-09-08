@@ -1,0 +1,28 @@
+relationship rel_guias_calendario
+	fromColumn: Fact_Guias.'Fecha Despacho'
+	toColumn: Dim_Calendario.Fecha
+
+relationship rel_guias_clientes
+	fromColumn: Fact_Guias.ClienteKey
+	toColumn: Dim_Clientes.ClienteKey
+
+relationship rel_guias_transportadora
+	fromColumn: Fact_Guias.Transportadora
+	toColumn: Dim_Transportadora.Transportadora
+
+relationship rel_guias_ruta
+	fromColumn: Fact_Guias.Ruta
+	toColumn: Dim_Ruta.Ruta
+
+relationship rel_devol_calendario
+	fromColumn: Fact_Devoluciones.'Fecha Registro'
+	toColumn: Dim_Calendario.Fecha
+
+relationship rel_devol_clientes
+	fromColumn: Fact_Devoluciones.ClienteKey
+	toColumn: Dim_Clientes.ClienteKey
+
+relationship rel_devol_productos
+	fromColumn: Fact_Devoluciones.'Código Producto'
+	toColumn: Dim_Productos.'Código Producto'
+

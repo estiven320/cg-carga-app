@@ -1,0 +1,21 @@
+/// Ruta completa al libro de Excel con los datos. Cámbiala aquí si mueves el archivo.
+expression RutaArchivo = "C:\Users\braya\OneDrive\Escritorio\power bi\GESTOAGRO_PowerBI_datos.xlsx" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 9e64a1b4-48b1-5564-9a1b-93853a447cd5
+
+	annotation PBI_ResultType = Text
+
+/// Lee una hoja del libro y promueve la primera fila a encabezados.
+expression fnHoja =
+		let
+		    Fn = (NombreHoja as text) as table =>
+		        let
+		            Libro = Excel.Workbook(File.Contents(RutaArchivo), null, true),
+		            Hoja = Libro{[Item = NombreHoja, Kind = "Sheet"]}[Data],
+		            Encabezados = Table.PromoteHeaders(Hoja, [PromoteAllScalars = true])
+		        in
+		            Encabezados
+		in
+		    Fn
+	lineageTag: 53926d3c-08cc-5719-840c-a5533ce85223
+
+	annotation PBI_ResultType = Function

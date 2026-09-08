@@ -1,0 +1,36 @@
+/// Rutas atendidas, derivadas de las guías.
+table Dim_Ruta
+	lineageTag: 479816f7-fb56-5063-8b67-f0cecbe59c70
+
+	column Ruta
+		dataType: string
+		lineageTag: 1325c707-0e6c-52a9-90cf-347b11e08f0b
+		summarizeBy: none
+		sourceColumn: Ruta
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Bogotá y sabana, nacional o sin clasificar.
+	column Zona
+		dataType: string
+		lineageTag: 7c24119f-4159-546e-bca2-245d911948a9
+		summarizeBy: none
+		sourceColumn: Zona
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Ruta = m
+		mode: import
+		source =
+				let
+				    Base = Table.Distinct(Table.SelectColumns(Fact_Guias, {"Ruta"})),
+				    NoNulos = Table.SelectRows(Base, each [Ruta] <> null),
+				    Zona = Table.AddColumn(NoNulos, "Zona", each
+				        if Text.StartsWith([Ruta], "BOGOTA") or List.Contains({"SUBA", "CORABASTOS", "CENCOSUD", "CHIA", "COTA", "SOACHA", "MOSQUERA", "FUNZA"}, [Ruta]) then "Bogotá y sabana"
+				        else if [Ruta] = "SIN RUTA" then "Sin clasificar"
+				        else "Nacional", type text),
+				    Ordenado = Table.Sort(Zona, {{"Ruta", Order.Ascending}})
+				in
+				    Ordenado
+
+	annotation PBI_ResultType = Table

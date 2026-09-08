@@ -1,0 +1,133 @@
+/// Calendario de 2026, marcado como tabla de fechas del modelo.
+table Dim_Calendario
+	dataCategory: Time
+	lineageTag: e6dbec10-6e74-5a75-802c-13794d17ddad
+
+	column Fecha
+		dataType: dateTime
+		isKey
+		formatString: dd/mm/yyyy
+		lineageTag: 3519b9c5-f9d9-5858-8ae1-1151d412e3bc
+		summarizeBy: none
+		sourceColumn: Fecha
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Año'
+		dataType: int64
+		formatString: 0
+		lineageTag: edb6bcfb-d96d-5d55-b412-832a2dc682bc
+		summarizeBy: none
+		sourceColumn: Año
+
+		annotation SummarizationSetBy = Automatic
+
+	column Trimestre
+		dataType: int64
+		formatString: 0
+		lineageTag: c8c7d5dc-b902-5d82-b750-70c2af228450
+		summarizeBy: none
+		sourceColumn: Trimestre
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Trimestre Nombre'
+		dataType: string
+		lineageTag: a35dee81-4434-5622-8007-159b89cff9c1
+		summarizeBy: none
+		sortByColumn: Trimestre
+		sourceColumn: Trimestre Nombre
+
+		annotation SummarizationSetBy = Automatic
+
+	column MesNum
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 3dfb0bda-7bfb-57d3-8ea4-ddb082bf0af8
+		summarizeBy: none
+		sourceColumn: MesNum
+
+		annotation SummarizationSetBy = Automatic
+
+	column Mes
+		dataType: string
+		lineageTag: ce08a4e3-4819-5bec-93df-28fbeb18c3f4
+		summarizeBy: none
+		sortByColumn: MesNum
+		sourceColumn: Mes
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Año-Mes'
+		dataType: string
+		lineageTag: c1db7e4e-3933-5a48-85a2-d6cd82ae87d6
+		summarizeBy: none
+		sortByColumn: 'Año-Mes Orden'
+		sourceColumn: Año-Mes
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Año-Mes Orden'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 18b404ff-44bd-573e-b350-ef625ad59e7f
+		summarizeBy: none
+		sourceColumn: Año-Mes Orden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Semana
+		dataType: int64
+		formatString: 0
+		lineageTag: 70e0cc9d-f40f-5a0c-8fdc-c08a0835b0c7
+		summarizeBy: none
+		sourceColumn: Semana
+
+		annotation SummarizationSetBy = Automatic
+
+	column DiaSemNum
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: a2197c75-ef69-5f58-b00c-2596ea6c0671
+		summarizeBy: none
+		sourceColumn: DiaSemNum
+
+		annotation SummarizationSetBy = Automatic
+
+	column DiaSemana
+		dataType: string
+		lineageTag: 0e0d6637-c27f-5289-85c1-e12f64d28427
+		summarizeBy: none
+		sortByColumn: DiaSemNum
+		sourceColumn: DiaSemana
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Es Fin de Semana'
+		dataType: boolean
+		lineageTag: 9e00a73a-979c-59e8-b0a5-e5dc96daaed4
+		summarizeBy: none
+		sourceColumn: Es Fin de Semana
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Calendario = m
+		mode: import
+		source =
+				let
+				    Origen = fnHoja("Dim_Calendario"),
+				    NoNulos = Table.SelectRows(Origen, each [Fecha] <> null),
+				    Tipos = Table.TransformColumnTypes(NoNulos, {{"Fecha", type date}, {"Año", Int64.Type}, {"Trimestre", Int64.Type}, {"MesNum", Int64.Type}, {"Mes", type text}, {"Semana", Int64.Type}, {"DiaSemNum", Int64.Type}, {"DiaSemana", type text}}),
+				    AnioMes = Table.AddColumn(Tipos, "Año-Mes", each Text.From([Año]) & "-" & Text.PadStart(Text.From([MesNum]), 2, "0"), type text),
+				    AnioMesOrden = Table.AddColumn(AnioMes, "Año-Mes Orden", each [Año] * 100 + [MesNum], Int64.Type),
+				    Finde = Table.AddColumn(AnioMesOrden, "Es Fin de Semana", each [DiaSemNum] >= 6, type logical),
+				    Trim = Table.AddColumn(Finde, "Trimestre Nombre", each "T" & Text.From([Trimestre]), type text)
+				in
+				    Trim
+
+	annotation PBI_ResultType = Table

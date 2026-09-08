@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "GESTOAGRO"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "7b8317ff-1a00-5665-9c6a-07d4c8142fd0"
+  }
+}
