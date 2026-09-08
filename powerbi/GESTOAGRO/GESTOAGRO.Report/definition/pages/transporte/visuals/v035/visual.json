@@ -1,0 +1,78 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.4.0/schema.json",
+  "name": "v035",
+  "position": {
+    "x": 260,
+    "y": 192,
+    "z": 35,
+    "width": 500,
+    "height": 260,
+    "tabOrder": 35
+  },
+  "visual": {
+    "visualType": "clusteredColumnChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Dim_Transportadora"
+                    }
+                  },
+                  "Property": "Tipo Transportadora"
+                }
+              },
+              "queryRef": "Dim_Transportadora.Tipo Transportadora",
+              "nativeQueryRef": "Tipo Transportadora"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Medidas"
+                    }
+                  },
+                  "Property": "Peso Total KG"
+                }
+              },
+              "queryRef": "_Medidas.Peso Total KG",
+              "nativeQueryRef": "Peso Total KG"
+            }
+          ]
+        }
+      }
+    },
+    "objects": {
+      "title": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Kilos por tipo de transportadora'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

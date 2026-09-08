@@ -1,0 +1,158 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.4.0/schema.json",
+  "name": "v058",
+  "position": {
+    "x": 16,
+    "y": 492,
+    "z": 58,
+    "width": 1248,
+    "height": 212,
+    "tabOrder": 58
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Fact_Devoluciones"
+                    }
+                  },
+                  "Property": "Fecha Registro"
+                }
+              },
+              "queryRef": "Fact_Devoluciones.Fecha Registro",
+              "nativeQueryRef": "Fecha Registro"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Fact_Devoluciones"
+                    }
+                  },
+                  "Property": "Cliente"
+                }
+              },
+              "queryRef": "Fact_Devoluciones.Cliente",
+              "nativeQueryRef": "Cliente"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Fact_Devoluciones"
+                    }
+                  },
+                  "Property": "Descripción Producto"
+                }
+              },
+              "queryRef": "Fact_Devoluciones.Descripción Producto",
+              "nativeQueryRef": "Descripción Producto"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Fact_Devoluciones"
+                    }
+                  },
+                  "Property": "Motivo Devolución"
+                }
+              },
+              "queryRef": "Fact_Devoluciones.Motivo Devolución",
+              "nativeQueryRef": "Motivo Devolución"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Medidas"
+                    }
+                  },
+                  "Property": "Unidades Devueltas"
+                }
+              },
+              "queryRef": "_Medidas.Unidades Devueltas",
+              "nativeQueryRef": "Unidades Devueltas"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Medidas"
+                    }
+                  },
+                  "Property": "Peso Devuelto KG"
+                }
+              },
+              "queryRef": "_Medidas.Peso Devuelto KG",
+              "nativeQueryRef": "Peso Devuelto KG"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Medidas"
+                    }
+                  },
+                  "Property": "Valor Devoluciones"
+                }
+              },
+              "queryRef": "_Medidas.Valor Devoluciones",
+              "nativeQueryRef": "Valor Devoluciones"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Medidas"
+                    }
+                  },
+                  "Property": "Días de Gestión (prom)"
+                }
+              },
+              "queryRef": "_Medidas.Días de Gestión (prom)",
+              "nativeQueryRef": "Días de Gestión (prom)"
+            }
+          ]
+        }
+      }
+    },
+    "objects": {
+      "title": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Detalle de devoluciones'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}
