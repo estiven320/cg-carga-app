@@ -1,666 +1,746 @@
 # -*- coding: utf-8 -*-
-"""Generador: MATRIZ DE NOVEDADES DE LOGISTICA Y TRANSPORTE - GESTOAGRO S.A.S.
+"""MATRIZ DE NOVEDADES - LOGISTICA Y TRANSPORTE
 
-Reconstruye MATRIZ_NOVEDADES_LOGISTICA_GESTOAGRO.xlsx desde cero.
-Ver ARQUITECTURA.md para la especificacion completa de columnas, formulas,
-validaciones, formato condicional y KPIs.
+Reconstruye MATRIZ_NOVEDADES_LOGISTICA_TRANSPORTE.xlsx desde cero.
+Ver README.md para el detalle de columnas, formulas y KPIs.
 
     pip install openpyxl
     python3 generar_matriz.py
+
+Diseno propio basado en estandares de la industria:
+OTIF/DIFOT, carrier scorecard, causa raiz 6M (Ishikawa), codigos de entrega fallida.
 """
+import os, datetime
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side, Protection
-from openpyxl.utils import get_column_letter
+from openpyxl.utils import column_index_from_string as ci, get_column_letter
 from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.formatting.rule import FormulaRule, CellIsRule, DataBarRule
 from openpyxl.workbook.defined_name import DefinedName
 
-# ---------- PARAMETROS DE CAPACIDAD ----------
-DESP_R0, DESP_R1 = 3, 3002      # DESPACHOS: datos fila 3 a 3002 (3.000 despachos)
-NOV_R0,  NOV_R1  = 4, 2003      # NOVEDADES: datos fila 4 a 2003 (2.000 novedades)
-LST_R0,  LST_R1  = 2, 41        # LISTAS: catalogos fila 2 a 41
+# ---------------- capacidad ----------------
+ENV0, ENV1 = 4, 3003      # ENVIOS   : datos fila 4 a 3003
+NOV0, NOV1 = 4, 1503      # NOVEDADES: datos fila 4 a 1503
+CFG0, CFG1 = 4, 43        # CONFIG   : catalogos fila 4 a 43
 
-D = f"$3:$3002"
-NRNG = lambda col: f"NOVEDADES!${col}${NOV_R0}:${col}${NOV_R1}"
-DRNG = lambda col: f"DESPACHOS!${col}${DESP_R0}:${col}${DESP_R1}"
-LRNG = lambda col: f"LISTAS!${col}${LST_R0}:${col}${LST_R1}"
+E = lambda c: f"ENVIOS!${c}${ENV0}:${c}${ENV1}"
+N = lambda c: f"NOVEDADES!${c}${NOV0}:${c}${NOV1}"
+C = lambda c: f"CONFIG!${c}${CFG0}:${c}${CFG1}"
 
-# ---------- PALETA (misma del archivo actual) ----------
-VERDE   = "FF1F4E2E"   # marca / titulos
-AZUL    = "FF2E75B6"   # encabezado de columna CALCULADA
-ORO     = "FFBF8F00"   # encabezado de columna MANUAL
-AMAR    = "FFFFF2CC"   # celda manual
-GRIS    = "FFF2F2F2"   # celda calculada
-GRIS_OS = "FFD9D9D9"
-BLANCO  = "FFFFFFFF"
-ROJO_F  = "FFFFC7CE"; ROJO_T  = "FF9C0006"
-AMB_F   = "FFFFEB9C"; AMB_T   = "FF9C6500"
-VERD_F  = "FFC6EFCE"; VERD_T  = "FF006100"
-AZUL_F  = "FFDDEBF7"
+# ---------------- paleta moderna ----------------
+INK      = "FF0F172A"   # slate-900  titulos
+INK2     = "FF1E293B"   # slate-800  bandas
+BLUE     = "FF2563EB"   # blue-600   encabezado calculado
+AMBER    = "FFD97706"   # amber-600  encabezado manual
+EDIT     = "FFFEF3C7"   # amber-100  celda que se digita
+CALC     = "FFF8FAFC"   # slate-50   celda calculada
+LINE     = "FFE2E8F0"   # slate-200  bordes
+CARD     = "FFF1F5F9"   # slate-100  tarjetas
+OK_BG,   OK_TX   = "FFDCFCE7", "FF166534"
+WARN_BG, WARN_TX = "FFFEF9C3", "FF854D0E"
+DANG_BG, DANG_TX = "FFFEE2E2", "FF991B1B"
+INFO_BG, INFO_TX = "FFDBEAFE", "FF1E40AF"
+MUTE_BG, MUTE_TX = "FFF1F5F9", "FF475569"
+WHITE = "FFFFFFFF"
 
-F9   = Font(name="Arial", size=9)
-F9B  = Font(name="Arial", size=9, bold=True)
-FHDR = Font(name="Arial", size=9, bold=True, color=BLANCO)
-FTIT = Font(name="Arial", size=14, bold=True, color=BLANCO)
-FSEC = Font(name="Arial", size=10, bold=True, color=BLANCO)
-FKPI = Font(name="Arial", size=18, bold=True, color=VERDE)
-FKPL = Font(name="Arial", size=8, bold=True, color=BLANCO)
-FNOTA= Font(name="Arial", size=8, italic=True, color="FF595959")
+FN = "Calibri"
+f_base  = Font(name=FN, size=10, color=INK)
+f_bold  = Font(name=FN, size=10, bold=True, color=INK)
+f_hdr   = Font(name=FN, size=10, bold=True, color=WHITE)
+f_band  = Font(name=FN, size=9,  bold=True, color=WHITE)
+f_title = Font(name=FN, size=18, bold=True, color=WHITE)
+f_sec   = Font(name=FN, size=11, bold=True, color=WHITE)
+f_note  = Font(name=FN, size=9,  italic=True, color=MUTE_TX)
+f_kpi   = Font(name=FN, size=22, bold=True, color=INK)
+f_kpil  = Font(name=FN, size=9,  bold=True, color=MUTE_TX)
 
-fill = lambda c: PatternFill("solid", fgColor=c)
-BORDE = Border(*[Side(style="thin", color="FFBFBFBF")]*4)
-CEN = Alignment(horizontal="center", vertical="center", wrap_text=True)
-IZQ = Alignment(horizontal="left",   vertical="center")
-IZQW= Alignment(horizontal="left",   vertical="center", wrap_text=True)
+fl = lambda c: PatternFill("solid", fgColor=c)
+thin = Side(style="thin", color=LINE)
+BOX  = Border(left=thin, right=thin, top=thin, bottom=thin)
+CEN  = Alignment(horizontal="center", vertical="center", wrap_text=True)
+LEF  = Alignment(horizontal="left",   vertical="center")
+LEFW = Alignment(horizontal="left",   vertical="center", wrap_text=True)
+RIG  = Alignment(horizontal="right",  vertical="center")
 
-FMT_FECHA = "dd/mm/yyyy"; FMT_MON = '"$"#,##0'; FMT_NUM = "#,##0"; FMT_PCT = "0.0%"; FMT_D1 = "#,##0.0"
+FECHA, MONEY, NUM, PCT, PCT1, DEC = "dd/mm/yyyy", '"$"#,##0', "#,##0", "0%", "0.0%", "#,##0.0"
 
-wb = openpyxl.Workbook()
-wb.remove(wb.active)
+wb = openpyxl.Workbook(); wb.remove(wb.active)
 
-def hoja(nombre, color_tab):
-    ws = wb.create_sheet(nombre)
-    ws.sheet_properties.tabColor = color_tab
+def sheet(name, tab):
+    ws = wb.create_sheet(name); ws.sheet_properties.tabColor = tab
     ws.sheet_view.showGridLines = False
     return ws
 
-def titulo(ws, celda, texto, ancho_merge, alto=26):
-    ws[celda] = texto; ws[celda].font = FTIT; ws[celda].fill = fill(VERDE)
-    ws[celda].alignment = IZQ
-    col = openpyxl.utils.cell.coordinate_from_string(celda)[0]
-    row = openpyxl.utils.cell.coordinate_from_string(celda)[1]
-    c0 = openpyxl.utils.column_index_from_string(col)
-    ws.merge_cells(start_row=row, start_column=c0, end_row=row, end_column=c0+ancho_merge-1)
-    ws.row_dimensions[row].height = alto
+def widths(ws, d):
+    for k, v in d.items(): ws.column_dimensions[k].width = v
 
-def seccion(ws, row, col0, ncols, texto):
-    c = ws.cell(row=row, column=col0, value=texto)
-    c.font = FSEC; c.fill = fill(VERDE); c.alignment = IZQ
-    ws.merge_cells(start_row=row, start_column=col0, end_row=row, end_column=col0+ncols-1)
-    ws.row_dimensions[row].height = 18
-
-# =====================================================================
-# HOJA LISTAS
-# =====================================================================
-ls = hoja("LISTAS", "FF808080")
-
-TIPOS = [
-    ("Avería / producto dañado en transporte", "Alta",  3),
-    ("Devolución parcial",                      "Media", 3),
-    ("Rechazo total del pedido",                "Alta",  2),
-    ("Faltante en la entrega",                  "Alta",  2),
-    ("Sobrante en la entrega",                  "Baja",  5),
-    ("Producto equivocado",                     "Alta",  2),
-    ("Producto vencido o próximo a vencer",     "Alta",  3),
-    ("Empaque en mal estado",                   "Media", 3),
-    ("Retraso en vía / entrega tardía",         "Alta",  1),
-    ("Cliente cerrado / no ubicado",            "Media", 2),
-    ("Cliente rechaza / no recibe",             "Media", 2),
-    ("Dirección errada",                        "Media", 2),
-    ("Vehículo varado / falla mecánica",        "Alta",  1),
-    ("Cobro pendiente / flete no liquidado",    "Media", 5),
-    ("Cumplido / soporte no entregado",         "Media", 4),
-    ("Diferencia en facturación o precio",      "Media", 5),
-]
-CAUSAS = [
-    ("Manipulación en cargue / descargue", "Transporte"),
-    ("Estibado o embalaje deficiente",     "Bodega"),
-    ("Error de alistamiento (picking)",    "Bodega"),
-    ("Sobrecupo o mal acomodo en vehículo","Transporte"),
-    ("Demora del transportador",           "Transporte"),
-    ("Falla mecánica del vehículo",        "Transporte"),
-    ("Ruta mal programada",                "Logística"),
-    ("Error de digitación del pedido",     "Comercial"),
-    ("Error en facturación",               "Facturación"),
-    ("Dirección desactualizada en maestro","Comercial"),
-    ("Cliente sin cupo / cartera bloqueada","Cartera"),
-    ("Cliente no disponible / fuera de horario","Comercial"),
-    ("Producto con baja rotación / vencido","Calidad"),
-    ("Acuerdo comercial con el cliente",   "Comercial"),
-    ("Tráfico, cierre vial u orden público","Externo"),
-    ("Clima adverso",                      "Externo"),
-    ("Sin causa asignada",                 "Por definir"),
-]
-ESTADOS = [
-    ("Pendiente", "NO"), ("En gestión", "NO"), ("En tránsito (retorno)", "NO"),
-    ("Recibida en bodega", "NO"), ("En inspección", "NO"),
-    ("Escalada a transportadora", "NO"), ("Pendiente nota crédito", "NO"),
-    ("Resuelto / Cerrado", "SÍ"), ("Cerrada sin costo", "SÍ"), ("Anulada", "SÍ"),
-]
-TRANSP = ["CG CARGA SAS", "GESTO AGRO S.A.S", "TACMO SAS", "GOLDEN"]
-RESPON = ["BRAYAN", "COORD. LOGÍSTICA", "JEFE DE BODEGA", "ANALISTA DE TRANSPORTE",
-          "FACTURACIÓN", "CARTERA", "COMERCIAL", "CALIDAD"]
-ZONAS  = ["BOGOT","NORTE - SUR","CORABASTOS","SUBA","COTA","FUNZA","SOACHA","GACHANCIPA",
-          "TOCANCIPA","CHIA","CAJICA","ZIPAQUIRA","MOSQUERA","MADRID","TENJO","TABIO",
-          "SOPO","LA CALERA","FACATATIVA","SIBATE","SABAN"]
-
-titulo(ls, "A1", "CATÁLOGOS Y REGLAS DE NEGOCIO — no borre encabezados, agregue filas hacia abajo", 19)
-hdrs = [(1,"A","TIPO DE NOVEDAD"),(2,"B","CRITICIDAD"),(3,"C","SLA (días hábiles)"),
-        (5,"E","CAUSA RAÍZ"),(6,"F","ÁREA RESPONSABLE"),
-        (8,"H","ESTADO"),(9,"I","¿CIERRA? (SÍ/NO)"),
-        (11,"K","TRANSPORTADORA"),(13,"M","RESPONSABLE"),
-        (15,"O","ZONA CERCANA (SLA corto)"),(17,"Q","PLAZO ZONA CERCANA (días)"),(18,"R","PLAZO NACIONAL (días)")]
-for ci, cl, tx in hdrs:
-    c = ls.cell(row=2, column=ci, value=tx); c.font = FHDR; c.fill = fill(ORO); c.alignment = CEN; c.border = BORDE
-ls.row_dimensions[2].height = 30
-
-def vol(ws, col, row0, valores, fmt=None, fillc=AMAR):
-    for i, v in enumerate(valores):
-        c = ws.cell(row=row0+i, column=openpyxl.utils.column_index_from_string(col), value=v)
-        c.font = F9; c.fill = fill(fillc); c.border = BORDE; c.alignment = IZQ
-        if fmt: c.number_format = fmt; c.alignment = CEN
-
-vol(ls,"A",3,[t[0] for t in TIPOS]);  vol(ls,"B",3,[t[1] for t in TIPOS]); vol(ls,"C",3,[t[2] for t in TIPOS], FMT_NUM)
-vol(ls,"E",3,[c[0] for c in CAUSAS]); vol(ls,"F",3,[c[1] for c in CAUSAS])
-vol(ls,"H",3,[e[0] for e in ESTADOS]);vol(ls,"I",3,[e[1] for e in ESTADOS])
-vol(ls,"K",3,TRANSP); vol(ls,"M",3,RESPON); vol(ls,"O",3,ZONAS)
-vol(ls,"Q",3,[2], FMT_NUM); vol(ls,"R",3,[5], FMT_NUM)
-
-for col, w in {"A":38,"B":12,"C":11,"D":2,"E":36,"F":16,"G":2,"H":24,"I":14,"J":2,
-               "K":24,"L":2,"M":24,"N":2,"O":26,"P":2,"Q":13,"R":13}.items():
-    ls.column_dimensions[col].width = w
-ls.freeze_panes = "A3"
-
-# LISTAS: los catalogos arrancan en la fila 3 (1=titulo, 2=encabezado)
-LST0, LST1 = 3, 42
-L_TIPO, L_CRIT, L_SLA = f"LISTAS!$A${LST0}:$A${LST1}", f"LISTAS!$B${LST0}:$B${LST1}", f"LISTAS!$C${LST0}:$C${LST1}"
-L_CAUS, L_AREA        = f"LISTAS!$E${LST0}:$E${LST1}", f"LISTAS!$F${LST0}:$F${LST1}"
-L_EST,  L_CIER        = f"LISTAS!$H${LST0}:$H${LST1}", f"LISTAS!$I${LST0}:$I${LST1}"
-L_TRAN, L_RESP, L_ZON = f"LISTAS!$K${LST0}:$K${LST1}", f"LISTAS!$M${LST0}:$M${LST1}", f"LISTAS!$O${LST0}:$O${LST1}"
-
-# =====================================================================
-# HOJA DESPACHOS (BASE)
-# =====================================================================
-ds = hoja("DESPACHOS", VERDE)
-titulo(ds, "A1", "DESPACHOS / BASE — pegue aquí el export de Access desde la fila 3 (columnas A a J). K, L y M se digitan; N y O se calculan solas.", 15)
-
-DESP_COLS = [
- ("A","# Planilla",            10, "M", "General"),
- ("B","# Pedido / Remisión",   14, "M", "General"),
- ("C","# Factura",             11, "M", "General"),
- ("D","Cliente",               34, "M", "General"),
- ("E","Peso KG",               10, "M", FMT_D1),
- ("F","Transportadora",        20, "M", "General"),
- ("G","Transportador",         26, "M", "General"),
- ("H","Placa",                 10, "M", "General"),
- ("I","Ruta",                  20, "M", "General"),
- ("J","Fecha despacho",        14, "M", FMT_FECHA),
- ("K","Destino / Ciudad",      20, "M", "General"),
- ("L","Cajas enviadas",        13, "M", FMT_NUM),
- ("M","Valor despachado",      16, "M", FMT_MON),
- ("N","Zona SLA",              12, "C", "General"),
- ("O","¿Tiene novedad?",       15, "C", "General"),
-]
-for col, tx, w, tipo, fmt in DESP_COLS:
-    c = ds[f"{col}2"]; c.value = tx; c.font = FHDR
-    c.fill = fill(ORO if tipo == "M" else AZUL); c.alignment = CEN; c.border = BORDE
-    ds.column_dimensions[col].width = w
-ds.row_dimensions[2].height = 30
-
-F_ZONA = ('=IF($B{r}="","",IF(SUMPRODUCT(({Z}<>"")*ISNUMBER(SEARCH({Z},$I{r}&" "&$K{r})))>0,'
-          '"CERCANA","NACIONAL"))')
-F_TIENE= ('=IF($B{r}="","",IF(COUNTIFS({NC},$B{r})=0,"—","SÍ ("&COUNTIFS({NC},$B{r})&")"))')
-
-for r in range(DESP_R0, DESP_R1+1):
-    for col, tx, w, tipo, fmt in DESP_COLS:
-        c = ds[f"{col}{r}"]
-        c.font = F9; c.border = BORDE; c.number_format = fmt
-        if tipo == "M":
-            c.fill = fill(AMAR); c.protection = Protection(locked=False)
-        else:
-            c.fill = fill(GRIS); c.alignment = CEN
-    ds[f"N{r}"] = F_ZONA.format(r=r, Z=L_ZON)
-    ds[f"O{r}"] = F_TIENE.format(r=r, NC=NRNG("C"))
-ds.freeze_panes = "C3"
-ds.auto_filter.ref = f"A2:O{DESP_R1}"
-
-# =====================================================================
-# HOJA NOVEDADES
-# =====================================================================
-nv = hoja("NOVEDADES", "FFBF8F00")
-titulo(nv, "A1", "MATRIZ DE NOVEDADES DE LOGÍSTICA Y TRANSPORTE — GESTOAGRO S.A.S.", 28)
-nv["A2"] = ("Digite SOLO las celdas AMARILLAS. La llave es el # Pedido / Remisión (columna C): al escribirlo se traen "
-            "cliente, destino, ruta, transportadora, transportador, placa y fecha de despacho. Las celdas GRISES no se tocan.")
-nv["A2"].font = FNOTA; nv["A2"].alignment = IZQ
-nv.merge_cells("A2:AB2"); nv.row_dimensions[2].height = 16
-
-NOV_COLS = [
- ("A","Consecutivo",            11,"C","General"),
- ("B","Fecha novedad",          13,"M",FMT_FECHA),
- ("C","# Pedido / Remisión",    15,"M","General"),
- ("D","Cliente",                32,"C","General"),
- ("E","Destino / Ciudad",       18,"C","General"),
- ("F","Ruta",                   18,"C","General"),
- ("G","Transportadora",         20,"C","General"),
- ("H","Transportador",          24,"C","General"),
- ("I","Placa",                  10,"C","General"),
- ("J","Fecha despacho",         13,"C",FMT_FECHA),
- ("K","Verif. despacho",        14,"C","General"),
- ("L","Tipo de novedad",        34,"M","General"),
- ("M","Causa raíz",             34,"M","General"),
- ("N","Área responsable",       16,"C","General"),
- ("O","Responsable",            20,"M","General"),
- ("P","Criticidad",             11,"C","General"),
- ("Q","Cajas afectadas",        13,"M",FMT_NUM),
- ("R","Valor afectado",         15,"M",FMT_MON),
- ("S","% del despacho",         13,"C",FMT_PCT),
- ("T","Estado",                 22,"M","General"),
- ("U","Fecha compromiso",       15,"C",FMT_FECHA),
- ("V","Fecha cierre real",      15,"M",FMT_FECHA),
- ("W","Días de gestión",        13,"C",FMT_NUM),
- ("X","Días de mora",           12,"C",FMT_NUM),
- ("Y","Semáforo SLA",           20,"C","General"),
- ("Z","Acción correctiva",      38,"M","General"),
- ("AA","Observaciones",         38,"M","General"),
- ("AB","Soporte / evidencia",   26,"M","General"),
-]
-for col, tx, w, tipo, fmt in NOV_COLS:
-    c = nv[f"{col}3"]; c.value = tx; c.font = FHDR
-    c.fill = fill(ORO if tipo == "M" else AZUL); c.alignment = CEN; c.border = BORDE
-    nv.column_dimensions[col].width = w
-nv.row_dimensions[3].height = 32
-
-BX = lambda col, r: f"${col}{r}"
-FRM = {
- "A": '=IF($C{r}="","","NOV-"&TEXT(ROW()-3,"0000"))',
- "D": '=IF($C{r}="","",IFERROR(INDEX({dD},MATCH($C{r},{dB},0)),"SIN DESPACHO"))',
- "E": '=IF($C{r}="","",IFERROR(INDEX({dK},MATCH($C{r},{dB},0)),""))',
- "F": '=IF($C{r}="","",IFERROR(INDEX({dI},MATCH($C{r},{dB},0)),""))',
- "G": '=IF($C{r}="","",IFERROR(INDEX({dF},MATCH($C{r},{dB},0)),""))',
- "H": '=IF($C{r}="","",IFERROR(INDEX({dG},MATCH($C{r},{dB},0)),""))',
- "I": '=IF($C{r}="","",IFERROR(INDEX({dH},MATCH($C{r},{dB},0)),""))',
- "J": '=IF($C{r}="","",IFERROR(INDEX({dJ},MATCH($C{r},{dB},0)),""))',
- "K": '=IF($C{r}="","",IF(COUNTIFS({dB},$C{r})=0,"NO EXISTE",IF(COUNTIFS({dB},$C{r})>1,"DUPLICADO","OK")))',
- "N": '=IF($M{r}="","",IFERROR(INDEX({lAREA},MATCH($M{r},{lCAUS},0)),"Por definir"))',
- "P": '=IF($L{r}="","",IFERROR(INDEX({lCRIT},MATCH($L{r},{lTIPO},0)),"Media"))',
- "S": '=IFERROR(IF(OR($R{r}="",$C{r}=""),"",$R{r}/INDEX({dM},MATCH($C{r},{dB},0))),"")',
- "U": '=IF(OR($B{r}="",$L{r}=""),"",WORKDAY($B{r},IFERROR(INDEX({lSLA},MATCH($L{r},{lTIPO},0)),3)))',
- "W": '=IF($B{r}="","",IF($V{r}<>"",$V{r}-$B{r},TODAY()-$B{r}))',
- "X": '=IF(OR($B{r}="",$U{r}=""),"",IF($V{r}<>"",MAX(0,$V{r}-$U{r}),MAX(0,TODAY()-$U{r})))',
- "Y": ('=IF($C{r}="","",IF(IFERROR(INDEX({lCIER},MATCH($T{r},{lEST},0)),"NO")="SÍ",'
-       'IF(N($X{r})>0,"CERRADA FUERA DE SLA","CERRADA EN SLA"),'
-       'IF($U{r}="","SIN CLASIFICAR",IF(N($X{r})>0,"VENCIDA",IF(TODAY()>=$U{r}-1,"POR VENCER","EN PLAZO")))))'),
-}
-ARGS = dict(dB=DRNG("B"), dD=DRNG("D"), dF=DRNG("F"), dG=DRNG("G"), dH=DRNG("H"),
-            dI=DRNG("I"), dJ=DRNG("J"), dK=DRNG("K"), dM=DRNG("M"),
-            lTIPO=L_TIPO, lCRIT=L_CRIT, lSLA=L_SLA, lCAUS=L_CAUS, lAREA=L_AREA,
-            lEST=L_EST, lCIER=L_CIER)
-
-for r in range(NOV_R0, NOV_R1+1):
-    for col, tx, w, tipo, fmt in NOV_COLS:
-        c = nv[f"{col}{r}"]
-        c.font = F9; c.border = BORDE; c.number_format = fmt
-        if tipo == "M":
-            c.fill = fill(AMAR); c.protection = Protection(locked=False)
-        else:
-            c.fill = fill(GRIS)
-        if col in ("A","B","I","J","K","P","Q","S","U","V","W","X","Y"):
-            c.alignment = CEN
-    for col, f in FRM.items():
-        nv[f"{col}{r}"] = f.format(r=r, **ARGS)
-nv.freeze_panes = "D4"
-nv.auto_filter.ref = f"A3:AB{NOV_R1}"
-
-# =====================================================================
-# HOJA DASHBOARD
-# =====================================================================
-db = hoja("DASHBOARD", VERDE)
-for col, w in {"A":2,"B":36,"C":13,"D":13,"E":15,"F":11,"G":11,"H":11,"I":11,"J":11,
-               "K":16,"L":2,"M":2,"N":22,"O":20,"P":2}.items():
-    db.column_dimensions[col].width = w
-
-db["B2"] = "DASHBOARD DE NOVEDADES DE LOGÍSTICA Y TRANSPORTE — GESTOAGRO S.A.S."
-db["B2"].font = Font(name="Arial", size=16, bold=True, color=VERDE); db.merge_cells("B2:K2")
-db.row_dimensions[2].height = 24
-db["B3"] = ("Todos los indicadores respetan el PERIODO de abajo. Novedades se filtran por Fecha novedad; "
-            "despachos por Fecha despacho.")
-db["B3"].font = FNOTA; db.merge_cells("B3:K3")
-
-db["B4"] = "📅 PERIODO A CONSULTAR"; db["B4"].font = FSEC; db["B4"].fill = fill(VERDE); db["B4"].alignment = IZQ
-db.merge_cells("B4:C4")
-for coord, txt in [("D4","Desde:"), ("F4","Hasta:")]:
-    db[coord] = txt; db[coord].font = F9B; db[coord].alignment = Alignment(horizontal="right", vertical="center")
-import datetime
-for coord, val in [("E4", datetime.date(2026,1,1)), ("G4", datetime.date(2026,12,31))]:
-    c = db[coord]; c.value = val; c.font = Font(name="Arial", size=10, bold=True, color=VERDE)
-    c.fill = fill(AMAR); c.number_format = FMT_FECHA; c.alignment = CEN; c.border = BORDE
-    c.protection = Protection(locked=False)
-db["H4"] = "◄ Cambie las dos fechas AMARILLAS y todo el tablero se recalcula."
-db["H4"].font = FNOTA; db.merge_cells("H4:K4"); db.row_dimensions[4].height = 20
-
-PER_N = f'{NRNG("B")},">="&$E$4,{NRNG("B")},"<="&$G$4'
-PER_D = f'{DRNG("J")},">="&$E$4,{DRNG("J")},"<="&$G$4'
-nB,nC,nG,nL,nM,nQ,nR,nT,nW,nY = (NRNG(x) for x in ["B","C","G","L","M","Q","R","T","W","Y"])
-dB,dC,dD,dF,dH,dJ,dK,dM,dO = (DRNG(x) for x in ["B","C","D","F","H","J","K","M","O"])
-ABIERTA = lambda extra="": ("+".join(
-    f'COUNTIFS({nY},"{s}",{PER_N}{extra})' for s in ["EN PLAZO","POR VENCER","VENCIDA","SIN CLASIFICAR"]))
-
-KPIS = [
- (6, "B", "NOVEDADES DEL PERIODO",      f'=COUNTIFS({PER_N})',                                   FMT_NUM),
- (6, "D", "PEDIDOS DESPACHADOS",        f'=COUNTIFS({PER_D})',                                   FMT_NUM),
- (6, "F", "% RATIO DE INCIDENCIA",      f'=IFERROR(COUNTIFS({PER_D},{dO},"SÍ*")/COUNTIFS({PER_D}),0)', FMT_PCT),
- (6, "H", "NOVEDADES ABIERTAS",         "=" + ABIERTA(),                                         FMT_NUM),
- (6, "J", "NOVEDADES CERRADAS",         f'=COUNTIFS({nY},"CERRADA*",{PER_N})',                   FMT_NUM),
- (9, "B", "VALOR IMPACTADO",            f'=SUMIFS({nR},{PER_N})',                                FMT_MON),
- (9, "D", "CAJAS AFECTADAS",            f'=SUMIFS({nQ},{PER_N})',                                FMT_NUM),
- (9, "F", "DÍAS PROM. DE GESTIÓN",      f'=IFERROR(ROUND(AVERAGEIFS({nW},{PER_N}),1),0)',        FMT_D1),
- (9, "H", "VENCIDAS (SLA roto)",        f'=COUNTIFS({nY},"VENCIDA",{PER_N})',                    FMT_NUM),
- (9, "J", "% CUMPLIMIENTO SLA",         f'=IFERROR(COUNTIFS({nY},"CERRADA EN SLA",{PER_N})/COUNTIFS({nY},"CERRADA*",{PER_N}),"—")', FMT_PCT),
-]
-for row, col, lbl, frm, fmt in KPIS:
-    ci = openpyxl.utils.column_index_from_string(col)
-    c = db.cell(row=row, column=ci, value=lbl); c.font = FKPL; c.fill = fill(VERDE); c.alignment = CEN
-    db.merge_cells(start_row=row, start_column=ci, end_row=row, end_column=ci+1)
-    v = db.cell(row=row+1, column=ci, value=frm); v.font = FKPI; v.fill = fill(GRIS)
-    v.alignment = CEN; v.number_format = fmt; v.border = BORDE
-    db.merge_cells(start_row=row+1, start_column=ci, end_row=row+1, end_column=ci+1)
-    db.row_dimensions[row].height = 22; db.row_dimensions[row+1].height = 30
-
-def tabla_hdr(row, cols):
-    for col, tx in cols:
-        c = db[f"{col}{row}"]; c.value = tx; c.font = FHDR; c.fill = fill(AZUL)
-        c.alignment = CEN; c.border = BORDE
-    db.row_dimensions[row].height = 28
-
-def celda(coord, valor, fmt="General", neg=False, bold=False, al=None):
-    c = db[coord]; c.value = valor; c.number_format = fmt; c.border = BORDE
-    c.font = F9B if bold else F9; c.fill = fill(GRIS_OS if bold else GRIS)
-    c.alignment = al or CEN
+def put(ws, coord, val, font=None, fill=None, fmt=None, al=None, box=True, editable=False):
+    c = ws[coord]; c.value = val
+    c.font = font or f_base
+    if fill: c.fill = fl(fill)
+    if fmt: c.number_format = fmt
+    c.alignment = al or LEF
+    if box: c.border = BOX
+    if editable: c.protection = Protection(locked=False)
     return c
 
-# ---- 1. CAUSA RAIZ ----
-seccion(db, 12, 2, 5, "1. CAUSA RAÍZ — CONTEO, PARTICIPACIÓN E IMPACTO ECONÓMICO")
-tabla_hdr(13, [("B","Causa raíz"),("C","# Novedades"),("D","% Participación"),("E","Valor impactado"),("F","Orden")])
-for r in range(14, 31):
-    lr = r - 11
-    celda(f"B{r}", f'=IF(LISTAS!$E{lr}="","",LISTAS!$E{lr})', al=IZQ)
-    celda(f"C{r}", f'=IF($B{r}="","",COUNTIFS({nM},$B{r},{PER_N}))', FMT_NUM)
-    celda(f"D{r}", f'=IF($B{r}="","",IFERROR($C{r}/$C$31,0))', FMT_PCT)
-    celda(f"E{r}", f'=IF($B{r}="","",SUMIFS({nR},{nM},$B{r},{PER_N}))', FMT_MON)
-    celda(f"F{r}", f'=IF($B{r}="","",$C{r}+ROW()/100000)', "0.00000")
-celda("B31", "TOTAL", bold=True, al=IZQ); celda("C31", "=SUM($C$14:$C$30)", FMT_NUM, bold=True)
-celda("D31", '=IF($C$31=0,0,1)', FMT_PCT, bold=True); celda("E31", "=SUM($E$14:$E$30)", FMT_MON, bold=True)
-celda("F31", "", bold=True)
-db["F13"].value = "Orden (auxiliar)"
+def banner(ws, row, c0, c1, text, color=INK2):
+    c = ws.cell(row=row, column=ci(c0), value=text)
+    c.font = f_band; c.fill = fl(color); c.alignment = CEN
+    ws.merge_cells(start_row=row, start_column=ci(c0), end_row=row, end_column=ci(c1))
+    ws.row_dimensions[row].height = 17
 
-# ---- 2. TOP 5 ----
-seccion(db, 33, 2, 4, "2. TOP 5 CAUSAS RAÍZ — ranking automático del periodo")
-tabla_hdr(34, [("B","Puesto"),("C","Causa raíz"),("D","# Novedades"),("E","% Participación")])
-for r in range(35, 40):
-    k = r - 34
-    celda(f"B{r}", f'="#"&{k}', bold=True)
-    celda(f"C{r}", f'=IFERROR(INDEX($B$14:$B$30,MATCH(LARGE($F$14:$F$30,{k}),$F$14:$F$30,0)),"—")', al=IZQ)
-    celda(f"D{r}", f'=IFERROR(INDEX($C$14:$C$30,MATCH(LARGE($F$14:$F$30,{k}),$F$14:$F$30,0)),0)', FMT_NUM)
-    celda(f"E{r}", f'=IFERROR($D{r}/$C$31,0)', FMT_PCT)
+def title(ws, row, c0, c1, text, h=34):
+    c = ws.cell(row=row, column=ci(c0), value=text)
+    c.font = f_title; c.fill = fl(INK); c.alignment = Alignment(horizontal="left", vertical="center", indent=1)
+    ws.merge_cells(start_row=row, start_column=ci(c0), end_row=row, end_column=ci(c1))
+    ws.row_dimensions[row].height = h
 
-# ---- 3. TIPO DE NOVEDAD ----
-seccion(db, 41, 2, 7, "3. NOVEDADES POR TIPO — volumen, impacto y estado de gestión")
-tabla_hdr(42, [("B","Tipo de novedad"),("C","# Novedades"),("D","% Part."),("E","Valor impactado"),
-               ("F","Abiertas"),("G","Cerradas"),("H","Vencidas")])
-for r in range(43, 59):
-    lr = r - 40
-    celda(f"B{r}", f'=IF(LISTAS!$A{lr}="","",LISTAS!$A{lr})', al=IZQ)
-    celda(f"C{r}", f'=IF($B{r}="","",COUNTIFS({nL},$B{r},{PER_N}))', FMT_NUM)
-    celda(f"D{r}", f'=IF($B{r}="","",IFERROR($C{r}/$C$59,0))', FMT_PCT)
-    celda(f"E{r}", f'=IF($B{r}="","",SUMIFS({nR},{nL},$B{r},{PER_N}))', FMT_MON)
-    celda(f"F{r}", f'=IF($B{r}="","",{ABIERTA(f",{nL},$B{r}")})', FMT_NUM)
-    celda(f"G{r}", f'=IF($B{r}="","",COUNTIFS({nL},$B{r},{nY},"CERRADA*",{PER_N}))', FMT_NUM)
-    celda(f"H{r}", f'=IF($B{r}="","",COUNTIFS({nL},$B{r},{nY},"VENCIDA",{PER_N}))', FMT_NUM)
-celda("B59","TOTAL",bold=True,al=IZQ)
-for col in "CEFGH": celda(f"{col}59", f"=SUM(${col}$43:${col}$58)", FMT_MON if col=="E" else FMT_NUM, bold=True)
-celda("D59", '=IF($C$59=0,0,1)', FMT_PCT, bold=True)
+def seccion(ws, row, c0, c1, text):
+    c = ws.cell(row=row, column=ci(c0), value=text)
+    c.font = f_sec; c.fill = fl(INK2); c.alignment = Alignment(horizontal="left", vertical="center", indent=1)
+    ws.merge_cells(start_row=row, start_column=ci(c0), end_row=row, end_column=ci(c1))
+    ws.row_dimensions[row].height = 22
 
-# ---- 4. TRANSPORTADORA ----
-seccion(db, 61, 2, 10, "4. NOVEDADES ABIERTAS VS. CERRADAS POR TRANSPORTADORA")
-tabla_hdr(62, [("B","Transportadora"),("C","Despachos"),("D","Novedades"),("E","% Incidencia"),
-               ("F","Abiertas"),("G","Vencidas"),("H","Cerradas"),("I","% Cierre"),
-               ("J","Días prom."),("K","Valor impactado")])
-for r in range(63, 73):
-    lr = r - 60
-    celda(f"B{r}", f'=IF(LISTAS!$K{lr}="","",LISTAS!$K{lr})', al=IZQ)
-    celda(f"C{r}", f'=IF($B{r}="","",COUNTIFS({dF},$B{r},{PER_D}))', FMT_NUM)
-    celda(f"D{r}", f'=IF($B{r}="","",COUNTIFS({nG},$B{r},{PER_N}))', FMT_NUM)
-    celda(f"E{r}", f'=IF($B{r}="","",IFERROR($D{r}/$C{r},"—"))', FMT_PCT)
-    celda(f"F{r}", f'=IF($B{r}="","",{ABIERTA(f",{nG},$B{r}")})', FMT_NUM)
-    celda(f"G{r}", f'=IF($B{r}="","",COUNTIFS({nG},$B{r},{nY},"VENCIDA",{PER_N}))', FMT_NUM)
-    celda(f"H{r}", f'=IF($B{r}="","",COUNTIFS({nG},$B{r},{nY},"CERRADA*",{PER_N}))', FMT_NUM)
-    celda(f"I{r}", f'=IF($B{r}="","",IFERROR($H{r}/$D{r},"—"))', FMT_PCT)
-    celda(f"J{r}", f'=IF($B{r}="","",IFERROR(ROUND(AVERAGEIFS({nW},{nG},$B{r},{PER_N}),1),0))', FMT_D1)
-    celda(f"K{r}", f'=IF($B{r}="","",SUMIFS({nR},{nG},$B{r},{PER_N}))', FMT_MON)
-celda("B73","TOTAL",bold=True,al=IZQ)
-for col in "CDFGHK": celda(f"{col}73", f"=SUM(${col}$63:${col}$72)", FMT_MON if col=="K" else FMT_NUM, bold=True)
-celda("E73", '=IFERROR($D$73/$C$73,"—")', FMT_PCT, bold=True)
-celda("I73", '=IFERROR($H$73/$D$73,"—")', FMT_PCT, bold=True)
-celda("J73", f'=IFERROR(ROUND(AVERAGEIFS({nW},{PER_N}),1),0)', FMT_D1, bold=True)
+# =========================================================================
+# CONFIG  -  catalogos y reglas de negocio
+# =========================================================================
+cf = sheet("CONFIG", "FF64748B")
 
-# ---- 5. ESTADO ----
-seccion(db, 75, 2, 4, "5. NOVEDADES POR ESTADO — pipeline de gestión")
-tabla_hdr(76, [("B","Estado"),("C","# Casos"),("D","% Part."),("E","Valor impactado")])
-for r in range(77, 87):
-    lr = r - 74
-    celda(f"B{r}", f'=IF(LISTAS!$H{lr}="","",LISTAS!$H{lr})', al=IZQ)
-    celda(f"C{r}", f'=IF($B{r}="","",COUNTIFS({nT},$B{r},{PER_N}))', FMT_NUM)
-    celda(f"D{r}", f'=IF($B{r}="","",IFERROR($C{r}/$C$87,0))', FMT_PCT)
-    celda(f"E{r}", f'=IF($B{r}="","",SUMIFS({nR},{nT},$B{r},{PER_N}))', FMT_MON)
-celda("B87","TOTAL",bold=True,al=IZQ); celda("C87","=SUM($C$77:$C$86)",FMT_NUM,bold=True)
-celda("D87",'=IF($C$87=0,0,1)',FMT_PCT,bold=True); celda("E87","=SUM($E$77:$E$86)",FMT_MON,bold=True)
-
-# ---- CONSULTA RAPIDA ----
-seccion(db, 12, 14, 2, "CONSULTA RÁPIDA DE PEDIDO")
-db["N13"] = "Digite # Pedido →"; db["N13"].font = F9B; db["N13"].alignment = IZQ; db["N13"].border = BORDE
-c = db["O13"]; c.fill = fill(AMAR); c.font = Font(name="Arial", size=11, bold=True, color=VERDE)
-c.alignment = CEN; c.border = BORDE; c.protection = Protection(locked=False)
-CONSULTA = [
- ("N14","Cliente",           f'=IF($O$13="","—",IFERROR(INDEX({dD},MATCH($O$13,{dB},0)),"NO EXISTE"))', "General"),
- ("N15","# Factura",         f'=IF($O$13="","—",IFERROR(INDEX({dC},MATCH($O$13,{dB},0)),"—"))', "General"),
- ("N16","Destino / Ciudad",  f'=IF($O$13="","—",IFERROR(INDEX({dK},MATCH($O$13,{dB},0)),"—"))', "General"),
- ("N17","Transportadora",    f'=IF($O$13="","—",IFERROR(INDEX({dF},MATCH($O$13,{dB},0)),"—"))', "General"),
- ("N18","Placa",             f'=IF($O$13="","—",IFERROR(INDEX({dH},MATCH($O$13,{dB},0)),"—"))', "General"),
- ("N19","Fecha despacho",    f'=IF($O$13="","—",IFERROR(INDEX({dJ},MATCH($O$13,{dB},0)),"—"))', FMT_FECHA),
- ("N20","Novedades del pedido", f'=IF($O$13="","—",COUNTIFS({nC},$O$13))', FMT_NUM),
- ("N21","Valor afectado",    f'=IF($O$13="","—",SUMIFS({nR},{nC},$O$13))', FMT_MON),
- ("N22","Estado más reciente",f'=IF($O$13="","—",IFERROR(LOOKUP(2,1/({nC}=$O$13),{nT}),"—"))', "General"),
- ("N23","Semáforo SLA",      f'=IF($O$13="","—",IFERROR(LOOKUP(2,1/({nC}=$O$13),{nY}),"—"))', "General"),
+TIPOS = [  # tipo, gravedad, SLA dias habiles, afecta la entrega (in full)
+ ("Cliente ausente / no atiende",          "Media",   2, "SÍ"),
+ ("Cliente rechaza el envío",              "Alta",    2, "SÍ"),
+ ("Dirección errada o incompleta",         "Media",   2, "SÍ"),
+ ("Cliente cerrado / fuera de horario",    "Media",   2, "SÍ"),
+ ("Zona restringida o sin acceso",         "Media",   3, "SÍ"),
+ ("Pago contraentrega fallido",            "Alta",    2, "SÍ"),
+ ("Avería / producto dañado",              "Alta",    3, "SÍ"),
+ ("Faltante (llegó de menos)",             "Alta",    2, "SÍ"),
+ ("Sobrante (llegó de más)",               "Baja",    5, "NO"),
+ ("Producto equivocado",                   "Alta",    2, "SÍ"),
+ ("Producto vencido o próximo a vencer",   "Alta",    3, "SÍ"),
+ ("Empaque en mal estado",                 "Media",   3, "NO"),
+ ("Retraso en vía",                        "Alta",    1, "NO"),
+ ("Vehículo varado / falla mecánica",      "Crítica", 1, "SÍ"),
+ ("Pérdida o robo de mercancía",           "Crítica", 1, "SÍ"),
+ ("Entrega parcial acordada",              "Baja",    5, "SÍ"),
+ ("Soporte de entrega sin firmar",         "Media",   4, "NO"),
+ ("Error en factura o precio",             "Media",   5, "NO"),
+ ("Flete no liquidado",                    "Baja",    5, "NO"),
 ]
-for coord, lbl, frm, fmt in CONSULTA:
-    r = int(coord[1:])
-    db[coord] = lbl; db[coord].font = F9; db[coord].alignment = IZQ; db[coord].border = BORDE
-    v = db[f"O{r}"]; v.value = frm; v.font = F9B; v.fill = fill(GRIS); v.number_format = fmt
-    v.alignment = CEN; v.border = BORDE
-db["N25"] = "El semáforo y el estado corresponden a la novedad más reciente registrada para ese pedido."
-db["N25"].font = FNOTA; db.merge_cells("N25:O27"); db["N25"].alignment = IZQW
+CAUSAS = [  # causa raiz, familia 6M, area responsable
+ ("Error de alistamiento (picking)",            "Método",        "Bodega"),
+ ("Embalaje o estibado deficiente",             "Material",      "Bodega"),
+ ("Inventario descuadrado",                     "Medición",      "Bodega"),
+ ("Manipulación brusca en cargue/descargue",    "Mano de obra",  "Transporte"),
+ ("Sobrecupo o mal acomodo en el vehículo",     "Método",        "Transporte"),
+ ("Conductor sin capacitación o procedimiento", "Mano de obra",  "Transporte"),
+ ("Falla mecánica del vehículo",                "Máquina",       "Transporte"),
+ ("Ruta mal planeada o secuencia errada",       "Método",        "Planeación"),
+ ("Promesa de entrega irreal",                  "Método",        "Planeación"),
+ ("Datos del cliente desactualizados",          "Medición",      "Comercial"),
+ ("Error de digitación del pedido",             "Mano de obra",  "Comercial"),
+ ("Cliente cambió de decisión",                 "Externo",       "Comercial"),
+ ("Error en facturación o precio",              "Método",        "Facturación"),
+ ("Cliente sin cupo / cartera bloqueada",       "Método",        "Cartera"),
+ ("Producto con calidad o rotación deficiente", "Material",      "Calidad"),
+ ("Tráfico, cierre vial u orden público",       "Medio ambiente","Externo"),
+ ("Clima adverso",                              "Medio ambiente","Externo"),
+ ("Sin clasificar aún",                         "Por definir",   "Por definir"),
+]
+ESTADOS = [
+ ("Sin gestionar", "NO"), ("En gestión", "NO"),
+ ("Esperando a la transportadora", "NO"), ("Esperando al cliente", "NO"),
+ ("Resuelta", "SÍ"), ("Anulada", "SÍ"),
+]
+TRANSP = ["Transportadora A", "Transportadora B", "Transportadora C", "Flota propia"]
+RESPON = ["Coordinador de logística", "Jefe de bodega", "Analista de transporte",
+          "Servicio al cliente", "Comercial", "Facturación", "Cartera", "Calidad"]
 
-# =====================================================================
-# NOMBRES DEFINIDOS (listas dinamicas: crecen solas al agregar filas)
-# =====================================================================
-NOMBRES = {
- "TIPOS_NOVEDAD":  f"OFFSET(LISTAS!$A${LST0},0,0,MAX(1,COUNTA(LISTAS!$A${LST0}:$A${LST1})),1)",
- "CAUSAS_RAIZ":    f"OFFSET(LISTAS!$E${LST0},0,0,MAX(1,COUNTA(LISTAS!$E${LST0}:$E${LST1})),1)",
- "ESTADOS_NOV":    f"OFFSET(LISTAS!$H${LST0},0,0,MAX(1,COUNTA(LISTAS!$H${LST0}:$H${LST1})),1)",
- "TRANSPORTADORAS":f"OFFSET(LISTAS!$K${LST0},0,0,MAX(1,COUNTA(LISTAS!$K${LST0}:$K${LST1})),1)",
- "RESPONSABLES":   f"OFFSET(LISTAS!$M${LST0},0,0,MAX(1,COUNTA(LISTAS!$M${LST0}:$M${LST1})),1)",
+title(cf, 1, "A", "O", "CONFIG · catálogos y reglas de negocio")
+cf["A2"] = ("Aquí se cambia el comportamiento de toda la matriz sin tocar una sola fórmula. "
+            "Agregue filas hacia abajo: las listas desplegables crecen solas.")
+cf["A2"].font = f_note; cf.merge_cells("A2:O2")
+
+CFG_HDR = [("A","TIPO DE NOVEDAD"),("B","GRAVEDAD"),("C","SLA (días hábiles)"),("D","¿AFECTA LA ENTREGA?"),
+           ("F","CAUSA RAÍZ"),("G","FAMILIA (6M)"),("H","ÁREA RESPONSABLE"),
+           ("J","ESTADO"),("K","¿CIERRA EL CASO?"),
+           ("M","TRANSPORTADORA"),("O","RESPONSABLE")]
+for col, tx in CFG_HDR:
+    put(cf, f"{col}3", tx, font=f_hdr, fill=AMBER, al=CEN)
+cf.row_dimensions[3].height = 30
+
+def col_write(ws, col, row0, vals, fmt=None, al=None):
+    for i, v in enumerate(vals):
+        put(ws, f"{col}{row0+i}", v, fill=EDIT, fmt=fmt, al=al or LEF, editable=True)
+
+col_write(cf,"A",4,[t[0] for t in TIPOS]); col_write(cf,"B",4,[t[1] for t in TIPOS], al=CEN)
+col_write(cf,"C",4,[t[2] for t in TIPOS], NUM, CEN); col_write(cf,"D",4,[t[3] for t in TIPOS], al=CEN)
+col_write(cf,"F",4,[c[0] for c in CAUSAS]); col_write(cf,"G",4,[c[1] for c in CAUSAS], al=CEN)
+col_write(cf,"H",4,[c[2] for c in CAUSAS], al=CEN)
+col_write(cf,"J",4,[e[0] for e in ESTADOS]); col_write(cf,"K",4,[e[1] for e in ESTADOS], al=CEN)
+col_write(cf,"M",4,TRANSP); col_write(cf,"O",4,RESPON)
+
+widths(cf, {"A":40,"B":12,"C":15,"D":18,"E":2,"F":40,"G":16,"H":16,"I":2,
+            "J":28,"K":16,"L":2,"M":24,"N":2,"O":26})
+cf.freeze_panes = "A4"
+for r in range(4, CFG1+1): cf.row_dimensions[r].height = 16
+
+BAND_A, BAND_B = INK2, "FF475569"
+
+def build_grid(ws, cols, r0, r1, band_row=2, hdr_row=3):
+    """cols: lista de (letra, encabezado, 'M'|'C', ancho, formato, alineacion)"""
+    for col, tx, kind, w, fmt, al in cols:
+        put(ws, f"{col}{hdr_row}", tx, font=f_hdr, fill=(AMBER if kind == "M" else BLUE), al=CEN)
+        ws.column_dimensions[col].width = w
+    ws.row_dimensions[hdr_row].height = 34
+    for r in range(r0, r1 + 1):
+        ws.row_dimensions[r].height = 16
+        for col, tx, kind, w, fmt, al in cols:
+            c = ws[f"{col}{r}"]
+            c.font = f_base; c.border = BOX; c.number_format = fmt; c.alignment = al
+            if kind == "M":
+                c.fill = fl(EDIT); c.protection = Protection(locked=False)
+            else:
+                c.fill = fl(CALC)
+
+# =========================================================================
+# ENVIOS  -  base de despachos
+# =========================================================================
+ev = sheet("ENVIOS", BLUE)
+title(ev, 1, "A", "P", "ENVÍOS · base de despachos")
+
+ENV_COLS = [
+ ("A","Nº Guía / Remisión",       "M", 18, "General", CEN),
+ ("B","Fecha despacho",           "M", 13, FECHA,     CEN),
+ ("C","Cliente",                  "M", 32, "General", LEF),
+ ("D","Ciudad destino",           "M", 18, "General", LEF),
+ ("E","Transportadora",           "M", 20, "General", LEF),
+ ("F","Conductor",                "M", 22, "General", LEF),
+ ("G","Placa",                    "M", 10, "General", CEN),
+ ("H","Unidades enviadas",        "M", 13, NUM,       CEN),
+ ("I","Valor del envío",          "M", 15, MONEY,     RIG),
+ ("J","Fecha promesa de entrega", "M", 15, FECHA,     CEN),
+ ("K","Fecha de entrega real",    "M", 15, FECHA,     CEN),
+ ("L","Días en ruta",             "C", 11, NUM,       CEN),
+ ("M","¿Llegó a tiempo?",         "C", 13, "General", CEN),
+ ("N","Novedades",                "C", 11, NUM,       CEN),
+ ("O","¿Llegó completa?",         "C", 13, "General", CEN),
+ ("P","OTIF",                     "C", 11, "General", CEN),
+]
+banner(ev, 2, "A", "J", "① SE DIGITA AL DESPACHAR  ·  pegue o escriba aquí", BAND_A)
+banner(ev, 2, "K", "K", "② AL ENTREGAR", BAND_B)
+banner(ev, 2, "L", "P", "③ SE CALCULA SOLO  ·  no escriba en esta zona", BAND_A)
+build_grid(ev, ENV_COLS, ENV0, ENV1)
+
+FENV = {
+ "L": '=IF(OR($A{r}="",$B{r}=""),"",IF($K{r}<>"",$K{r}-$B{r},TODAY()-$B{r}))',
+ "M": '=IF(OR($A{r}="",$J{r}=""),"",IF($K{r}="",IF(TODAY()>$J{r},"Atrasado","En ruta"),IF($K{r}<=$J{r},"Sí","No")))',
+ "N": '=IF($A{r}="","",COUNTIFS({nC},$A{r}))',
+ "O": '=IF($A{r}="","",IF(COUNTIFS({nC},$A{r},{nM},"SÍ")>0,"No","Sí"))',
+ "P": '=IF(OR($A{r}="",$K{r}=""),"",IF(AND($M{r}="Sí",$O{r}="Sí"),"OTIF","Falló"))',
 }
-for n, f in NOMBRES.items():
-    wb.defined_names.add(DefinedName(n, attr_text=f))
+for r in range(ENV0, ENV1 + 1):
+    for col, f in FENV.items():
+        ev[f"{col}{r}"] = f.format(r=r, nC=N("C"), nM=N("M"))
+ev.freeze_panes = "C4"
+ev.auto_filter.ref = f"A3:P{ENV1}"
 
-def dv(ws, rango, **kw):
-    d = DataValidation(**kw); ws.add_data_validation(d); d.add(rango); return d
+# =========================================================================
+# NOVEDADES  -  la matriz
+# =========================================================================
+nv = sheet("NOVEDADES", AMBER)
+title(nv, 1, "A", "Z", "MATRIZ DE NOVEDADES · logística y transporte")
 
-# ---- Validaciones NOVEDADES ----
-dv(nv, f"L{NOV_R0}:L{NOV_R1}", type="list", formula1="TIPOS_NOVEDAD", allow_blank=True,
-   showErrorMessage=True, errorTitle="Tipo no válido",
-   error="Elija un tipo de la lista. Para agregar uno nuevo vaya a LISTAS columna A.",
-   promptTitle="Tipo de novedad", prompt="Elija de la lista. Define la criticidad y el SLA.", showInputMessage=True)
-dv(nv, f"M{NOV_R0}:M{NOV_R1}", type="list", formula1="CAUSAS_RAIZ", allow_blank=True,
-   showErrorMessage=True, errorTitle="Causa no válida",
-   error="Elija una causa de la lista. Para agregar una nueva vaya a LISTAS columna E.",
-   promptTitle="Causa raíz", prompt="Por qué ocurrió. Define el área responsable.", showInputMessage=True)
-dv(nv, f"O{NOV_R0}:O{NOV_R1}", type="list", formula1="RESPONSABLES", allow_blank=True,
-   showErrorMessage=True, errorTitle="Responsable no válido", error="Elija de la lista (LISTAS columna M).")
-dv(nv, f"T{NOV_R0}:T{NOV_R1}", type="list", formula1="ESTADOS_NOV", allow_blank=True,
-   showErrorMessage=True, errorTitle="Estado no válido",
-   error="Elija un estado de la lista. Para agregar uno nuevo vaya a LISTAS columna H.",
-   promptTitle="Estado", prompt="Los estados marcados ¿CIERRA?=SÍ cierran el caso y detienen el conteo de días.",
-   showInputMessage=True)
-dv(nv, f"B{NOV_R0}:B{NOV_R1}", type="date", operator="between",
-   formula1="DATE(2020,1,1)", formula2="DATE(2035,12,31)", allow_blank=True,
-   showErrorMessage=True, errorTitle="Fecha no válida", error="Escriba una fecha real (dd/mm/aaaa).")
-dv(nv, f"V{NOV_R0}:V{NOV_R1}", type="custom", formula1=f'OR($V{NOV_R0}="",AND(ISNUMBER($V{NOV_R0}),$V{NOV_R0}>=$B{NOV_R0}))',
-   allow_blank=True, showErrorMessage=True, errorTitle="Fecha de cierre inválida",
-   error="La fecha de cierre no puede ser anterior a la fecha de la novedad.")
-dv(nv, f"Q{NOV_R0}:Q{NOV_R1}", type="decimal", operator="greaterThanOrEqual", formula1="0",
-   allow_blank=True, showErrorMessage=True, errorTitle="Cantidad inválida", error="Debe ser un número mayor o igual a 0.")
-dv(nv, f"R{NOV_R0}:R{NOV_R1}", type="decimal", operator="greaterThanOrEqual", formula1="0",
-   allow_blank=True, showErrorMessage=True, errorTitle="Valor inválido", error="Debe ser un número mayor o igual a 0.")
+NOV_COLS = [
+ ("A","ID",                    "C", 10, "General", CEN),
+ ("B","Fecha de la novedad",   "M", 14, FECHA,     CEN),
+ ("C","Nº Guía / Remisión",    "M", 16, "General", CEN),
+ ("D","Validación",            "C", 13, "General", CEN),
+ ("E","Cliente",               "C", 30, "General", LEF),
+ ("F","Ciudad destino",        "C", 17, "General", LEF),
+ ("G","Transportadora",        "C", 19, "General", LEF),
+ ("H","Conductor",             "C", 21, "General", LEF),
+ ("I","Placa",                 "C", 10, "General", CEN),
+ ("J","Fecha despacho",        "C", 13, FECHA,     CEN),
+ ("K","Tipo de novedad",       "M", 32, "General", LEF),
+ ("L","Gravedad",              "C", 11, "General", CEN),
+ ("M","¿Afecta la entrega?",   "C", 13, "General", CEN),
+ ("N","Causa raíz",            "M", 34, "General", LEF),
+ ("O","Familia (6M)",          "C", 15, "General", CEN),
+ ("P","Área responsable",      "C", 15, "General", CEN),
+ ("Q","Unidades afectadas",    "M", 13, NUM,       CEN),
+ ("R","Valor afectado",        "M", 15, MONEY,     RIG),
+ ("S","Estado",                "M", 26, "General", LEF),
+ ("T","Responsable",           "M", 24, "General", LEF),
+ ("U","Fecha límite",          "C", 13, FECHA,     CEN),
+ ("V","Fecha de solución",     "M", 14, FECHA,     CEN),
+ ("W","Días abiertos",         "C", 11, NUM,       CEN),
+ ("X","Estado SLA",            "C", 18, "General", CEN),
+ ("Y","Qué se hizo",           "M", 40, "General", LEF),
+ ("Z","Notas / soporte",       "M", 34, "General", LEF),
+]
+banner(nv, 2, "A", "J", "① IDENTIFICAR EL ENVÍO  ·  digite la fecha y el Nº de guía; lo demás se trae solo", BAND_A)
+banner(nv, 2, "K", "P", "② CLASIFICAR  ·  qué pasó y por qué", BAND_B)
+banner(nv, 2, "Q", "R", "③ IMPACTO", BAND_A)
+banner(nv, 2, "S", "X", "④ GESTIONAR Y CERRAR", BAND_B)
+banner(nv, 2, "Y", "Z", "⑤ CONSTANCIA", BAND_A)
+build_grid(nv, NOV_COLS, NOV0, NOV1)
 
-# ---- Validaciones DESPACHOS (aviso, no bloqueo: la hoja se pega desde Access) ----
-d1 = dv(ds, f"F{DESP_R0}:F{DESP_R1}", type="list", formula1="TRANSPORTADORAS", allow_blank=True,
-        showErrorMessage=True, errorTitle="Transportadora nueva",
-        error="No está en LISTAS. Si es correcta, agréguela en LISTAS columna K para que entre al tablero.")
-d1.errorStyle = "warning"
-dv(ds, f"J{DESP_R0}:J{DESP_R1}", type="date", operator="between",
-   formula1="DATE(2020,1,1)", formula2="DATE(2035,12,31)", allow_blank=True,
-   showErrorMessage=True, errorTitle="Fecha no válida", error="Escriba una fecha real (dd/mm/aaaa)").errorStyle = "warning"
-dv(ds, f"L{DESP_R0}:L{DESP_R1}", type="decimal", operator="greaterThanOrEqual", formula1="0", allow_blank=True)
-dv(ds, f"M{DESP_R0}:M{DESP_R1}", type="decimal", operator="greaterThanOrEqual", formula1="0", allow_blank=True)
+BUSCA = 'IFERROR(INDEX({rng},MATCH($C{r},{eA},0)),"—")'
+FNOV = {
+ "A": '=IF($C{r}="","","N-"&TEXT(ROW()-3,"0000"))',
+ "D": '=IF($C{r}="","",IF(COUNTIFS({eA},$C{r})=0,"NO EXISTE",IF(COUNTIFS({eA},$C{r})>1,"DUPLICADA","OK")))',
+ "E": '=IF($C{r}="","",' + BUSCA.format(rng=E("C"), eA=E("A"), r="{r}") + ')',
+ "F": '=IF($C{r}="","",' + BUSCA.format(rng=E("D"), eA=E("A"), r="{r}") + ')',
+ "G": '=IF($C{r}="","",' + BUSCA.format(rng=E("E"), eA=E("A"), r="{r}") + ')',
+ "H": '=IF($C{r}="","",' + BUSCA.format(rng=E("F"), eA=E("A"), r="{r}") + ')',
+ "I": '=IF($C{r}="","",' + BUSCA.format(rng=E("G"), eA=E("A"), r="{r}") + ')',
+ "J": '=IF($C{r}="","",IFERROR(INDEX({eB},MATCH($C{r},{eA},0)),""))',
+ "L": '=IF($K{r}="","",IFERROR(INDEX({cB},MATCH($K{r},{cA},0)),"Media"))',
+ "M": '=IF($K{r}="","",IFERROR(INDEX({cD},MATCH($K{r},{cA},0)),"NO"))',
+ "O": '=IF($N{r}="","",IFERROR(INDEX({cG},MATCH($N{r},{cF},0)),"Por definir"))',
+ "P": '=IF($N{r}="","",IFERROR(INDEX({cH},MATCH($N{r},{cF},0)),"Por definir"))',
+ "U": '=IF(OR($B{r}="",$K{r}=""),"",WORKDAY($B{r},IFERROR(INDEX({cC},MATCH($K{r},{cA},0)),3)))',
+ "W": '=IF($B{r}="","",IF($V{r}<>"",$V{r}-$B{r},TODAY()-$B{r}))',
+ "X": ('=IF($C{r}="","",IF(IFERROR(INDEX({cK},MATCH($S{r},{cJ},0)),"NO")="SÍ",'
+       'IF(OR($V{r}="",$U{r}=""),"Resuelta",IF($V{r}>$U{r},"Resuelta tarde","Resuelta a tiempo")),'
+       'IF($U{r}="","Sin clasificar",IF(TODAY()>$U{r},"Vencida",IF(TODAY()>=$U{r}-1,"Por vencer","En plazo")))))'),
+}
+ARG = dict(eA=E("A"), eB=E("B"), cA=C("A"), cB=C("B"), cC=C("C"), cD=C("D"),
+           cF=C("F"), cG=C("G"), cH=C("H"), cJ=C("J"), cK=C("K"))
+for r in range(NOV0, NOV1 + 1):
+    for col, f in FNOV.items():
+        nv[f"{col}{r}"] = f.format(r=r, **ARG)
+nv.freeze_panes = "D4"
+nv.auto_filter.ref = f"A3:Z{NOV1}"
 
-# =====================================================================
-# FORMATO CONDICIONAL
-# =====================================================================
-def cf_txt(ws, rng, valor, bg, fg, bold=True):
-    ws.conditional_formatting.add(rng, CellIsRule(
-        operator="equal", formula=[f'"{valor}"'], fill=fill(bg),
-        font=Font(name="Arial", size=9, bold=bold, color=fg)))
+# =========================================================================
+# TABLERO
+# =========================================================================
+tb = sheet("TABLERO", INK)
+widths(tb, {"A":2,"B":24,"C":15,"D":13,"E":13,"F":13,"G":13,"H":13,"I":13,
+            "J":13,"K":15,"L":13,"M":13,"N":2})
 
-RNG = lambda c: f"{c}{NOV_R0}:{c}{NOV_R1}"
-# 1) Semaforo SLA
-for val, bg, fg in [("VENCIDA", ROJO_F, ROJO_T), ("POR VENCER", AMB_F, AMB_T),
-                    ("EN PLAZO", VERD_F, VERD_T), ("CERRADA EN SLA", AZUL_F, "FF1F4E79"),
-                    ("CERRADA FUERA DE SLA", "FFF8CBAD", "FF833C00"),
-                    ("SIN CLASIFICAR", GRIS_OS, "FF595959")]:
-    cf_txt(nv, RNG("Y"), val, bg, fg)
-# 2) Criticidad
-for val, bg, fg in [("Alta", ROJO_F, ROJO_T), ("Media", AMB_F, AMB_T), ("Baja", VERD_F, VERD_T)]:
-    cf_txt(nv, RNG("P"), val, bg, fg)
-# 3) Estado (data-driven con la columna ¿CIERRA? de LISTAS)
-CIERRA = f'IFERROR(INDEX({L_CIER},MATCH($T{NOV_R0},{L_EST},0)),"NO")'
-nv.conditional_formatting.add(RNG("T"), FormulaRule(
-    formula=[f'$T{NOV_R0}="Pendiente"'], fill=fill(ROJO_F), font=Font(name="Arial", size=9, bold=True, color=ROJO_T)))
-nv.conditional_formatting.add(RNG("T"), FormulaRule(
-    formula=[f'AND($T{NOV_R0}<>"",{CIERRA}="SÍ")'], fill=fill(VERD_F), font=Font(name="Arial", size=9, bold=True, color=VERD_T)))
-nv.conditional_formatting.add(RNG("T"), FormulaRule(
-    formula=[f'AND($T{NOV_R0}<>"",{CIERRA}="NO")'], fill=fill(AMB_F), font=Font(name="Arial", size=9, bold=True, color=AMB_T)))
-# 4) Verificacion de llave
-nv.conditional_formatting.add(RNG("K"), FormulaRule(
-    formula=[f'OR($K{NOV_R0}="NO EXISTE",$K{NOV_R0}="DUPLICADO")'],
-    fill=fill(ROJO_F), font=Font(name="Arial", size=9, bold=True, color=ROJO_T)))
-nv.conditional_formatting.add(RNG("K"), CellIsRule(
-    operator="equal", formula=['"OK"'], font=Font(name="Arial", size=9, color=VERD_T)))
-# 5) Dias de mora > 0
-nv.conditional_formatting.add(RNG("X"), CellIsRule(
-    operator="greaterThan", formula=["0"], fill=fill(ROJO_F), font=Font(name="Arial", size=9, bold=True, color=ROJO_T)))
-# 6) Cerrada sin fecha de cierre
-nv.conditional_formatting.add(RNG("V"), FormulaRule(
-    formula=[f'AND($V{NOV_R0}="",LEFT($Y{NOV_R0},7)="CERRADA")'],
-    fill=fill(ROJO_F), font=Font(name="Arial", size=9, bold=True, color=ROJO_T)))
-# 7) Barra de datos sobre el valor afectado
-nv.conditional_formatting.add(RNG("R"), DataBarRule(start_type="num", start_value=0,
-    end_type="percentile", end_value=95, color="FFBF8F00", showValue=True, minLength=None, maxLength=None))
-# 8) Resalte de fila completa cuando esta VENCIDA (solo tipografia: no tapa el codigo de colores)
-nv.conditional_formatting.add(f"A{NOV_R0}:AB{NOV_R1}", FormulaRule(
-    formula=[f'$Y{NOV_R0}="VENCIDA"'], font=Font(name="Arial", size=9, bold=True, color=ROJO_T)))
+title(tb, 2, "B", "M", "TABLERO DE NOVEDADES · logística y transporte")
+tb["B3"] = ("Todo se filtra por el periodo de abajo. Novedades por su fecha de registro; envíos por su fecha de despacho.")
+tb["B3"].font = f_note; tb.merge_cells("B3:M3")
 
-# DESPACHOS
-ds.conditional_formatting.add(f"O{DESP_R0}:O{DESP_R1}", FormulaRule(
-    formula=[f'LEFT($O{DESP_R0},2)="SÍ"'], fill=fill(AMB_F), font=Font(name="Arial", size=9, bold=True, color=AMB_T)))
-ds.conditional_formatting.add(f"A{DESP_R0}:O{DESP_R1}", FormulaRule(
-    formula=[f'AND($B{DESP_R0}<>"",COUNTIFS($B${DESP_R0}:$B${DESP_R1},$B{DESP_R0})>1)'],
-    font=Font(name="Arial", size=9, bold=True, color="FF833C00")))
+put(tb, "B4", "PERIODO", font=f_hdr, fill=INK2, al=CEN); tb.merge_cells("B4:C4")
+put(tb, "D4", "Desde:", font=f_bold, al=RIG, box=False)
+put(tb, "E4", datetime.date(2026,1,1), font=Font(name=FN, size=11, bold=True, color=INK),
+    fill=EDIT, fmt=FECHA, al=CEN, editable=True)
+put(tb, "F4", "Hasta:", font=f_bold, al=RIG, box=False)
+put(tb, "G4", datetime.date(2026,12,31), font=Font(name=FN, size=11, bold=True, color=INK),
+    fill=EDIT, fmt=FECHA, al=CEN, editable=True)
+put(tb, "H4", "◄ cambie estas dos fechas y todo el tablero se recalcula", font=f_note, al=LEF, box=False)
+tb.merge_cells("H4:M4"); tb.row_dimensions[4].height = 22
 
-# DASHBOARD
-db.conditional_formatting.add("F7", CellIsRule(operator="greaterThan", formula=["0.05"],
-    fill=fill(ROJO_F), font=Font(name="Arial", size=18, bold=True, color=ROJO_T)))
-db.conditional_formatting.add("F7", CellIsRule(operator="lessThanOrEqual", formula=["0.03"],
-    fill=fill(VERD_F), font=Font(name="Arial", size=18, bold=True, color=VERD_T)))
-db.conditional_formatting.add("H10", CellIsRule(operator="greaterThan", formula=["0"],
-    fill=fill(ROJO_F), font=Font(name="Arial", size=18, bold=True, color=ROJO_T)))
-db.conditional_formatting.add("H7", CellIsRule(operator="greaterThan", formula=["0"],
-    fill=fill(AMB_F), font=Font(name="Arial", size=18, bold=True, color=AMB_T)))
-db.conditional_formatting.add("J10", CellIsRule(operator="lessThan", formula=["0.9"],
-    fill=fill(ROJO_F), font=Font(name="Arial", size=18, bold=True, color=ROJO_T)))
-db.conditional_formatting.add("J10", CellIsRule(operator="greaterThanOrEqual", formula=["0.9"],
-    fill=fill(VERD_F), font=Font(name="Arial", size=18, bold=True, color=VERD_T)))
-db.conditional_formatting.add("C14:C30", DataBarRule(start_type="num", start_value=0,
-    end_type="percentile", end_value=100, color="FF2E75B6", showValue=True))
-db.conditional_formatting.add("C43:C58", DataBarRule(start_type="num", start_value=0,
-    end_type="percentile", end_value=100, color="FF2E75B6", showValue=True))
-db.conditional_formatting.add("E63:E72", CellIsRule(operator="greaterThan", formula=["0.05"],
-    fill=fill(ROJO_F), font=Font(name="Arial", size=9, bold=True, color=ROJO_T)))
-db.conditional_formatting.add("G63:G72", CellIsRule(operator="greaterThan", formula=["0"],
-    fill=fill(ROJO_F), font=Font(name="Arial", size=9, bold=True, color=ROJO_T)))
-db.conditional_formatting.add("I63:I72", CellIsRule(operator="lessThan", formula=["0.8"],
-    fill=fill(AMB_F), font=Font(name="Arial", size=9, bold=True, color=AMB_T)))
+PN = f'{N("B")},">="&$E$4,{N("B")},"<="&$G$4'
+PE = f'{E("B")},">="&$E$4,{E("B")},"<="&$G$4'
+ABIERTAS = lambda extra="": "+".join(
+    f'COUNTIFS({N("X")},"{s}",{PN}{extra})' for s in ["En plazo","Por vencer","Vencida","Sin clasificar"])
 
-# =====================================================================
-# HOJA GUIA
-# =====================================================================
-gu = hoja("GUÍA", VERDE)
-gu.column_dimensions["A"].width = 2
-gu.column_dimensions["B"].width = 150
+def kpi_row(row, label, cards):
+    put(tb, f"B{row}", label, font=Font(name=FN, size=10, bold=True, color=WHITE), fill=INK2, al=CEN)
+    tb.merge_cells(start_row=row, start_column=2, end_row=row+1, end_column=3)
+    for c0, c1, lbl, frm, fmt in cards:
+        h = tb.cell(row=row, column=ci(c0), value=lbl)
+        h.font = f_kpil; h.fill = fl(CARD); h.alignment = CEN; h.border = BOX
+        tb.merge_cells(start_row=row, start_column=ci(c0), end_row=row, end_column=ci(c1))
+        v = tb.cell(row=row+1, column=ci(c0), value=frm)
+        v.font = f_kpi; v.fill = fl(CARD); v.alignment = CEN; v.border = BOX; v.number_format = fmt
+        tb.merge_cells(start_row=row+1, start_column=ci(c0), end_row=row+1, end_column=ci(c1))
+    tb.row_dimensions[row].height = 20; tb.row_dimensions[row+1].height = 34
+
+ENTREGADOS = f'(COUNTIFS({E("P")},"OTIF",{PE})+COUNTIFS({E("P")},"Falló",{PE}))'
+kpi_row(6, "LO ESENCIAL", [
+ ("D","E","OTIF (a tiempo y completo)", f'=IFERROR(COUNTIFS({E("P")},"OTIF",{PE})/{ENTREGADOS},"—")', PCT),
+ ("F","G","ENTREGAS A TIEMPO",          f'=IFERROR(COUNTIFS({E("M")},"Sí",{PE})/{ENTREGADOS},"—")', PCT),
+ ("H","I","TASA DE NOVEDADES",          f'=IFERROR(COUNTIFS({E("N")},">0",{PE})/COUNTIFS({PE}),"—")', PCT),
+ ("J","K","VALOR AFECTADO",             f'=SUMIFS({N("R")},{PN})', MONEY),
+ ("L","M","ENVÍOS DEL PERIODO",         f'=COUNTIFS({PE})', NUM),
+])
+kpi_row(9, "LA GESTIÓN", [
+ ("D","E","NOVEDADES",            f'=COUNTIFS({PN})', NUM),
+ ("F","G","ABIERTAS",             "=" + ABIERTAS(), NUM),
+ ("H","I","VENCIDAS (SLA roto)",  f'=COUNTIFS({N("X")},"Vencida",{PN})', NUM),
+ ("J","K","DÍAS PROM. SOLUCIÓN",  f'=IFERROR(ROUND(AVERAGEIFS({N("W")},{PN}),1),0)', DEC),
+ ("L","M","CUMPLIMIENTO DE SLA",  f'=IFERROR(COUNTIFS({N("X")},"Resuelta a tiempo",{PN})/COUNTIFS({N("X")},"Resuelta*",{PN}),"—")', PCT),
+])
+
+def thead(row, cols):
+    for col, tx in cols:
+        put(tb, f"{col}{row}", tx, font=f_hdr, fill=BLUE, al=CEN)
+    tb.row_dimensions[row].height = 32
+
+def cell(coord, val, fmt="General", al=None, bold=False):
+    return put(tb, coord, val, font=(f_bold if bold else f_base),
+               fill=(CARD if bold else CALC), fmt=fmt, al=al or CEN)
+
+def name_cell(row, formula, bold=False):
+    c = put(tb, f"B{row}", formula, font=(f_bold if bold else f_base),
+            fill=(CARD if bold else CALC), al=LEF)
+    put(tb, f"C{row}", None, font=f_base, fill=(CARD if bold else CALC), al=LEF)
+    tb.merge_cells(start_row=row, start_column=2, end_row=row, end_column=3)
+    return c
+
+# ---- 1. SCORECARD DE TRANSPORTADORAS ----
+seccion(tb, 12, "B", "M", "1 · SCORECARD DE TRANSPORTADORAS")
+tb["B13"] = ("Nota A = 90 puntos o más · B = 80 a 89 · C = 70 a 79 · D = menos de 70.   "
+             "Puntaje = OTIF ×60 + (1 − tasa de novedades) ×25 + (1 − vencidas/novedades) ×15.")
+tb["B13"].font = f_note; tb.merge_cells("B13:M13")
+thead(14, [("B","Transportadora"),("D","Envíos"),("E","OTIF"),("F","Novedades"),("G","Tasa"),
+           ("H","Abiertas"),("I","Vencidas"),("J","Días prom."),("K","Valor afectado"),
+           ("L","Puntaje"),("M","Nota")])
+tb["C14"].fill = fl(BLUE); tb["C14"].border = BOX; tb.merge_cells("B14:C14")
+for r in range(15, 25):
+    lr = r - 11
+    name_cell(r, f'=IF(CONFIG!$M{lr}="","",CONFIG!$M{lr})')
+    g = f'{N("G")},$B{r}'; e = f'{E("E")},$B{r}'
+    cell(f"D{r}", f'=IF($B{r}="","",COUNTIFS({e},{PE}))', NUM)
+    cell(f"E{r}", f'=IF($B{r}="","",IFERROR(COUNTIFS({e},{E("P")},"OTIF",{PE})/(COUNTIFS({e},{E("P")},"OTIF",{PE})+COUNTIFS({e},{E("P")},"Falló",{PE})),"—"))', PCT1)
+    cell(f"F{r}", f'=IF($B{r}="","",COUNTIFS({g},{PN}))', NUM)
+    cell(f"G{r}", f'=IF($B{r}="","",IFERROR(COUNTIFS({e},{E("N")},">0",{PE})/$D{r},"—"))', PCT1)
+    cell(f"H{r}", f'=IF($B{r}="","",{ABIERTAS(f",{g}")})', NUM)
+    cell(f"I{r}", f'=IF($B{r}="","",COUNTIFS({g},{N("X")},"Vencida",{PN}))', NUM)
+    cell(f"J{r}", f'=IF($B{r}="","",IFERROR(ROUND(AVERAGEIFS({N("W")},{g},{PN}),1),0))', DEC)
+    cell(f"K{r}", f'=IF($B{r}="","",SUMIFS({N("R")},{g},{PN}))', MONEY)
+    cell(f"L{r}", f'=IF(OR($B{r}="",$D{r}=0,NOT(ISNUMBER($E{r}))),"—",'
+                  f'ROUND($E{r}*60+(1-N($G{r}))*25+IF($F{r}=0,15,(1-$I{r}/$F{r})*15),0))', NUM)
+    cell(f"M{r}", f'=IF(NOT(ISNUMBER($L{r})),"—",IF($L{r}>=90,"A",IF($L{r}>=80,"B",IF($L{r}>=70,"C","D"))))')
+name_cell(25, '="TOTAL"', bold=True)
+for col in "DFHI": cell(f"{col}25", f"=SUM(${col}$15:${col}$24)", NUM, bold=True)
+cell("E25", f'=IFERROR(COUNTIFS({E("P")},"OTIF",{PE})/{ENTREGADOS},"—")', PCT1, bold=True)
+cell("G25", f'=IFERROR(COUNTIFS({E("N")},">0",{PE})/COUNTIFS({PE}),"—")', PCT1, bold=True)
+cell("J25", f'=IFERROR(ROUND(AVERAGEIFS({N("W")},{PN}),1),0)', DEC, bold=True)
+cell("K25", "=SUM($K$15:$K$24)", MONEY, bold=True)
+cell("L25", "", bold=True); cell("M25", "", bold=True)
+
+# ---- 2. PARETO DE CAUSA RAIZ ----
+seccion(tb, 27, "B", "M", "2 · PARETO DE CAUSA RAÍZ — dónde atacar primero")
+tb["B28"] = ("Regla 80/20: las causas que aparecen hasta llegar a 80% en la columna «% acumulado» "
+             "son las que explican casi todas sus novedades. Empiece por ahí.")
+tb["B28"].font = f_note; tb.merge_cells("B28:M28")
+thead(29, [("B","Causa raíz"),("D","Casos"),("E","% de las novedades"),("F","% acumulado"),
+           ("G","Valor afectado"),("H","Familia (6M)"),("I","Área responsable")])
+tb["C29"].fill = fl(BLUE); tb["C29"].border = BOX; tb.merge_cells("B29:C29")
+for col in "JKLM":
+    put(tb, f"{col}29", None, font=f_hdr, fill=BLUE, al=CEN)
+HELP = "CONFIG!$Q$4:$Q$23"; CAUS = "CONFIG!$F$4:$F$23"
+for r in range(30, 42):
+    k = r - 29
+    name_cell(r, f'=IFERROR(INDEX({CAUS},MATCH(LARGE({HELP},{k}),{HELP},0)),"")')
+    cell(f"D{r}", f'=IF($B{r}="","",ROUNDDOWN(LARGE({HELP},{k}),0))', NUM)
+    cell(f"E{r}", f'=IF($B{r}="","",IFERROR($D{r}/$D$42,0))', PCT1)
+    cell(f"F{r}", f'=IF($B{r}="","",IFERROR(SUM($D$30:$D{r})/$D$42,0))', PCT1)
+    cell(f"G{r}", f'=IF($B{r}="","",SUMIFS({N("R")},{N("N")},$B{r},{PN}))', MONEY)
+    cell(f"H{r}", f'=IF($B{r}="","",IFERROR(INDEX({C("G")},MATCH($B{r},{C("F")},0)),""))')
+    cell(f"I{r}", f'=IF($B{r}="","",IFERROR(INDEX({C("H")},MATCH($B{r},{C("F")},0)),""))')
+    for col in "JKLM": cell(f"{col}{r}", None)
+name_cell(42, '="TOTAL de novedades del periodo"', bold=True)
+cell("D42", f'=COUNTIFS({PN})', NUM, bold=True)
+cell("E42", '=IF($D$42=0,0,1)', PCT1, bold=True); cell("F42", "", bold=True)
+cell("G42", f'=SUMIFS({N("R")},{PN})', MONEY, bold=True)
+for col in "HIJKLM": cell(f"{col}42", None, bold=True)
+
+# ---- 3. NOVEDADES POR TIPO ----
+seccion(tb, 44, "B", "M", "3 · NOVEDADES POR TIPO — qué está pasando")
+thead(45, [("B","Tipo de novedad"),("D","Casos"),("E","% del total"),("F","Valor afectado"),
+           ("G","Gravedad"),("H","¿Afecta la entrega?"),("I","Abiertas"),("J","Vencidas"),("K","Días prom.")])
+tb["C45"].fill = fl(BLUE); tb["C45"].border = BOX; tb.merge_cells("B45:C45")
+for col in "LM": put(tb, f"{col}45", None, font=f_hdr, fill=BLUE, al=CEN)
+for r in range(46, 65):
+    lr = r - 42
+    name_cell(r, f'=IF(CONFIG!$A{lr}="","",CONFIG!$A{lr})')
+    t = f'{N("K")},$B{r}'
+    cell(f"D{r}", f'=IF($B{r}="","",COUNTIFS({t},{PN}))', NUM)
+    cell(f"E{r}", f'=IF($B{r}="","",IFERROR($D{r}/$D$65,0))', PCT1)
+    cell(f"F{r}", f'=IF($B{r}="","",SUMIFS({N("R")},{t},{PN}))', MONEY)
+    cell(f"G{r}", f'=IF($B{r}="","",IFERROR(INDEX({C("B")},MATCH($B{r},{C("A")},0)),""))')
+    cell(f"H{r}", f'=IF($B{r}="","",IFERROR(INDEX({C("D")},MATCH($B{r},{C("A")},0)),""))')
+    cell(f"I{r}", f'=IF($B{r}="","",{ABIERTAS(f",{t}")})', NUM)
+    cell(f"J{r}", f'=IF($B{r}="","",COUNTIFS({t},{N("X")},"Vencida",{PN}))', NUM)
+    cell(f"K{r}", f'=IF($B{r}="","",IFERROR(ROUND(AVERAGEIFS({N("W")},{t},{PN}),1),0))', DEC)
+    for col in "LM": cell(f"{col}{r}", None)
+name_cell(65, '="TOTAL"', bold=True)
+for col in "DIJ": cell(f"{col}65", f"=SUM(${col}$46:${col}$64)", NUM, bold=True)
+cell("E65", '=IF($D$65=0,0,1)', PCT1, bold=True)
+cell("F65", "=SUM($F$46:$F$64)", MONEY, bold=True)
+cell("K65", f'=IFERROR(ROUND(AVERAGEIFS({N("W")},{PN}),1),0)', DEC, bold=True)
+for col in "GHLM": cell(f"{col}65", None, bold=True)
+
+# ---- 4. ESTADO DE LA GESTION  +  FAMILIA 6M ----
+seccion(tb, 67, "B", "M", "4 · ESTADO DE LA GESTIÓN  y  FAMILIA DE LA CAUSA (6M de Ishikawa)")
+thead(68, [("B","Estado"),("D","Casos"),("E","% del total"),
+           ("G","Familia (6M)"),("I","Casos"),("J","% del total"),("K","Valor afectado")])
+tb["C68"].fill = fl(BLUE); tb["C68"].border = BOX; tb.merge_cells("B68:C68")
+tb["H68"].fill = fl(BLUE); tb["H68"].border = BOX; tb.merge_cells("G68:H68")
+for col in "FLM": put(tb, f"{col}68", None, font=f_hdr, fill=BLUE, al=CEN)
+FAMILIAS = ["Método","Material","Medición","Mano de obra","Máquina","Medio ambiente","Externo","Por definir"]
+for r in range(69, 77):
+    i = r - 69
+    if i < 6:
+        lr = r - 65
+        name_cell(r, f'=IF(CONFIG!$J{lr}="","",CONFIG!$J{lr})')
+        cell(f"D{r}", f'=IF($B{r}="","",COUNTIFS({N("S")},$B{r},{PN}))', NUM)
+        cell(f"E{r}", f'=IF($B{r}="","",IFERROR($D{r}/$D$77,0))', PCT1)
+    else:
+        name_cell(r, None); cell(f"D{r}", None); cell(f"E{r}", None)
+    put(tb, f"F{r}", None, fill=CALC, al=CEN)
+    g = put(tb, f"G{r}", FAMILIAS[i], fill=CALC, al=LEF)
+    put(tb, f"H{r}", None, fill=CALC, al=LEF); tb.merge_cells(f"G{r}:H{r}")
+    cell(f"I{r}", f'=COUNTIFS({N("O")},$G{r},{PN})', NUM)
+    cell(f"J{r}", f'=IFERROR($I{r}/$I$77,0)', PCT1)
+    cell(f"K{r}", f'=SUMIFS({N("R")},{N("O")},$G{r},{PN})', MONEY)
+    for col in "LM": cell(f"{col}{r}", None)
+name_cell(77, '="TOTAL"', bold=True)
+cell("D77", "=SUM($D$69:$D$74)", NUM, bold=True); cell("E77", '=IF($D$77=0,0,1)', PCT1, bold=True)
+put(tb, "F77", None, fill=CARD, al=CEN)
+put(tb, "G77", "TOTAL", font=f_bold, fill=CARD, al=LEF); put(tb, "H77", None, fill=CARD)
+tb.merge_cells("G77:H77")
+cell("I77", "=SUM($I$69:$I$76)", NUM, bold=True); cell("J77", '=IF($I$77=0,0,1)', PCT1, bold=True)
+cell("K77", "=SUM($K$69:$K$76)", MONEY, bold=True)
+for col in "LM": cell(f"{col}77", None, bold=True)
+
+# ---- 5. BUSCADOR DE GUIA ----
+seccion(tb, 79, "B", "M", "5 · BUSCADOR — la ficha completa de un envío")
+put(tb, "B80", "Escriba el Nº de guía →", font=f_bold, fill=CARD, al=LEF)
+put(tb, "C80", None, fill=CARD); tb.merge_cells("B80:C80")
+q = put(tb, "D80", None, font=Font(name=FN, size=12, bold=True, color=INK), fill=EDIT, al=CEN, editable=True)
+put(tb, "E80", None, fill=EDIT, editable=True); tb.merge_cells("D80:E80")
+put(tb, "F80", "◄ la ficha de abajo se llena sola", font=f_note, al=LEF, box=False)
+tb.merge_cells("F80:M80"); tb.row_dimensions[80].height = 22
+
+LK = lambda rng: f'IFERROR(INDEX({rng},MATCH($D$80,{E("A")},0)),"—")'
+FICHA = [
+ ("Cliente",               f'=IF($D$80="","—",{LK(E("C"))})', "General"),
+ ("Ciudad destino",        f'=IF($D$80="","—",{LK(E("D"))})', "General"),
+ ("Transportadora",        f'=IF($D$80="","—",{LK(E("E"))})', "General"),
+ ("Conductor",             f'=IF($D$80="","—",{LK(E("F"))})', "General"),
+ ("Placa",                 f'=IF($D$80="","—",{LK(E("G"))})', "General"),
+ ("Fecha despacho",        f'=IF($D$80="","—",{LK(E("B"))})', FECHA),
+ ("Fecha promesa",         f'=IF($D$80="","—",{LK(E("J"))})', FECHA),
+ ("Fecha entrega real",    f'=IF($D$80="","—",{LK(E("K"))})', FECHA),
+ ("¿Llegó a tiempo?",      f'=IF($D$80="","—",{LK(E("M"))})', "General"),
+ ("¿Llegó completa?",      f'=IF($D$80="","—",{LK(E("O"))})', "General"),
+ ("OTIF",                  f'=IF($D$80="","—",{LK(E("P"))})', "General"),
+ ("Novedades registradas", f'=IF($D$80="","—",COUNTIFS({N("C")},$D$80))', NUM),
+ ("Valor afectado",        f'=IF($D$80="","—",SUMIFS({N("R")},{N("C")},$D$80))', MONEY),
+ ("Última novedad",        f'=IF($D$80="","—",IFERROR(LOOKUP(2,1/({N("C")}=$D$80),{N("K")}),"—"))', "General"),
+ ("Estado de esa novedad", f'=IF($D$80="","—",IFERROR(LOOKUP(2,1/({N("C")}=$D$80),{N("S")}),"—"))', "General"),
+ ("Estado SLA",            f'=IF($D$80="","—",IFERROR(LOOKUP(2,1/({N("C")}=$D$80),{N("X")}),"—"))', "General"),
+]
+for i, (lbl, frm, fmt) in enumerate(FICHA):
+    r = 82 + i
+    put(tb, f"B{r}", lbl, font=f_base, fill=CARD, al=LEF)
+    put(tb, f"C{r}", None, fill=CARD); tb.merge_cells(f"B{r}:C{r}")
+    put(tb, f"D{r}", frm, font=f_bold, fill=CALC, fmt=fmt, al=LEF)
+    for col in "EF": put(tb, f"{col}{r}", None, fill=CALC)
+    tb.merge_cells(f"D{r}:F{r}")
+    tb.row_dimensions[r].height = 16
+tb.freeze_panes = "B5"
+
+# ---- columna auxiliar del Pareto, en CONFIG ----
+put(cf, "Q3", "⚙ CÁLCULO DEL TABLERO — no borrar", font=f_hdr, fill=INK2, al=CEN)
+cf.column_dimensions["P"].width = 2; cf.column_dimensions["Q"].width = 30
+for r in range(4, 24):
+    put(cf, f"Q{r}", f'=IF($F{r}="","",COUNTIFS({N("N")},$F{r},{N("B")},">="&TABLERO!$E$4,'
+                     f'{N("B")},"<="&TABLERO!$G$4)+ROW()/100000)',
+        font=f_base, fill=CALC, fmt="0.00000", al=CEN)
+
+# =========================================================================
+# INICIO
+# =========================================================================
+ini = sheet("INICIO", "FF16A34A")
+widths(ini, {"A":2, "B":6, "C":148})
 GUIA = [
- ("T", "GUÍA DE USO — MATRIZ DE NOVEDADES DE LOGÍSTICA Y TRANSPORTE · GESTOAGRO S.A.S."),
- ("H", "LA REGLA DE ORO — COLORES"),
- ("P", "•  Celdas AMARILLAS = usted las digita.        •  Celdas GRISES = se calculan solas, NO las toque.        •  Encabezado DORADO = columna de captura.        •  Encabezado AZUL = columna calculada."),
- ("H", "FLUJO DIARIO — PASO A PASO"),
- ("P", "1)  DESPACHOS: pegue el export de Access desde la fila 3 (columnas A a J, mismo orden). Luego complete a mano Destino/Ciudad (K), Cajas enviadas (L) y Valor despachado (M)."),
- ("P", "2)  NOVEDADES: para registrar un evento digite SOLO la Fecha novedad (B) y el # Pedido / Remisión (C). Cliente, destino, ruta, transportadora, transportador, placa y fecha de despacho se traen solos desde DESPACHOS."),
- ("P", "3)  Elija de las listas: Tipo de novedad (L), Causa raíz (M), Responsable (O) y Estado (T). El Área responsable, la Criticidad y la Fecha compromiso se calculan solas."),
- ("P", "4)  Registre el impacto: Cajas afectadas (Q) y Valor afectado (R). El % del despacho sale solo."),
- ("P", "5)  Al resolver el caso: cambie el Estado (T) a uno que cierre y escriba la Fecha cierre real (V). El semáforo pasa a CERRADA EN SLA o CERRADA FUERA DE SLA."),
- ("H", "CÓMO LEER EL SEMÁFORO SLA (columna Y)"),
- ("P", "EN PLAZO = dentro de la fecha compromiso.   POR VENCER = vence hoy o mañana.   VENCIDA = ya pasó la fecha compromiso y sigue abierta.   CERRADA EN SLA = se resolvió a tiempo.   CERRADA FUERA DE SLA = se resolvió tarde.   SIN CLASIFICAR = falta el Tipo de novedad."),
- ("H", "VERIFICACIÓN DE LA LLAVE (columna K)"),
- ("P", "OK = el pedido existe una sola vez en DESPACHOS.   NO EXISTE = el número está mal o el despacho no se ha pegado.   DUPLICADO = el pedido aparece más de una vez en DESPACHOS y el cruce puede traer el dato equivocado. Corrija antes de seguir."),
- ("H", "CÓMO CAMBIAR LAS REGLAS DE NEGOCIO"),
- ("P", "Todo se controla desde LISTAS, sin tocar fórmulas: A/B/C = tipo de novedad con su criticidad y su SLA en días hábiles;  E/F = causa raíz con su área responsable;  H/I = estados y cuáles cierran el caso;  K = transportadoras;  M = responsables;  O = zonas cercanas. Agregue filas hacia abajo: las listas desplegables crecen solas."),
- ("H", "DASHBOARD"),
- ("P", "Cambie las dos fechas amarillas del PERIODO y todo el tablero se recalcula: ratio de incidencia, top causas raíz, novedades por tipo, abiertas vs. cerradas por transportadora y pipeline por estado. La consulta rápida de la derecha trae la ficha completa de cualquier pedido."),
- ("H", "PROTECCIÓN — PIN 2026"),
- ("P", "DESPACHOS, NOVEDADES y DASHBOARD están protegidas para que nadie borre una fórmula; solo las celdas amarillas se editan. Para cambiar algo protegido: Revisar → Desproteger hoja → 2026. LISTAS queda libre para que pueda ampliar los catálogos."),
- ("H", "CAPACIDAD Y CIERRE"),
- ("P", "DESPACHOS admite 3.000 despachos y NOVEDADES 2.000 registros. Con su ciclo de ~1.000 pedidos cada 15 días, haga el cierre mensual: guarde una COPIA con el nombre del mes en una carpeta \"Históricos\", y en el archivo activo borre solo las celdas amarillas."),
- ("H", "SI USA GOOGLE SHEETS"),
- ("P", "Las fórmulas funcionan igual salvo dos: BUSCARX no existe (use ÍNDICE+COINCIDIR, que es lo que trae este archivo) y los nombres definidos no aceptan DESPLAZAMIENTO. En Sheets apunte la validación de datos directamente al rango, por ejemplo LISTAS!A3:A42."),
+ ("T", "", "MATRIZ DE NOVEDADES · LOGÍSTICA Y TRANSPORTE"),
+ ("P", "", "Un solo archivo para registrar todo lo que sale mal en una entrega, saber a quién cobrárselo y medir si está mejorando."),
+ ("H", "", "CÓMO SE USA — TRES PASOS"),
+ ("S", "1", "ENVÍOS.  Cada despacho es una fila. Escriba guía, fecha, cliente, ciudad, transportadora, conductor, placa, unidades, valor y la FECHA PROMESA DE ENTREGA. Cuando llegue, escriba la fecha de entrega real. Con eso el archivo calcula solo si llegó a tiempo y si llegó completo."),
+ ("S", "2", "NOVEDADES.  ¿Algo salió mal? Escriba la fecha y el Nº de guía: cliente, ciudad, transportadora, conductor, placa y fecha de despacho se traen solos. Usted solo elige el tipo, la causa, cuánto costó, el estado y quién responde."),
+ ("S", "3", "TABLERO.  Ponga el periodo arriba y lea. Le dice su OTIF, qué transportadora rinde y cuál no, y cuáles causas explican el 80% de sus problemas."),
+ ("H", "", "LA REGLA DE COLORES"),
+ ("P", "", "AMARILLO = usted lo escribe.        GRIS = se calcula solo, no lo toque.        Encabezado dorado = columna de captura.        Encabezado azul = columna calculada."),
+ ("P", "", "Además, cada hoja tiene una banda oscura arriba que separa las zonas: lo que se digita, lo que se calcula y lo que es seguimiento."),
+ ("H", "", "LOS CUATRO NÚMEROS QUE IMPORTAN"),
+ ("P", "", "OTIF (On Time In Full): de los envíos ya entregados, cuántos llegaron a tiempo Y completos. Es el estándar de la industria; una operación sana anda por encima del 95%."),
+ ("P", "", "TASA DE NOVEDADES: de cada 100 envíos, cuántos tuvieron algún problema. Cuenta envíos afectados, no novedades, para que no se infle cuando un envío genera tres."),
+ ("P", "", "CUMPLIMIENTO DE SLA: de las novedades ya resueltas, cuántas se resolvieron dentro del plazo que usted mismo definió por tipo."),
+ ("P", "", "PUNTAJE Y NOTA POR TRANSPORTADORA: A, B, C o D. Es la hoja que se lleva a la reunión de negociación."),
+ ("H", "", "CÓMO CAMBIAR LAS REGLAS SIN TOCAR FÓRMULAS"),
+ ("P", "", "Todo vive en la hoja CONFIG: los tipos de novedad con su gravedad y su plazo en días hábiles, las causas raíz con su familia 6M y su área responsable, los estados y cuáles cierran el caso, las transportadoras y los responsables."),
+ ("P", "", "Agregue filas hacia abajo y listo: las listas desplegables crecen solas y el tablero las recoge en el siguiente cálculo. Reemplace «Transportadora A, B, C» por los nombres reales antes de empezar."),
+ ("H", "", "SOBRE LA CAUSA RAÍZ (LAS 6M)"),
+ ("P", "", "Cada causa está clasificada en una de las seis familias del diagrama de Ishikawa: Método, Material, Medición, Mano de obra, Máquina y Medio ambiente (más Externo y Por definir). Sirve para ver si sus problemas son de proceso, de gente, de equipos o de afuera — y esa respuesta cambia qué se hace al respecto."),
+ ("H", "", "DETALLES PRÁCTICOS"),
+ ("P", "", "Las hojas están protegidas para que nadie borre una fórmula por accidente, pero SIN contraseña: Revisar → Desproteger hoja y ya. Los plazos se cuentan en días hábiles (sin sábados ni domingos); si quiere descontar festivos, agregue una columna de fechas festivas en CONFIG y páselas como tercer argumento de DIA.LAB."),
+ ("P", "", "Capacidad: 3.000 envíos y 1.500 novedades. Cuando se acerque al tope, guarde una copia con el nombre del periodo y borre solo las celdas amarillas."),
 ]
 r = 2
-for tipo, txt in GUIA:
-    c = gu.cell(row=r, column=2, value=txt)
-    if tipo == "T":
-        c.font = FTIT; c.fill = fill(VERDE); gu.row_dimensions[r].height = 30
-    elif tipo == "H":
-        c.font = Font(name="Arial", size=10, bold=True, color=BLANCO); c.fill = fill(AZUL)
-        gu.row_dimensions[r].height = 20
+for kind, num, txt in GUIA:
+    if kind == "T":
+        c = ini.cell(row=r, column=2, value=txt); c.font = f_title; c.fill = fl(INK)
+        c.alignment = Alignment(horizontal="left", vertical="center", indent=1)
+        ini.merge_cells(start_row=r, start_column=2, end_row=r, end_column=3)
+        ini.row_dimensions[r].height = 40
+    elif kind == "H":
+        c = ini.cell(row=r, column=2, value=txt); c.font = f_sec; c.fill = fl(INK2)
+        c.alignment = Alignment(horizontal="left", vertical="center", indent=1)
+        ini.merge_cells(start_row=r, start_column=2, end_row=r, end_column=3)
+        ini.row_dimensions[r].height = 24
+    elif kind == "S":
+        n = ini.cell(row=r, column=2, value=num)
+        n.font = Font(name=FN, size=16, bold=True, color=WHITE); n.fill = fl(BLUE); n.alignment = CEN
+        t = ini.cell(row=r, column=3, value=txt); t.font = f_base; t.fill = fl(CARD); t.alignment = LEFW
+        ini.row_dimensions[r].height = 42
     else:
-        c.font = Font(name="Arial", size=9); c.fill = fill(GRIS); gu.row_dimensions[r].height = 32
-    c.alignment = IZQW
+        ini.cell(row=r, column=2, value=None).fill = fl(WHITE)
+        c = ini.cell(row=r, column=3, value=txt); c.font = f_base; c.alignment = LEFW
+        ini.row_dimensions[r].height = 32
     r += 1
 
-# =====================================================================
-# PROTECCION, ORDEN Y GUARDADO
-# =====================================================================
-for ws in (ds, nv, db, gu):
+# =========================================================================
+# NOMBRES, VALIDACION, FORMATO CONDICIONAL
+# =========================================================================
+DYN = lambda col: f"OFFSET(CONFIG!${col}$4,0,0,MAX(1,COUNTA(CONFIG!${col}$4:${col}$43)),1)"
+for nm, col in [("TIPOS_NOVEDAD","A"), ("CAUSAS_RAIZ","F"), ("ESTADOS_NOVEDAD","J"),
+                ("TRANSPORTADORAS","M"), ("RESPONSABLES","O")]:
+    wb.defined_names.add(DefinedName(nm, attr_text=DYN(col)))
+
+def dv(ws, rng, warn=False, **kw):
+    d = DataValidation(**kw); ws.add_data_validation(d); d.add(rng)
+    if warn: d.errorStyle = "warning"
+    return d
+
+R_NOV = lambda c: f"{c}{NOV0}:{c}{NOV1}"
+R_ENV = lambda c: f"{c}{ENV0}:{c}{ENV1}"
+LISTA = dict(type="list", allow_blank=True, showErrorMessage=True)
+dv(nv, R_NOV("K"), formula1="TIPOS_NOVEDAD", errorTitle="Tipo no válido",
+   error="Elíjalo de la lista. Para agregar uno nuevo vaya a CONFIG, columna A.",
+   promptTitle="Tipo de novedad", prompt="Define la gravedad y el plazo (SLA).", showInputMessage=True, **LISTA)
+dv(nv, R_NOV("N"), formula1="CAUSAS_RAIZ", errorTitle="Causa no válida",
+   error="Elíjala de la lista. Para agregar una nueva vaya a CONFIG, columna F.",
+   promptTitle="Causa raíz", prompt="Por qué pasó. Define la familia 6M y el área responsable.",
+   showInputMessage=True, **LISTA)
+dv(nv, R_NOV("S"), formula1="ESTADOS_NOVEDAD", errorTitle="Estado no válido",
+   error="Elíjalo de la lista. Para agregar uno nuevo vaya a CONFIG, columna J.",
+   promptTitle="Estado", prompt="Los estados con ¿CIERRA EL CASO? = SÍ detienen el conteo de días.",
+   showInputMessage=True, **LISTA)
+dv(nv, R_NOV("T"), formula1="RESPONSABLES", errorTitle="Responsable no válido",
+   error="Elíjalo de la lista (CONFIG, columna O).", **LISTA)
+dv(nv, R_NOV("B"), type="date", operator="between", formula1="DATE(2020,1,1)", formula2="DATE(2040,12,31)",
+   allow_blank=True, showErrorMessage=True, errorTitle="Fecha no válida", error="Escriba una fecha real (dd/mm/aaaa).")
+dv(nv, R_NOV("V"), type="custom", formula1=f'OR($V{NOV0}="",AND(ISNUMBER($V{NOV0}),$V{NOV0}>=$B{NOV0}))',
+   allow_blank=True, showErrorMessage=True, errorTitle="Fecha de solución inválida",
+   error="No puede ser anterior a la fecha de la novedad.")
+for col in ("Q", "R"):
+    dv(nv, R_NOV(col), type="decimal", operator="greaterThanOrEqual", formula1="0", allow_blank=True,
+       showErrorMessage=True, errorTitle="Valor inválido", error="Debe ser un número mayor o igual a 0.")
+
+dv(ev, R_ENV("E"), warn=True, formula1="TRANSPORTADORAS", errorTitle="Transportadora nueva",
+   error="No está en CONFIG. Si es correcta, agréguela en CONFIG columna M para que entre al tablero.", **LISTA)
+for col in ("B", "J", "K"):
+    dv(ev, R_ENV(col), warn=True, type="date", operator="between", formula1="DATE(2020,1,1)",
+       formula2="DATE(2040,12,31)", allow_blank=True, showErrorMessage=True,
+       errorTitle="Fecha no válida", error="Escriba una fecha real (dd/mm/aaaa).")
+for col in ("H", "I"):
+    dv(ev, R_ENV(col), warn=True, type="decimal", operator="greaterThanOrEqual", formula1="0", allow_blank=True,
+       showErrorMessage=True, errorTitle="Valor inválido", error="Debe ser un número mayor o igual a 0.")
+
+# ---------------- formato condicional ----------------
+def txt_rule(ws, rng, valor, bg, tx, size=10):
+    ws.conditional_formatting.add(rng, CellIsRule(operator="equal", formula=[f'"{valor}"'],
+        fill=fl(bg), font=Font(name=FN, size=size, bold=True, color=tx)))
+
+def fx_rule(ws, rng, formula, bg=None, tx=None, size=10, bold=True):
+    ws.conditional_formatting.add(rng, FormulaRule(formula=[formula],
+        fill=(fl(bg) if bg else None),
+        font=Font(name=FN, size=size, bold=bold, color=(tx or INK))))
+
+def num_rule(ws, rng, op, vals, bg, tx, size=10):
+    ws.conditional_formatting.add(rng, CellIsRule(operator=op, formula=vals,
+        fill=fl(bg), font=Font(name=FN, size=size, bold=True, color=tx)))
+
+# --- NOVEDADES ---
+for v, bg, tx in [("En plazo", OK_BG, OK_TX), ("Por vencer", WARN_BG, WARN_TX),
+                  ("Vencida", DANG_BG, DANG_TX), ("Resuelta a tiempo", INFO_BG, INFO_TX),
+                  ("Resuelta tarde", "FFFFE4C4", "FF9A3412"), ("Resuelta", MUTE_BG, MUTE_TX),
+                  ("Sin clasificar", MUTE_BG, MUTE_TX)]:
+    txt_rule(nv, R_NOV("X"), v, bg, tx)
+for v, bg, tx in [("Crítica", "FF991B1B", WHITE), ("Alta", DANG_BG, DANG_TX),
+                  ("Media", WARN_BG, WARN_TX), ("Baja", OK_BG, OK_TX)]:
+    txt_rule(nv, R_NOV("L"), v, bg, tx)
+txt_rule(nv, R_NOV("M"), "SÍ", WARN_BG, WARN_TX)
+txt_rule(nv, R_NOV("D"), "OK", OK_BG, OK_TX)
+txt_rule(nv, R_NOV("D"), "NO EXISTE", DANG_BG, DANG_TX)
+txt_rule(nv, R_NOV("D"), "DUPLICADA", WARN_BG, WARN_TX)
+CIERRA = f'IFERROR(INDEX({C("K")},MATCH($S{NOV0},{C("J")},0)),"NO")'
+fx_rule(nv, R_NOV("S"), f'$S{NOV0}="Sin gestionar"', DANG_BG, DANG_TX)
+fx_rule(nv, R_NOV("S"), f'AND($S{NOV0}<>"",{CIERRA}="SÍ")', OK_BG, OK_TX)
+fx_rule(nv, R_NOV("S"), f'AND($S{NOV0}<>"",{CIERRA}="NO")', WARN_BG, WARN_TX)
+fx_rule(nv, R_NOV("V"), f'AND($V{NOV0}="",$X{NOV0}="Resuelta")', DANG_BG, DANG_TX)
+nv.conditional_formatting.add(R_NOV("R"), DataBarRule(start_type="num", start_value=0,
+    end_type="percentile", end_value=95, color=AMBER[2:], showValue=True))
+nv.conditional_formatting.add(R_NOV("W"), DataBarRule(start_type="num", start_value=0,
+    end_type="percentile", end_value=95, color="94A3B8", showValue=True))
+fx_rule(nv, f"A{NOV0}:Z{NOV1}", f'$X{NOV0}="Vencida"', None, DANG_TX)
+
+# --- ENVIOS ---
+for v, bg, tx in [("Sí", OK_BG, OK_TX), ("No", DANG_BG, DANG_TX),
+                  ("En ruta", MUTE_BG, MUTE_TX), ("Atrasado", DANG_BG, DANG_TX)]:
+    txt_rule(ev, R_ENV("M"), v, bg, tx)
+txt_rule(ev, R_ENV("O"), "Sí", OK_BG, OK_TX); txt_rule(ev, R_ENV("O"), "No", DANG_BG, DANG_TX)
+txt_rule(ev, R_ENV("P"), "OTIF", OK_BG, OK_TX); txt_rule(ev, R_ENV("P"), "Falló", DANG_BG, DANG_TX)
+num_rule(ev, R_ENV("N"), "greaterThan", ["0"], WARN_BG, WARN_TX)
+fx_rule(ev, f"A{ENV0}:P{ENV1}", f'AND($A{ENV0}<>"",COUNTIFS($A${ENV0}:$A${ENV1},$A{ENV0})>1)', None, "FF9A3412")
+
+# --- TABLERO ---
+K18 = 18
+for coord, op, vals, bg, tx in [
+    ("D7","greaterThanOrEqual",["0.95"],OK_BG,OK_TX), ("D7","lessThan",["0.9"],DANG_BG,DANG_TX),
+    ("F7","greaterThanOrEqual",["0.95"],OK_BG,OK_TX), ("F7","lessThan",["0.9"],DANG_BG,DANG_TX),
+    ("H7","greaterThan",["0.05"],DANG_BG,DANG_TX),    ("H7","lessThanOrEqual",["0.03"],OK_BG,OK_TX),
+    ("H10","greaterThan",["0"],DANG_BG,DANG_TX),      ("F10","greaterThan",["0"],WARN_BG,WARN_TX),
+    ("L10","lessThan",["0.9"],DANG_BG,DANG_TX),       ("L10","greaterThanOrEqual",["0.9"],OK_BG,OK_TX)]:
+    num_rule(tb, coord, op, vals, bg, tx, size=K18)
+for v, bg, tx in [("A", OK_BG, OK_TX), ("B", INFO_BG, INFO_TX), ("C", WARN_BG, WARN_TX), ("D", DANG_BG, DANG_TX)]:
+    txt_rule(tb, "M15:M24", v, bg, tx)
+num_rule(tb, "E15:E24", "greaterThanOrEqual", ["0.95"], OK_BG, OK_TX)
+num_rule(tb, "E15:E24", "lessThan", ["0.9"], DANG_BG, DANG_TX)
+num_rule(tb, "G15:G24", "greaterThan", ["0.05"], DANG_BG, DANG_TX)
+num_rule(tb, "I15:I24", "greaterThan", ["0"], DANG_BG, DANG_TX)
+tb.conditional_formatting.add("L15:L24", DataBarRule(start_type="num", start_value=0,
+    end_type="num", end_value=100, color="2563EB", showValue=True))
+num_rule(tb, "F30:F41", "lessThanOrEqual", ["0.8"], WARN_BG, WARN_TX)
+for rng in ("D30:D41", "D46:D64", "I69:I76"):
+    tb.conditional_formatting.add(rng, DataBarRule(start_type="num", start_value=0,
+        end_type="percentile", end_value=100, color="2563EB", showValue=True))
+for v, bg, tx in [("Crítica","FF991B1B",WHITE),("Alta",DANG_BG,DANG_TX),("Media",WARN_BG,WARN_TX),("Baja",OK_BG,OK_TX)]:
+    txt_rule(tb, "G46:G64", v, bg, tx)
+txt_rule(tb, "H46:H64", "SÍ", WARN_BG, WARN_TX)
+num_rule(tb, "J46:J64", "greaterThan", ["0"], DANG_BG, DANG_TX)
+for v, bg, tx in [("Sí", OK_BG, OK_TX), ("No", DANG_BG, DANG_TX), ("OTIF", OK_BG, OK_TX),
+                  ("Falló", DANG_BG, DANG_TX), ("En ruta", MUTE_BG, MUTE_TX), ("Atrasado", DANG_BG, DANG_TX),
+                  ("Vencida", DANG_BG, DANG_TX), ("En plazo", OK_BG, OK_TX), ("Por vencer", WARN_BG, WARN_TX),
+                  ("Resuelta a tiempo", INFO_BG, INFO_TX), ("Resuelta tarde", "FFFFE4C4", "FF9A3412")]:
+    txt_rule(tb, "D82:D97", v, bg, tx)
+
+# =========================================================================
+# PROTECCION, ORDEN, GUARDADO
+# =========================================================================
+for ws in (ev, nv, tb, ini):
     p = ws.protection
-    p.password = "2026"; p.sheet = True; p.enable()
+    p.sheet = True
     p.autoFilter = False; p.sort = False; p.formatColumns = False; p.formatRows = False
     p.selectLockedCells = False; p.selectUnlockedCells = False
 
-wb.move_sheet("GUÍA", offset=-wb.sheetnames.index("GUÍA"))
-orden = ["GUÍA", "DASHBOARD", "NOVEDADES", "DESPACHOS", "LISTAS"]
-wb._sheets = [wb[n] for n in orden]
-wb.active = 1
+wb._sheets = [wb[n] for n in ["INICIO", "TABLERO", "NOVEDADES", "ENVIOS", "CONFIG"]]
+wb.active = 0
 wb.calculation.fullCalcOnLoad = True
 
-import os
-OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "MATRIZ_NOVEDADES_LOGISTICA_GESTOAGRO.xlsx")
+OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                   "MATRIZ_NOVEDADES_LOGISTICA_TRANSPORTE.xlsx")
 wb.save(OUT)
 print("OK ->", OUT)
