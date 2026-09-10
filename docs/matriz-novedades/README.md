@@ -3,8 +3,12 @@
 Un solo archivo Excel para registrar todo lo que sale mal en una entrega, saber a quién
 cobrárselo y medir si la operación está mejorando.
 
-**Archivo:** `MATRIZ_NOVEDADES_LOGISTICA_TRANSPORTE.xlsx`
-**Generador:** `generar_matriz.py` (`pip install openpyxl && python3 generar_matriz.py`)
+| Archivo | Para qué |
+|---|---|
+| `MATRIZ_NOVEDADES_LOGISTICA_TRANSPORTE.xlsx` | El archivo de trabajo, vacío y listo para usar |
+| `MATRIZ_NOVEDADES_LOGISTICA_TRANSPORTE_EJEMPLO.xlsx` | El mismo archivo con un mes de datos ficticios, para ver el tablero funcionando |
+| `generar_matriz.py` | Genera el archivo de trabajo (`pip install openpyxl && python3 generar_matriz.py`) |
+| `crear_ejemplo.py` | Genera la versión con datos de muestra |
 
 Diseño genérico: sirve para cualquier operación de transporte. No depende de ningún archivo previo.
 
@@ -340,6 +344,18 @@ casos harían que `COINCIDIR` devolviera siempre la misma y el ranking repetirí
 
 En las filas 31 a 41 cambie el `1` de `K.ESIMO.MAYOR` por 2, 3, … 12.
 
+### Gráficas
+
+Cuatro gráficas nativas de Excel a la derecha de las tablas (columnas O a V). Se recalculan
+solas con el periodo, porque leen las mismas celdas de las tablas.
+
+| Gráfica | Lee | Ancla |
+|---|---|---|
+| OTIF por transportadora (columnas) | `B15:B24` × `E15:E24` | `O14` |
+| Causas que más pesan (barras) | `B30:B41` × `D30:D41` | `O32` |
+| Novedades por tipo (barras) | `B46:B64` × `D46:D64` | `O56` |
+| Estado de la gestión (barras) | `B69:B74` × `D69:D74` | `O85` |
+
 ### Otras secciones
 
 - **Novedades por tipo** (filas 46-64): casos, %, valor, gravedad, ¿afecta la entrega?, abiertas, vencidas, días prom.
@@ -360,6 +376,13 @@ Resultados contrastados a mano: OTIF 3/7 = 42,9% · a tiempo 4/7 = 57,1% · tasa
 6/9 = 66,7% · cumplimiento de SLA 2/3 = 66,7% · puntaje de Transportadora A = 0,5×60 +
 0,5×25 + 1×15 = 58 → nota D. Detección de guía inexistente y duplicada, los siete valores del
 semáforo SLA, el Pareto con su acumulado y el buscador con el campo vacío.
+
+El archivo de ejemplo se verificó igual: 30 envíos y 14 novedades, **1.846 celdas calculadas,
+0 errores**. Sus resultados: OTIF 67,9% · entregas a tiempo 71,4% · tasa de novedades 40,0% ·
+cumplimiento de SLA 85,7%, y un scorecard que va de 97 puntos (nota A) a 38 (nota D).
+
+El ejemplo incluye a propósito un envío que llegó puntual pero incompleto (`G-2426`), para que se
+vea por qué «entregas a tiempo» (71,4%) es mayor que OTIF (67,9%): llegar a tiempo no basta.
 
 Tres defectos encontrados y corregidos durante esa verificación:
 
@@ -392,4 +415,5 @@ versión y no se rompe si se insertan columnas.
 - Los plazos se cuentan en días hábiles. Para descontar festivos, agregue una columna de fechas
   en `CONFIG` y páselas como tercer argumento de `DIA.LAB`.
 - Capacidad: 3.000 envíos y 1.500 novedades.
+- El archivo de ejemplo es solo para mirar: trabaje sobre el archivo vacío.
 - Antes de empezar, reemplace «Transportadora A, B, C» en `CONFIG!M` por los nombres reales.

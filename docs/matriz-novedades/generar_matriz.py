@@ -6,6 +6,7 @@ Ver README.md para el detalle de columnas, formulas y KPIs.
 
     pip install openpyxl
     python3 generar_matriz.py
+    python3 crear_ejemplo.py   # opcional: version con datos de muestra
 
 Diseno propio basado en estandares de la industria:
 OTIF/DIFOT, carrier scorecard, causa raiz 6M (Ishikawa), codigos de entrega fallida.
@@ -727,6 +728,51 @@ for v, bg, tx in [("Sí", OK_BG, OK_TX), ("No", DANG_BG, DANG_TX), ("OTIF", OK_B
                   ("Resuelta a tiempo", INFO_BG, INFO_TX), ("Resuelta tarde", "FFFFE4C4", "FF9A3412")]:
     txt_rule(tb, "D82:D97", v, bg, tx)
 
+
+# =========================================================================
+# GRAFICAS DEL TABLERO
+# =========================================================================
+from openpyxl.chart import BarChart, Reference
+from openpyxl.chart.label import DataLabelList
+from openpyxl.drawing.line import LineProperties
+from openpyxl.chart.shapes import GraphicalProperties
+
+widths(tb, {"N":2,"O":13,"P":13,"Q":13,"R":13,"S":13,"T":13,"U":13,"V":13})
+
+def grafica(titulo, cat_ini, cat_fin, val_col, val_ini, val_fin, ancla,
+            horizontal=False, alto=7.5, ancho=15.5, fmt=None, color="2563EB"):
+    ch = BarChart()
+    ch.type = "bar" if horizontal else "col"
+    ch.style = None
+    ch.title = titulo
+    ch.legend = None
+    ch.gapWidth = 45
+    ch.add_data(Reference(tb, min_col=ci(val_col), min_row=val_ini, max_row=val_fin), titles_from_data=False)
+    ch.set_categories(Reference(tb, min_col=2, min_row=cat_ini, max_row=cat_fin))
+    s = ch.series[0]
+    s.graphicalProperties = GraphicalProperties(solidFill=color)
+    s.graphicalProperties.line = LineProperties(noFill=True)
+    ch.dLbls = DataLabelList(); ch.dLbls.showVal = True; ch.dLbls.showSerName = False
+    ch.dLbls.showCatName = False; ch.dLbls.showLegendKey = False
+    if fmt: ch.dLbls.numFmt = fmt
+    ch.y_axis.majorGridlines = None
+    ch.x_axis.majorGridlines = None
+    ch.y_axis.delete = False; ch.x_axis.delete = False
+    if fmt: ch.y_axis.numFmt = fmt
+    ch.height = alto; ch.width = ancho
+    tb.add_chart(ch, ancla)
+    return ch
+
+# Alto en cm -> filas: una fila estandar mide ~0,53 cm. Se deja un renglon
+# de aire entre graficas para que no se monten unas sobre otras.
+grafica("OTIF por transportadora", 15, 24, "E", 15, 24, "O14", fmt="0%", alto=8.5)   # filas 14-30
+grafica("Causas que más pesan",    30, 41, "D", 30, 41, "O32", horizontal=True, alto=11.5)  # 32-54
+grafica("Novedades por tipo",      46, 64, "D", 46, 64, "O56", horizontal=True, alto=14.5)  # 56-83
+grafica("Estado de la gestión",    69, 74, "D", 69, 74, "O85", horizontal=True, alto=6.5,
+        color="D97706")  # 85-97
+
+put(tb, "O12", "Las gráficas se recalculan con el periodo de arriba.", font=f_note, al=LEF, box=False)
+tb.merge_cells("O12:V12")
 # =========================================================================
 # PROTECCION, ORDEN, GUARDADO
 # =========================================================================
