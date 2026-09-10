@@ -68,34 +68,46 @@ Cada hoja además tiene una banda oscura arriba que separa las zonas.
 
 ## Hoja `ENVIOS`
 
-16 columnas. Se digitan 11, se calculan 5.
+17 columnas. Se digitan 12, se calculan 5.
 
 | Col | Encabezado | Tipo | Fórmula |
 |---|---|---|---|
 | **A** | **Nº Guía / Remisión** | 🟨 **LLAVE** | — |
-| B | Fecha despacho | 🟨 | — |
-| C | Cliente | 🟨 | — |
-| D | Ciudad destino | 🟨 | — |
-| E | Transportadora | 🟨 lista | — |
-| F | Conductor | 🟨 | — |
-| G | Placa | 🟨 | — |
-| H | Unidades enviadas | 🟨 | — |
-| I | Valor del envío | 🟨 | — |
-| J | Fecha promesa de entrega | 🟨 | — |
-| K | Fecha de entrega real | 🟨 | — |
-| L | Días en ruta | ⬜ | `=SI(O($A4="";$B4="");"";SI($K4<>"";$K4-$B4;HOY()-$B4))` |
-| M | ¿Llegó a tiempo? | ⬜ | `=SI(O($A4="";$J4="");"";SI($K4="";SI(HOY()>$J4;"Atrasado";"En ruta");SI($K4<=$J4;"Sí";"No")))` |
-| N | Novedades | ⬜ | `=SI($A4="";"";CONTAR.SI.CONJUNTO(NOVEDADES!$D$4:$D$1503;$A4))` |
-| O | ¿Llegó completa? | ⬜ | `=SI($A4="";"";SI(CONTAR.SI.CONJUNTO(NOVEDADES!$D$4:$D$1503;$A4;NOVEDADES!$N$4:$N$1503;"SÍ")>0;"No";"Sí"))` |
-| P | OTIF | ⬜ | `=SI(O($A4="";$K4="");"";SI(Y($M4="Sí";$O4="Sí");"OTIF";"Falló"))` |
+| **B** | **Nº Pedido** | 🟨 | — |
+| C | Fecha despacho | 🟨 | — |
+| D | Cliente | 🟨 | — |
+| E | Ciudad destino | 🟨 | — |
+| F | Transportadora | 🟨 lista | — |
+| G | Conductor | 🟨 | — |
+| H | Placa | 🟨 | — |
+| I | Unidades enviadas | 🟨 | — |
+| J | Valor del envío | 🟨 | — |
+| K | Fecha promesa de entrega | 🟨 | — |
+| L | Fecha de entrega real | 🟨 | — |
+| M | Días en ruta | ⬜ | `=SI(O($A4="";$C4="");"";SI($L4<>"";$L4-$C4;HOY()-$C4))` |
+| N | ¿Llegó a tiempo? | ⬜ | `=SI(O($A4="";$K4="");"";SI($L4="";SI(HOY()>$K4;"Atrasado";"En ruta");SI($L4<=$K4;"Sí";"No")))` |
+| O | Novedades | ⬜ | `=SI($A4="";"";CONTAR.SI.CONJUNTO(NOVEDADES!$D$4:$D$1503;$A4))` |
+| P | ¿Llegó completa? | ⬜ | `=SI($A4="";"";SI(CONTAR.SI.CONJUNTO(NOVEDADES!$D$4:$D$1503;$A4;NOVEDADES!$P$4:$P$1503;"SÍ")>0;"No";"Sí"))` |
+| Q | OTIF | ⬜ | `=SI(O($A4="";$L4="");"";SI(Y($N4="Sí";$P4="Sí");"OTIF";"Falló"))` |
 
 > `Fecha promesa de entrega` es la columna que hace posible medir OTIF. Sin ella no hay indicador.
+
+### Guía y pedido: dos identificadores, una sola llave
+
+La **llave** sigue siendo el `Nº Guía / Remisión`: es el documento de transporte, uno por viaje,
+y es lo que amarra la novedad con el transportador. El `Nº Pedido` es el número comercial del
+cliente y viaja al lado para dar trazabilidad de punta a punta: **pedido → guía → cliente →
+novedad**.
+
+No se usa como llave a propósito: un mismo pedido puede salir en dos guías (un despacho parcial),
+así que no identifica un viaje. Donde sí sirve es en el buscador, que acepta cualquiera de los
+dos. Si un pedido se despachó en varias guías, el buscador muestra la primera.
 
 ---
 
 ## Hoja `NOVEDADES`
 
-28 columnas en cinco bloques. **Solo 13 se digitan.**
+29 columnas en cinco bloques. **Solo 13 se digitan.**
 
 ### ① Identificar
 
@@ -106,12 +118,17 @@ Cada hoja además tiene una banda oscura arriba que separa las zonas.
 | **C** | **Origen** | 🟨 lista | `En ruta` / `Interna` |
 | D | Nº Guía / Remisión | 🟨 (solo si es en ruta) | — |
 | E | Validación | ⬜ | ver abajo |
-| F | Cliente | ⬜ | `=SI($D4="";"";SI.ERROR(INDICE(ENVIOS!$C$4:$C$3003;COINCIDIR($D4;ENVIOS!$A$4:$A$3003;0));"—"))` |
-| G | Ciudad destino | ⬜ | igual, con `ENVIOS!$D$4:$D$3003` |
-| H | Transportadora | ⬜ | igual, con `ENVIOS!$E$4:$E$3003` |
-| I | Conductor | ⬜ | igual, con `ENVIOS!$F$4:$F$3003` |
-| J | Placa | ⬜ | igual, con `ENVIOS!$G$4:$G$3003` |
-| K | Fecha despacho | ⬜ | igual, con `ENVIOS!$B$4:$B$3003` |
+| **F** | **Nº Pedido** | ⬜ | `=SI($D4="";"";SI.ERROR(INDICE(ENVIOS!$B$4:$B$3003;COINCIDIR($D4;ENVIOS!$A$4:$A$3003;0));"—"))` |
+| G | Cliente | ⬜ | igual, con `ENVIOS!$D$4:$D$3003` |
+| H | Ciudad destino | ⬜ | igual, con `ENVIOS!$E$4:$E$3003` |
+| I | Transportadora | ⬜ | igual, con `ENVIOS!$F$4:$F$3003` |
+| J | Conductor | ⬜ | igual, con `ENVIOS!$G$4:$G$3003` |
+| K | Placa | ⬜ | igual, con `ENVIOS!$H$4:$H$3003` |
+| L | Fecha despacho | ⬜ | igual, con `ENVIOS!$C$4:$C$3003` |
+
+El `Nº Pedido` es **calculado**, no se digita: se trae de `ENVIOS` a partir de la guía, así que no
+puede quedar desalineado con el envío. En una novedad interna queda vacío, porque no hay envío
+del cual traerlo.
 
 **E — Validación**, que ya no castiga a una novedad interna por no tener guía:
 
@@ -133,13 +150,13 @@ Cada hoja además tiene una banda oscura arriba que separa las zonas.
 
 | Col | Encabezado | Tipo | Fórmula |
 |---|---|---|---|
-| L | Tipo de novedad | 🟨 lista | — |
-| M | Gravedad | ⬜ | `=SI($L4="";"";SI.ERROR(INDICE(CONFIG!$C$4:$C$63;COINCIDIR($L4;CONFIG!$A$4:$A$63;0));"Media"))` |
-| N | ¿Afecta la entrega? | ⬜ | `=SI($L4="";"";SI($C4="Interna";"NO";SI.ERROR(INDICE(CONFIG!$E$4:$E$63;COINCIDIR($L4;CONFIG!$A$4:$A$63;0));"NO")))` |
-| **O** | **Punto de ocurrencia** | 🟨 lista | — |
-| P | Causa raíz | 🟨 lista | — |
-| Q | Familia (6M) | ⬜ | `=SI($P4="";"";SI.ERROR(INDICE(CONFIG!$H$4:$H$63;COINCIDIR($P4;CONFIG!$G$4:$G$63;0));"Por definir"))` |
-| R | Área responsable | ⬜ | `=SI($P4="";"";SI.ERROR(INDICE(CONFIG!$I$4:$I$63;COINCIDIR($P4;CONFIG!$G$4:$G$63;0));"Por definir"))` |
+| M | Tipo de novedad | 🟨 lista | — |
+| N | Gravedad | ⬜ | `=SI($M4="";"";SI.ERROR(INDICE(CONFIG!$C$4:$C$63;COINCIDIR($M4;CONFIG!$A$4:$A$63;0));"Media"))` |
+| O | ¿Afecta la entrega? | ⬜ | `=SI($M4="";"";SI($C4="Interna";"NO";SI.ERROR(INDICE(CONFIG!$E$4:$E$63;COINCIDIR($M4;CONFIG!$A$4:$A$63;0));"NO")))` |
+| **P** | **Punto de ocurrencia** | 🟨 lista | — |
+| Q | Causa raíz | 🟨 lista | — |
+| R | Familia (6M) | ⬜ | `=SI($Q4="";"";SI.ERROR(INDICE(CONFIG!$H$4:$H$63;COINCIDIR($Q4;CONFIG!$G$4:$G$63;0));"Por definir"))` |
+| S | Área responsable | ⬜ | `=SI($Q4="";"";SI.ERROR(INDICE(CONFIG!$I$4:$I$63;COINCIDIR($Q4;CONFIG!$G$4:$G$63;0));"Por definir"))` |
 
 `¿Afecta la entrega?` alimenta el «in full» de OTIF. Una novedad interna nunca afecta una
 entrega, porque no hay entrega: por eso la fórmula la fuerza a `NO`.
@@ -155,27 +172,27 @@ entrega, porque no hay entrega: por eso la fórmula la fuerza a `NO`.
 
 | Col | Encabezado | Tipo |
 |---|---|---|
-| S | Unidades afectadas | 🟨 |
-| T | Valor afectado | 🟨 |
+| T | Unidades afectadas | 🟨 |
+| U | Valor afectado | 🟨 |
 
 ### ④ Gestionar y cerrar
 
 | Col | Encabezado | Tipo | Fórmula |
 |---|---|---|---|
-| U | Estado | 🟨 lista | — |
-| V | Responsable | 🟨 lista | — |
-| W | Fecha límite | ⬜ | `=SI(O($B4="";$L4="");"";DIA.LAB($B4;SI.ERROR(INDICE(CONFIG!$D$4:$D$63;COINCIDIR($L4;CONFIG!$A$4:$A$63;0));3)))` |
-| X | Fecha de solución | 🟨 | — |
-| Y | Días abiertos | ⬜ | `=SI($B4="";"";SI($X4<>"";$X4-$B4;HOY()-$B4))` |
-| Z | Estado SLA | ⬜ | ver abajo |
+| V | Estado | 🟨 lista | — |
+| W | Responsable | 🟨 lista | — |
+| X | Fecha límite | ⬜ | `=SI(O($B4="";$M4="");"";DIA.LAB($B4;SI.ERROR(INDICE(CONFIG!$D$4:$D$63;COINCIDIR($M4;CONFIG!$A$4:$A$63;0));3)))` |
+| Y | Fecha de solución | 🟨 | — |
+| Z | Días abiertos | ⬜ | `=SI($B4="";"";SI($Y4<>"";$Y4-$B4;HOY()-$B4))` |
+| AA | Estado SLA | ⬜ | ver abajo |
 
 ```excel
-=SI($B4="";"";SI(SI.ERROR(INDICE(CONFIG!$L$4:$L$63;COINCIDIR($U4;CONFIG!$K$4:$K$63;0));"NO")="SÍ";
-  SI(O($X4="";$W4="");"Resuelta";SI($X4>$W4;"Resuelta tarde";"Resuelta a tiempo"));
-  SI($W4="";"Sin clasificar";SI(HOY()>$W4;"Vencida";SI(HOY()>=$W4-1;"Por vencer";"En plazo")))))
+=SI($B4="";"";SI(SI.ERROR(INDICE(CONFIG!$L$4:$L$63;COINCIDIR($V4;CONFIG!$K$4:$K$63;0));"NO")="SÍ";
+  SI(O($Y4="";$X4="");"Resuelta";SI($Y4>$X4;"Resuelta tarde";"Resuelta a tiempo"));
+  SI($X4="";"Sin clasificar";SI(HOY()>$X4;"Vencida";SI(HOY()>=$X4-1;"Por vencer";"En plazo")))))
 ```
 
-No tiene ningún estado escrito a mano: lee la columna `¿CIERRA EL CASO?` de `CONFIG`. Y ya no
+No tiene ningún estado escrito a mano: lee la columna `¿CIERRA EL CASO?` de `CONFIG`. Y no
 depende de la guía, sino de la fecha, para que las novedades internas también tengan semáforo.
 
 | Valor | Significado |
@@ -192,8 +209,8 @@ depende de la guía, sino de la fecha, para que las novedades internas también 
 
 | Col | Encabezado | Tipo |
 |---|---|---|
-| AA | Qué se hizo | 🟨 |
-| AB | Notas / soporte | 🟨 |
+| AB | Qué se hizo | 🟨 |
+| AC | Notas / soporte | 🟨 |
 
 ---
 
@@ -211,6 +228,7 @@ Todo el comportamiento del archivo se cambia aquí, sin tocar fórmulas.
 | `R4:R63` | Transportadora | `ENVIOS!E` + scorecard |
 | `T4:T63` | Responsable | `NOVEDADES!V` |
 | `V4:V33` | Auxiliar del Pareto — no borrar | `TABLERO` |
+| `X4` | Auxiliar del buscador: fila del envío que coincide — no borrar | `TABLERO` |
 
 El **primer** punto de la lista `N` debe ser «En ruta / entrega al cliente»: el KPI «punto interno
 más frecuente» lo excluye a propósito, mirando de `N5` hacia abajo.
@@ -313,13 +331,13 @@ Los desplegables usan **nombres dinámicos**: al agregar una fila en `CONFIG` ap
 | Rango | Regla | Estilo |
 |---|---|---|
 | `NOVEDADES!C` | Lista de orígenes | 🛑 Bloquea |
-| `NOVEDADES!L` · `O` · `P` · `U` · `V` | Listas | 🛑 Bloquea |
+| `NOVEDADES!M` · `P` · `Q` · `V` · `W` | Listas | 🛑 Bloquea |
 | `NOVEDADES!B` | Fecha entre 2020 y 2040 | 🛑 Bloquea |
-| `NOVEDADES!X` | `=O($X4="";Y(ESNUMERO($X4);$X4>=$B4))` | 🛑 Bloquea |
-| `NOVEDADES!S` · `T` | Número ≥ 0 | 🛑 Bloquea |
-| `ENVIOS!E` | Lista de transportadoras | ⚠️ Advierte |
-| `ENVIOS!B` · `J` · `K` | Fecha válida | ⚠️ Advierte |
-| `ENVIOS!H` · `I` | Número ≥ 0 | ⚠️ Advierte |
+| `NOVEDADES!Y` | `=O($Y4="";Y(ESNUMERO($Y4);$Y4>=$B4))` | 🛑 Bloquea |
+| `NOVEDADES!T` · `U` | Número ≥ 0 | 🛑 Bloquea |
+| `ENVIOS!F` | Lista de transportadoras | ⚠️ Advierte |
+| `ENVIOS!C` · `K` · `L` | Fecha válida | ⚠️ Advierte |
+| `ENVIOS!I` · `J` | Número ≥ 0 | ⚠️ Advierte |
 
 En `ENVIOS` la validación advierte pero no bloquea, para no interrumpir un pegado masivo.
 El Nº de guía de `NOVEDADES` **no** lleva validación a propósito: debe poder quedar vacío
@@ -329,19 +347,19 @@ cuando la novedad es interna.
 
 | Hoja | Rango | Regla | Color |
 |---|---|---|---|
-| NOVEDADES | `Z` Estado SLA | En plazo / Por vencer / Vencida | verde / ámbar / rojo |
-| NOVEDADES | `Z` | Resuelta a tiempo / tarde / sin fecha | azul / naranja / gris |
-| NOVEDADES | `M` Gravedad | Crítica / Alta / Media / Baja | rojo sólido / rojo / ámbar / verde |
+| NOVEDADES | `AA` Estado SLA | En plazo / Por vencer / Vencida | verde / ámbar / rojo |
+| NOVEDADES | `AA` | Resuelta a tiempo / tarde / sin fecha | azul / naranja / gris |
+| NOVEDADES | `N` Gravedad | Crítica / Alta / Media / Baja | rojo sólido / rojo / ámbar / verde |
 | NOVEDADES | `C` Origen | `Interna` / `En ruta` | azul / gris |
-| NOVEDADES | `N` ¿Afecta la entrega? | `SÍ` | ámbar |
+| NOVEDADES | `O` ¿Afecta la entrega? | `SÍ` | ámbar |
 | NOVEDADES | `E` Validación | OK · Sin guía (interna) · FALTA GUÍA · NO EXISTE · DUPLICADA | verde · gris · rojo · rojo · ámbar |
-| NOVEDADES | `U` Estado | `Sin gestionar` → rojo; cierra=SÍ → verde; resto → ámbar (leído de `CONFIG`) | |
-| NOVEDADES | `X` | `=Y($X4="";$Z4="Resuelta")` — cerró sin fecha | rojo |
-| NOVEDADES | `T`, `Y` | Barra de datos | ámbar / gris |
-| NOVEDADES | `A:AB` | `=$Z4="Vencida"` → texto rojo en toda la fila | |
-| ENVIOS | `M`, `O`, `P` | Sí / No / OTIF / Falló / En ruta / Atrasado | verde / rojo / gris |
-| ENVIOS | `N` | `> 0` | ámbar |
-| ENVIOS | `A:P` | Guía duplicada en la base | texto naranja |
+| NOVEDADES | `V` Estado | `Sin gestionar` → rojo; cierra=SÍ → verde; resto → ámbar (leído de `CONFIG`) | |
+| NOVEDADES | `Y` | `=Y($Y4="";$AA4="Resuelta")` — cerró sin fecha | rojo |
+| NOVEDADES | `U`, `Z` | Barra de datos | ámbar / gris |
+| NOVEDADES | `A:AC` | `=$AA4="Vencida"` → texto rojo en toda la fila | |
+| ENVIOS | `N`, `P`, `Q` | Sí / No / OTIF / Falló / En ruta / Atrasado | verde / rojo / gris |
+| ENVIOS | `O` | `> 0` | ámbar |
+| ENVIOS | `A:Q` | Guía duplicada en la base | texto naranja |
 | TABLERO | KPIs | OTIF ≥95% verde · <90% rojo · tasa >5% rojo · vencidas >0 rojo · SLA <90% rojo · % internas >30% ámbar | |
 | TABLERO | `M18:M27` | Nota A / B / C / D | verde / azul / ámbar / rojo |
 | TABLERO | `G49:G80` | Ámbito `Interna` / `En ruta` | azul / gris |
@@ -356,8 +374,8 @@ El resaltado de fila vencida usa solo tipografía, no relleno, para no tapar el 
 Periodo en `E4` (Desde) y `G4` (Hasta). Abajo, `$PN` y `$PE` abrevian los criterios de periodo:
 
 - `$PN` = `NOVEDADES!$B$4:$B$1503;">="&$E$4;NOVEDADES!$B$4:$B$1503;"<="&$G$4`
-- `$PE` = `ENVIOS!$B$4:$B$3003;">="&$E$4;ENVIOS!$B$4:$B$3003;"<="&$G$4`
-- `$ENTREGADOS` = `(CONTAR.SI.CONJUNTO(ENVIOS!$P$4:$P$3003;"OTIF";$PE)+CONTAR.SI.CONJUNTO(ENVIOS!$P$4:$P$3003;"Falló";$PE))`
+- `$PE` = `ENVIOS!$C$4:$C$3003;">="&$E$4;ENVIOS!$C$4:$C$3003;"<="&$G$4`
+- `$ENTREGADOS` = `(CONTAR.SI.CONJUNTO(ENVIOS!$Q$4:$Q$3003;"OTIF";$PE)+CONTAR.SI.CONJUNTO(ENVIOS!$Q$4:$Q$3003;"Falló";$PE))`
 
 ### KPIs
 
@@ -365,10 +383,10 @@ Periodo en `E4` (Desde) y `G4` (Hasta). Abajo, `$PN` y `$PE` abrevian los criter
 
 | Celda | KPI | Fórmula |
 |---|---|---|
-| `D7` | **OTIF** | `=SI.ERROR(CONTAR.SI.CONJUNTO(ENVIOS!$P$4:$P$3003;"OTIF";$PE)/$ENTREGADOS;"—")` |
-| `F7` | Entregas a tiempo | `=SI.ERROR(CONTAR.SI.CONJUNTO(ENVIOS!$M$4:$M$3003;"Sí";$PE)/$ENTREGADOS;"—")` |
-| `H7` | **Tasa de novedades** | `=SI.ERROR(CONTAR.SI.CONJUNTO(ENVIOS!$N$4:$N$3003;">0";$PE)/CONTAR.SI.CONJUNTO($PE);"—")` |
-| `J7` | Valor afectado | `=SUMAR.SI.CONJUNTO(NOVEDADES!$T$4:$T$1503;$PN)` |
+| `D7` | **OTIF** | `=SI.ERROR(CONTAR.SI.CONJUNTO(ENVIOS!$Q$4:$Q$3003;"OTIF";$PE)/$ENTREGADOS;"—")` |
+| `F7` | Entregas a tiempo | `=SI.ERROR(CONTAR.SI.CONJUNTO(ENVIOS!$N$4:$N$3003;"Sí";$PE)/$ENTREGADOS;"—")` |
+| `H7` | **Tasa de novedades** | `=SI.ERROR(CONTAR.SI.CONJUNTO(ENVIOS!$O$4:$O$3003;">0";$PE)/CONTAR.SI.CONJUNTO($PE);"—")` |
+| `J7` | Valor afectado | `=SUMAR.SI.CONJUNTO(NOVEDADES!$U$4:$U$1503;$PN)` |
 | `L7` | Envíos del periodo | `=CONTAR.SI.CONJUNTO($PE)` |
 
 **Fila 2 — LA GESTIÓN** (todas las novedades, en ruta e internas)
@@ -376,10 +394,10 @@ Periodo en `E4` (Desde) y `G4` (Hasta). Abajo, `$PN` y `$PE` abrevian los criter
 | Celda | KPI | Fórmula |
 |---|---|---|
 | `D10` | Novedades | `=CONTAR.SI.CONJUNTO($PN)` |
-| `F10` | Abiertas | `=CONTAR.SI.CONJUNTO(NOVEDADES!$Z$4:$Z$1503;"En plazo";$PN)+…"Por vencer"…+…"Vencida"…+…"Sin clasificar"…` |
-| `H10` | Vencidas | `=CONTAR.SI.CONJUNTO(NOVEDADES!$Z$4:$Z$1503;"Vencida";$PN)` |
-| `J10` | Días prom. de solución | `=SI.ERROR(REDONDEAR(PROMEDIO.SI.CONJUNTO(NOVEDADES!$Y$4:$Y$1503;$PN);1);0)` |
-| `L10` | **Cumplimiento de SLA** | `=SI.ERROR(CONTAR.SI.CONJUNTO(NOVEDADES!$Z$4:$Z$1503;"Resuelta a tiempo";$PN)/CONTAR.SI.CONJUNTO(NOVEDADES!$Z$4:$Z$1503;"Resuelta*";$PN);"—")` |
+| `F10` | Abiertas | `=CONTAR.SI.CONJUNTO(NOVEDADES!$AA$4:$AA$1503;"En plazo";$PN)+…"Por vencer"…+…"Vencida"…+…"Sin clasificar"…` |
+| `H10` | Vencidas | `=CONTAR.SI.CONJUNTO(NOVEDADES!$AA$4:$AA$1503;"Vencida";$PN)` |
+| `J10` | Días prom. de solución | `=SI.ERROR(REDONDEAR(PROMEDIO.SI.CONJUNTO(NOVEDADES!$Z$4:$Z$1503;$PN);1);0)` |
+| `L10` | **Cumplimiento de SLA** | `=SI.ERROR(CONTAR.SI.CONJUNTO(NOVEDADES!$AA$4:$AA$1503;"Resuelta a tiempo";$PN)/CONTAR.SI.CONJUNTO(NOVEDADES!$AA$4:$AA$1503;"Resuelta*";$PN);"—")` |
 
 **Fila 3 — DÓNDE NACEN**
 
@@ -388,7 +406,7 @@ Periodo en `E4` (Desde) y `G4` (Hasta). Abajo, `$PN` y `$PE` abrevian los criter
 | `D13` | En ruta (transporte) | `=CONTAR.SI.CONJUNTO(NOVEDADES!$C$4:$C$1503;"En ruta";$PN)` |
 | `F13` | Internas (la empresa) | `=CONTAR.SI.CONJUNTO(NOVEDADES!$C$4:$C$1503;"Interna";$PN)` |
 | `H13` | **% internas** | `=SI.ERROR(CONTAR.SI.CONJUNTO(NOVEDADES!$C$4:$C$1503;"Interna";$PN)/CONTAR.SI.CONJUNTO($PN);"—")` |
-| `J13` | Valor de las internas | `=SUMAR.SI.CONJUNTO(NOVEDADES!$T$4:$T$1503;NOVEDADES!$C$4:$C$1503;"Interna";$PN)` |
+| `J13` | Valor de las internas | `=SUMAR.SI.CONJUNTO(NOVEDADES!$U$4:$U$1503;NOVEDADES!$C$4:$C$1503;"Interna";$PN)` |
 | `L13` | Punto interno más frecuente | `=SI(MAX($D$87:$D$97)=0;"—";SI.ERROR(INDICE($B$87:$B$97;COINCIDIR(MAX($D$87:$D$97);$D$87:$D$97;0));"—"))` |
 
 `L13` arranca en la fila 87 y no en la 86 a propósito: se salta «En ruta / entrega al cliente»
@@ -396,7 +414,7 @@ para señalar un punto de la casa propia, que es lo accionable.
 
 **Por qué la tasa de novedades cuenta envíos y no novedades:** un envío puede generar tres
 incidencias. Dividir novedades entre envíos daría un porcentaje inflado que puede pasar del 100%.
-`ENVIOS!N` marca el envío una sola vez, así que responde la pregunta correcta: *de cada 100
+`ENVIOS!O` marca el envío una sola vez, así que responde la pregunta correcta: *de cada 100
 envíos, ¿cuántos salieron mal?*
 
 **Por qué el denominador de OTIF se cuenta como `OTIF + Falló`:** solo se puede evaluar un envío
@@ -406,19 +424,19 @@ fecha de entrega.
 ### Scorecard de transportadoras (filas 18-27)
 
 Solo cuenta novedades **en ruta**: las internas no son culpa del transportador. La exclusión sale
-sola porque las internas dejan `NOVEDADES!H` (transportadora) vacía.
+sola porque las internas dejan `NOVEDADES!I` (transportadora) vacía.
 
-| Col | Métrica | Fórmula (fila 18; `$e` = `ENVIOS!$E$4:$E$3003;$B18`, `$g` = `NOVEDADES!$H$4:$H$1503;$B18`) |
+| Col | Métrica | Fórmula (fila 18; `$e` = `ENVIOS!$F$4:$F$3003;$B18`, `$g` = `NOVEDADES!$I$4:$I$1503;$B18`) |
 |---|---|---|
 | B | Transportadora | `=SI(CONFIG!$R4="";"";CONFIG!$R4)` |
 | D | Envíos | `=SI($B18="";"";CONTAR.SI.CONJUNTO($e;$PE))` |
-| E | OTIF | `=SI($B18="";"";SI.ERROR(CONTAR.SI.CONJUNTO($e;ENVIOS!$P$4:$P$3003;"OTIF";$PE)/(CONTAR.SI.CONJUNTO($e;ENVIOS!$P$4:$P$3003;"OTIF";$PE)+CONTAR.SI.CONJUNTO($e;ENVIOS!$P$4:$P$3003;"Falló";$PE));"—"))` |
+| E | OTIF | `=SI($B18="";"";SI.ERROR(CONTAR.SI.CONJUNTO($e;ENVIOS!$Q$4:$Q$3003;"OTIF";$PE)/(CONTAR.SI.CONJUNTO($e;ENVIOS!$Q$4:$Q$3003;"OTIF";$PE)+CONTAR.SI.CONJUNTO($e;ENVIOS!$Q$4:$Q$3003;"Falló";$PE));"—"))` |
 | F | Novedades | `=SI($B18="";"";CONTAR.SI.CONJUNTO($g;$PN))` |
-| G | Tasa | `=SI($B18="";"";SI.ERROR(CONTAR.SI.CONJUNTO($e;ENVIOS!$N$4:$N$3003;">0";$PE)/$D18;"—"))` |
+| G | Tasa | `=SI($B18="";"";SI.ERROR(CONTAR.SI.CONJUNTO($e;ENVIOS!$O$4:$O$3003;">0";$PE)/$D18;"—"))` |
 | H | Abiertas | suma de 4 `CONTAR.SI.CONJUNTO` sobre `NOVEDADES!$Z` |
-| I | Vencidas | `=SI($B18="";"";CONTAR.SI.CONJUNTO($g;NOVEDADES!$Z$4:$Z$1503;"Vencida";$PN))` |
-| J | Días prom. | `=SI($B18="";"";SI.ERROR(REDONDEAR(PROMEDIO.SI.CONJUNTO(NOVEDADES!$Y$4:$Y$1503;$g;$PN);1);0))` |
-| K | Valor afectado | `=SI($B18="";"";SUMAR.SI.CONJUNTO(NOVEDADES!$T$4:$T$1503;$g;$PN))` |
+| I | Vencidas | `=SI($B18="";"";CONTAR.SI.CONJUNTO($g;NOVEDADES!$AA$4:$AA$1503;"Vencida";$PN))` |
+| J | Días prom. | `=SI($B18="";"";SI.ERROR(REDONDEAR(PROMEDIO.SI.CONJUNTO(NOVEDADES!$Z$4:$Z$1503;$g;$PN);1);0))` |
+| K | Valor afectado | `=SI($B18="";"";SUMAR.SI.CONJUNTO(NOVEDADES!$U$4:$U$1503;$g;$PN))` |
 | L | **Puntaje** | `=SI(O($B18="";$D18=0;NO(ESNUMERO($E18)));"—";REDONDEAR($E18*60+(1-N($G18))*25+SI($F18=0;15;(1-$I18/$F18)*15);0))` |
 | M | **Nota** | `=SI(NO(ESNUMERO($L18));"—";SI($L18>=90;"A";SI($L18>=80;"B";SI($L18>=70;"C";"D"))))` |
 
@@ -428,7 +446,7 @@ sola porque las internas dejan `NOVEDADES!H` (transportadora) vacía.
 ### Pareto de causa raíz (filas 33-44)
 
 Auxiliar en `CONFIG!V4:V33`:
-`=SI($G4="";"";CONTAR.SI.CONJUNTO(NOVEDADES!$P$4:$P$1503;$G4;NOVEDADES!$B$4:$B$1503;">="&TABLERO!$E$4;NOVEDADES!$B$4:$B$1503;"<="&TABLERO!$G$4)+FILA()/100000)`
+`=SI($G4="";"";CONTAR.SI.CONJUNTO(NOVEDADES!$Q$4:$Q$1503;$G4;NOVEDADES!$B$4:$B$1503;">="&TABLERO!$E$4;NOVEDADES!$B$4:$B$1503;"<="&TABLERO!$G$4)+FILA()/100000)`
 
 El `+FILA()/100000` es un desempate infinitesimal: sin él, dos causas con el mismo número de
 casos harían que `COINCIDIR` devolviera siempre la misma y el ranking repetiría filas.
@@ -439,7 +457,7 @@ casos harían que `COINCIDIR` devolviera siempre la misma y el ranking repetirí
 | D | `=SI($B33="";"";REDONDEAR.MENOS(K.ESIMO.MAYOR(CONFIG!$V$4:$V$33;1);0))` |
 | E | `=SI($B33="";"";SI.ERROR($D33/$D$45;0))` |
 | F | `=SI($B33="";"";SI.ERROR(SUMA($D$33:$D33)/$D$45;0))` |
-| G | `=SI($B33="";"";SUMAR.SI.CONJUNTO(NOVEDADES!$T$4:$T$1503;NOVEDADES!$P$4:$P$1503;$B33;$PN))` |
+| G | `=SI($B33="";"";SUMAR.SI.CONJUNTO(NOVEDADES!$U$4:$U$1503;NOVEDADES!$Q$4:$Q$1503;$B33;$PN))` |
 
 En las filas 34 a 44 cambie el `1` de `K.ESIMO.MAYOR` por 2, 3, … 12.
 
@@ -449,15 +467,15 @@ La tabla que responde *¿en qué parte de la operación se rompe?* Mezcla en rut
 propósito: un faltante detectado en la entrega pero originado en picking aparece en
 «Alistamiento», que es donde hay que arreglarlo.
 
-| Col | Fórmula (fila 86; `$q` = `NOVEDADES!$O$4:$O$1503;$B86`) |
+| Col | Fórmula (fila 86; `$q` = `NOVEDADES!$P$4:$P$1503;$B86`) |
 |---|---|
 | B | `=SI(CONFIG!$N4="";"";CONFIG!$N4)` |
 | D | `=SI($B86="";"";CONTAR.SI.CONJUNTO($q;$PN))` |
 | E | `=SI($B86="";"";SI.ERROR($D86/$D$98;0))` |
-| F | `=SI($B86="";"";SUMAR.SI.CONJUNTO(NOVEDADES!$T$4:$T$1503;$q;$PN))` |
+| F | `=SI($B86="";"";SUMAR.SI.CONJUNTO(NOVEDADES!$U$4:$U$1503;$q;$PN))` |
 | G | Abiertas — suma de 4 `CONTAR.SI.CONJUNTO` sobre `NOVEDADES!$Z` |
-| H | `=SI($B86="";"";CONTAR.SI.CONJUNTO($q;NOVEDADES!$Z$4:$Z$1503;"Vencida";$PN))` |
-| I | `=SI($B86="";"";SI.ERROR(REDONDEAR(PROMEDIO.SI.CONJUNTO(NOVEDADES!$Y$4:$Y$1503;$q;$PN);1);0))` |
+| H | `=SI($B86="";"";CONTAR.SI.CONJUNTO($q;NOVEDADES!$AA$4:$AA$1503;"Vencida";$PN))` |
+| I | `=SI($B86="";"";SI.ERROR(REDONDEAR(PROMEDIO.SI.CONJUNTO(NOVEDADES!$Z$4:$Z$1503;$q;$PN);1);0))` |
 
 ### Gráficas
 
@@ -476,9 +494,13 @@ solas con el periodo, porque leen las mismas celdas de las tablas.
 
 - **Novedades por tipo** (filas 49-80): casos, %, valor, ámbito, gravedad, abiertas, vencidas, días prom.
 - **Estado de la gestión** y **Familia 6M** (filas 102-110), lado a lado.
-- **Buscador** (fila 113): se escribe la guía en `D113` y sale la ficha completa. Solo aplica a
-  novedades en ruta. Las últimas novedades usan
-  `=BUSCAR(2;1/(NOVEDADES!$D$4:$D$1503=$D$113);NOVEDADES!$Z$4:$Z$1503)`, que devuelve la
+- **Buscador** (fila 113): acepta **el Nº de guía o el Nº de pedido**. Un auxiliar en
+  `CONFIG!X4` resuelve la fila del envío probando primero por guía y luego por pedido:
+  `=SI.ERROR(COINCIDIR(TABLERO!$D$113;ENVIOS!$A$4:$A$3003;0);SI.ERROR(COINCIDIR(TABLERO!$D$113;ENVIOS!$B$4:$B$3003;0);""))`
+  y toda la ficha sale de `=SI.ERROR(INDICE(rango;CONFIG!$X$4);"—")`. Las tres últimas filas
+  (novedades, valor afectado, estado) cuelgan de la guía que devolvió la ficha, no de lo que se
+  escribió, así que funcionan igual si se buscó por pedido. Las últimas novedades usan
+  `=BUSCAR(2;1/(NOVEDADES!$D$4:$D$1503=$D$115);NOVEDADES!$AA$4:$AA$1503)`, que devuelve la
   **última** coincidencia y no la primera.
 
 ---
@@ -486,7 +508,7 @@ solas con el periodo, porque leen las mismas celdas de las tablas.
 ## Verificación
 
 Las fórmulas se evaluaron con un motor de cálculo independiente (`formulas`) sobre un libro
-sembrado con 30 envíos y 22 novedades —14 en ruta y 8 internas—: **2.515 celdas calculadas,
+sembrado con 30 envíos y 22 novedades —14 en ruta y 8 internas—: **2.581 celdas calculadas,
 0 errores** (`#N/A`, `#REF!`, `#VALUE!`, `#DIV/0!`, `#NAME?`, `#NUM!`, `#NULL!`).
 
 Resultados del ejemplo, contrastados a mano:
@@ -501,15 +523,18 @@ Resultados del ejemplo, contrastados a mano:
 | Punto interno más frecuente | Alistamiento (picking) |
 | Scorecard | de 97 puntos (nota A) a 38 (nota D) |
 
-**La prueba clave del aislamiento:** al pasar de 14 a 22 novedades sumando 8 internas, el
-scorecard no se movió ni un punto (A=97, B=61, C=38, Flota propia=65), y OTIF, entregas a tiempo
-y tasa de novedades quedaron idénticos. Las internas no contaminan la evaluación del
-transportador.
+**La prueba del aislamiento:** al pasar de 14 a 22 novedades sumando 8 internas, el scorecard no
+se movió ni un punto (A=97, B=61, C=38, Flota propia=65), y OTIF, entregas a tiempo y tasa de
+novedades quedaron idénticos. Las internas no contaminan la evaluación del transportador.
 
-También verificados: la validación devolviendo `Sin guía (interna)` en vez de un error para las
-8 internas, el ID y el semáforo SLA funcionando sin guía, los siete valores del semáforo, el
-Pareto con su acumulado, el buscador con el campo vacío y los anclajes de las cinco gráficas
-(ninguna se monta sobre otra).
+**La prueba de la trazabilidad:** buscando por el pedido `P-5017` —no por la guía— el tablero
+devolvió la guía `G-2417`, su cliente, su transportadora, sus **2 novedades** y los **$2.070.000**
+afectados. La cadena pedido → guía → cliente → novedad queda cerrada en los dos sentidos.
+
+También verificados: la validación devolviendo `Sin guía (interna)` en vez de un error, el ID y el
+semáforo SLA funcionando sin guía, el `Nº Pedido` llegando solo a cada novedad en ruta y quedando
+vacío en las internas, los siete valores del semáforo, el Pareto con su acumulado, el buscador con
+el campo vacío y los anclajes de las cinco gráficas (ninguna se monta sobre otra).
 
 El ejemplo incluye a propósito un envío que llegó puntual pero incompleto (`G-2426`), para que se
 vea por qué «entregas a tiempo» (71,4%) es mayor que OTIF (67,9%): llegar a tiempo no basta.
@@ -553,4 +578,6 @@ versión y no se rompe si se insertan columnas.
 - El archivo de ejemplo es solo para mirar: trabaje sobre el archivo vacío.
 - Para una novedad interna: marque `Origen` = `Interna` y **deje el Nº de guía vacío**. La
   validación dirá «Sin guía (interna)», que es lo correcto.
+- El `Nº Pedido` se digita una sola vez, en `ENVIOS`. En `NOVEDADES` llega solo a partir de la
+  guía, así que no se puede desalinear.
 - Antes de empezar, reemplace «Transportadora A, B, C» en `CONFIG!M` por los nombres reales.

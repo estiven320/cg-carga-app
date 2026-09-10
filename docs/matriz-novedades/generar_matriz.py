@@ -2,7 +2,8 @@
 """MATRIZ DE NOVEDADES - LOGISTICA Y TRANSPORTE
 
 Reconstruye MATRIZ_NOVEDADES_LOGISTICA_TRANSPORTE.xlsx desde cero.
-Registra novedades en ruta (con guia) e internas (sin guia).
+Registra novedades en ruta (con guia) e internas (sin guia), y traza
+guia -> pedido -> cliente.
 Ver README.md para el detalle de columnas, formulas y KPIs.
 
     pip install openpyxl
@@ -240,49 +241,50 @@ def build_grid(ws, cols, r0, r1, band_row=2, hdr_row=3):
 # ENVIOS  -  base de despachos
 # =========================================================================
 ev = sheet("ENVIOS", BLUE)
-title(ev, 1, "A", "P", "ENVÍOS · base de despachos")
+title(ev, 1, "A", "Q", "ENVÍOS · base de despachos")
 
 ENV_COLS = [
  ("A","Nº Guía / Remisión",       "M", 18, "General", CEN),
- ("B","Fecha despacho",           "M", 13, FECHA,     CEN),
- ("C","Cliente",                  "M", 32, "General", LEF),
- ("D","Ciudad destino",           "M", 18, "General", LEF),
- ("E","Transportadora",           "M", 20, "General", LEF),
- ("F","Conductor",                "M", 22, "General", LEF),
- ("G","Placa",                    "M", 10, "General", CEN),
- ("H","Unidades enviadas",        "M", 13, NUM,       CEN),
- ("I","Valor del envío",          "M", 15, MONEY,     RIG),
- ("J","Fecha promesa de entrega", "M", 15, FECHA,     CEN),
- ("K","Fecha de entrega real",    "M", 15, FECHA,     CEN),
- ("L","Días en ruta",             "C", 11, NUM,       CEN),
- ("M","¿Llegó a tiempo?",         "C", 13, "General", CEN),
- ("N","Novedades",                "C", 11, NUM,       CEN),
- ("O","¿Llegó completa?",         "C", 13, "General", CEN),
- ("P","OTIF",                     "C", 11, "General", CEN),
+ ("B","Nº Pedido",                "M", 14, "General", CEN),
+ ("C","Fecha despacho",           "M", 13, FECHA,     CEN),
+ ("D","Cliente",                  "M", 32, "General", LEF),
+ ("E","Ciudad destino",           "M", 18, "General", LEF),
+ ("F","Transportadora",           "M", 20, "General", LEF),
+ ("G","Conductor",                "M", 22, "General", LEF),
+ ("H","Placa",                    "M", 10, "General", CEN),
+ ("I","Unidades enviadas",        "M", 13, NUM,       CEN),
+ ("J","Valor del envío",          "M", 15, MONEY,     RIG),
+ ("K","Fecha promesa de entrega", "M", 15, FECHA,     CEN),
+ ("L","Fecha de entrega real",    "M", 15, FECHA,     CEN),
+ ("M","Días en ruta",             "C", 11, NUM,       CEN),
+ ("N","¿Llegó a tiempo?",         "C", 13, "General", CEN),
+ ("O","Novedades",                "C", 11, NUM,       CEN),
+ ("P","¿Llegó completa?",         "C", 13, "General", CEN),
+ ("Q","OTIF",                     "C", 11, "General", CEN),
 ]
-banner(ev, 2, "A", "J", "① SE DIGITA AL DESPACHAR  ·  pegue o escriba aquí", BAND_A)
-banner(ev, 2, "K", "K", "② AL ENTREGAR", BAND_B)
-banner(ev, 2, "L", "P", "③ SE CALCULA SOLO  ·  no escriba en esta zona", BAND_A)
+banner(ev, 2, "A", "K", "① SE DIGITA AL DESPACHAR  ·  pegue o escriba aquí", BAND_A)
+banner(ev, 2, "L", "L", "② AL ENTREGAR", BAND_B)
+banner(ev, 2, "M", "Q", "③ SE CALCULA SOLO  ·  no escriba en esta zona", BAND_A)
 build_grid(ev, ENV_COLS, ENV0, ENV1)
 
 FENV = {
- "L": '=IF(OR($A{r}="",$B{r}=""),"",IF($K{r}<>"",$K{r}-$B{r},TODAY()-$B{r}))',
- "M": '=IF(OR($A{r}="",$J{r}=""),"",IF($K{r}="",IF(TODAY()>$J{r},"Atrasado","En ruta"),IF($K{r}<=$J{r},"Sí","No")))',
- "N": '=IF($A{r}="","",COUNTIFS({nC},$A{r}))',
- "O": '=IF($A{r}="","",IF(COUNTIFS({nC},$A{r},{nM},"SÍ")>0,"No","Sí"))',
- "P": '=IF(OR($A{r}="",$K{r}=""),"",IF(AND($M{r}="Sí",$O{r}="Sí"),"OTIF","Falló"))',
+ "M": '=IF(OR($A{r}="",$C{r}=""),"",IF($L{r}<>"",$L{r}-$C{r},TODAY()-$C{r}))',
+ "N": '=IF(OR($A{r}="",$K{r}=""),"",IF($L{r}="",IF(TODAY()>$K{r},"Atrasado","En ruta"),IF($L{r}<=$K{r},"Sí","No")))',
+ "O": '=IF($A{r}="","",COUNTIFS({nD},$A{r}))',
+ "P": '=IF($A{r}="","",IF(COUNTIFS({nD},$A{r},{nO},"SÍ")>0,"No","Sí"))',
+ "Q": '=IF(OR($A{r}="",$L{r}=""),"",IF(AND($N{r}="Sí",$P{r}="Sí"),"OTIF","Falló"))',
 }
 for r in range(ENV0, ENV1 + 1):
     for col, f in FENV.items():
-        ev[f"{col}{r}"] = f.format(r=r, nC=N("D"), nM=N("N"))
-ev.freeze_panes = "C4"
-ev.auto_filter.ref = f"A3:P{ENV1}"
+        ev[f"{col}{r}"] = f.format(r=r, nD=N("D"), nO=N("O"))
+ev.freeze_panes = "D4"
+ev.auto_filter.ref = f"A3:Q{ENV1}"
 
 # =========================================================================
 # NOVEDADES  -  la matriz (en ruta + internas)
 # =========================================================================
 nv = sheet("NOVEDADES", AMBER)
-title(nv, 1, "A", "AB", "MATRIZ DE NOVEDADES · logística y transporte")
+title(nv, 1, "A", "AC", "MATRIZ DE NOVEDADES · logística y transporte")
 
 NOV_COLS = [
  ("A","ID",                    "C", 10, "General", CEN),
@@ -290,35 +292,36 @@ NOV_COLS = [
  ("C","Origen",                "M", 12, "General", CEN),
  ("D","Nº Guía / Remisión",    "M", 16, "General", CEN),
  ("E","Validación",            "C", 16, "General", CEN),
- ("F","Cliente",               "C", 28, "General", LEF),
- ("G","Ciudad destino",        "C", 16, "General", LEF),
- ("H","Transportadora",        "C", 18, "General", LEF),
- ("I","Conductor",             "C", 20, "General", LEF),
- ("J","Placa",                 "C", 10, "General", CEN),
- ("K","Fecha despacho",        "C", 13, FECHA,     CEN),
- ("L","Tipo de novedad",       "M", 34, "General", LEF),
- ("M","Gravedad",              "C", 11, "General", CEN),
- ("N","¿Afecta la entrega?",   "C", 13, "General", CEN),
- ("O","Punto de ocurrencia",   "M", 24, "General", LEF),
- ("P","Causa raíz",            "M", 34, "General", LEF),
- ("Q","Familia (6M)",          "C", 15, "General", CEN),
- ("R","Área responsable",      "C", 15, "General", CEN),
- ("S","Unidades afectadas",    "M", 13, NUM,       CEN),
- ("T","Valor afectado",        "M", 15, MONEY,     RIG),
- ("U","Estado",                "M", 26, "General", LEF),
- ("V","Responsable",           "M", 24, "General", LEF),
- ("W","Fecha límite",          "C", 13, FECHA,     CEN),
- ("X","Fecha de solución",     "M", 14, FECHA,     CEN),
- ("Y","Días abiertos",         "C", 11, NUM,       CEN),
- ("Z","Estado SLA",            "C", 18, "General", CEN),
- ("AA","Qué se hizo",          "M", 38, "General", LEF),
- ("AB","Notas / soporte",      "M", 32, "General", LEF),
+ ("F","Nº Pedido",             "C", 13, "General", CEN),
+ ("G","Cliente",               "C", 28, "General", LEF),
+ ("H","Ciudad destino",        "C", 16, "General", LEF),
+ ("I","Transportadora",        "C", 18, "General", LEF),
+ ("J","Conductor",             "C", 20, "General", LEF),
+ ("K","Placa",                 "C", 10, "General", CEN),
+ ("L","Fecha despacho",        "C", 13, FECHA,     CEN),
+ ("M","Tipo de novedad",       "M", 34, "General", LEF),
+ ("N","Gravedad",              "C", 11, "General", CEN),
+ ("O","¿Afecta la entrega?",   "C", 13, "General", CEN),
+ ("P","Punto de ocurrencia",   "M", 24, "General", LEF),
+ ("Q","Causa raíz",            "M", 34, "General", LEF),
+ ("R","Familia (6M)",          "C", 15, "General", CEN),
+ ("S","Área responsable",      "C", 15, "General", CEN),
+ ("T","Unidades afectadas",    "M", 13, NUM,       CEN),
+ ("U","Valor afectado",        "M", 15, MONEY,     RIG),
+ ("V","Estado",                "M", 26, "General", LEF),
+ ("W","Responsable",           "M", 24, "General", LEF),
+ ("X","Fecha límite",          "C", 13, FECHA,     CEN),
+ ("Y","Fecha de solución",     "M", 14, FECHA,     CEN),
+ ("Z","Días abiertos",         "C", 11, NUM,       CEN),
+ ("AA","Estado SLA",           "C", 18, "General", CEN),
+ ("AB","Qué se hizo",          "M", 38, "General", LEF),
+ ("AC","Notas / soporte",      "M", 32, "General", LEF),
 ]
-banner(nv, 2, "A", "K", "① IDENTIFICAR  ·  fecha y origen siempre; el Nº de guía solo si la novedad fue en ruta", BAND_A)
-banner(nv, 2, "L", "R", "② CLASIFICAR  ·  qué pasó, dónde y por qué", BAND_B)
-banner(nv, 2, "S", "T", "③ IMPACTO", BAND_A)
-banner(nv, 2, "U", "Z", "④ GESTIONAR Y CERRAR", BAND_B)
-banner(nv, 2, "AA", "AB", "⑤ CONSTANCIA", BAND_A)
+banner(nv, 2, "A", "L", "① IDENTIFICAR  ·  fecha y origen siempre; el Nº de guía solo si la novedad fue en ruta", BAND_A)
+banner(nv, 2, "M", "S", "② CLASIFICAR  ·  qué pasó, dónde y por qué", BAND_B)
+banner(nv, 2, "T", "U", "③ IMPACTO", BAND_A)
+banner(nv, 2, "V", "AA", "④ GESTIONAR Y CERRAR", BAND_B)
+banner(nv, 2, "AB", "AC", "⑤ CONSTANCIA", BAND_A)
 build_grid(nv, NOV_COLS, NOV0, NOV1)
 
 BUSCA = 'IFERROR(INDEX({rng},MATCH($D{r},{eA},0)),"—")'
@@ -326,29 +329,30 @@ FNOV = {
  "A": '=IF($B{r}="","","N-"&TEXT(ROW()-3,"0000"))',
  "E": ('=IF($C{r}="","",IF($D{r}="",IF($C{r}="Interna","Sin guía (interna)","FALTA GUÍA"),'
        'IF(COUNTIFS({eA},$D{r})=0,"NO EXISTE",IF(COUNTIFS({eA},$D{r})>1,"DUPLICADA","OK"))))'),
- "F": '=IF($D{r}="","",' + BUSCA.format(rng=E("C"), eA=E("A"), r="{r}") + ')',
+ "F": '=IF($D{r}="","",' + BUSCA.format(rng=E("B"), eA=E("A"), r="{r}") + ')',
  "G": '=IF($D{r}="","",' + BUSCA.format(rng=E("D"), eA=E("A"), r="{r}") + ')',
  "H": '=IF($D{r}="","",' + BUSCA.format(rng=E("E"), eA=E("A"), r="{r}") + ')',
  "I": '=IF($D{r}="","",' + BUSCA.format(rng=E("F"), eA=E("A"), r="{r}") + ')',
  "J": '=IF($D{r}="","",' + BUSCA.format(rng=E("G"), eA=E("A"), r="{r}") + ')',
- "K": '=IF($D{r}="","",IFERROR(INDEX({eB},MATCH($D{r},{eA},0)),""))',
- "M": '=IF($L{r}="","",IFERROR(INDEX({cC},MATCH($L{r},{cA},0)),"Media"))',
- "N": '=IF($L{r}="","",IF($C{r}="Interna","NO",IFERROR(INDEX({cE},MATCH($L{r},{cA},0)),"NO")))',
- "Q": '=IF($P{r}="","",IFERROR(INDEX({cH},MATCH($P{r},{cG},0)),"Por definir"))',
- "R": '=IF($P{r}="","",IFERROR(INDEX({cI},MATCH($P{r},{cG},0)),"Por definir"))',
- "W": '=IF(OR($B{r}="",$L{r}=""),"",WORKDAY($B{r},IFERROR(INDEX({cD},MATCH($L{r},{cA},0)),3)))',
- "Y": '=IF($B{r}="","",IF($X{r}<>"",$X{r}-$B{r},TODAY()-$B{r}))',
- "Z": ('=IF($B{r}="","",IF(IFERROR(INDEX({cL},MATCH($U{r},{cK},0)),"NO")="SÍ",'
-       'IF(OR($X{r}="",$W{r}=""),"Resuelta",IF($X{r}>$W{r},"Resuelta tarde","Resuelta a tiempo")),'
-       'IF($W{r}="","Sin clasificar",IF(TODAY()>$W{r},"Vencida",IF(TODAY()>=$W{r}-1,"Por vencer","En plazo")))))'),
+ "K": '=IF($D{r}="","",' + BUSCA.format(rng=E("H"), eA=E("A"), r="{r}") + ')',
+ "L": '=IF($D{r}="","",IFERROR(INDEX({eC},MATCH($D{r},{eA},0)),""))',
+ "N": '=IF($M{r}="","",IFERROR(INDEX({cC},MATCH($M{r},{cA},0)),"Media"))',
+ "O": '=IF($M{r}="","",IF($C{r}="Interna","NO",IFERROR(INDEX({cE},MATCH($M{r},{cA},0)),"NO")))',
+ "R": '=IF($Q{r}="","",IFERROR(INDEX({cH},MATCH($Q{r},{cG},0)),"Por definir"))',
+ "S": '=IF($Q{r}="","",IFERROR(INDEX({cI},MATCH($Q{r},{cG},0)),"Por definir"))',
+ "X": '=IF(OR($B{r}="",$M{r}=""),"",WORKDAY($B{r},IFERROR(INDEX({cD},MATCH($M{r},{cA},0)),3)))',
+ "Z": '=IF($B{r}="","",IF($Y{r}<>"",$Y{r}-$B{r},TODAY()-$B{r}))',
+ "AA": ('=IF($B{r}="","",IF(IFERROR(INDEX({cL},MATCH($V{r},{cK},0)),"NO")="SÍ",'
+        'IF(OR($Y{r}="",$X{r}=""),"Resuelta",IF($Y{r}>$X{r},"Resuelta tarde","Resuelta a tiempo")),'
+        'IF($X{r}="","Sin clasificar",IF(TODAY()>$X{r},"Vencida",IF(TODAY()>=$X{r}-1,"Por vencer","En plazo")))))'),
 }
-ARG = dict(eA=E("A"), eB=E("B"), cA=C("A"), cC=C("C"), cD=C("D"), cE=C("E"),
+ARG = dict(eA=E("A"), eC=E("C"), cA=C("A"), cC=C("C"), cD=C("D"), cE=C("E"),
            cG=C("G"), cH=C("H"), cI=C("I"), cK=C("K"), cL=C("L"))
 for r in range(NOV0, NOV1 + 1):
     for col, f in FNOV.items():
         nv[f"{col}{r}"] = f.format(r=r, **ARG)
 nv.freeze_panes = "E4"
-nv.auto_filter.ref = f"A3:AB{NOV1}"
+nv.auto_filter.ref = f"A3:AC{NOV1}"
 
 # =========================================================================
 # TABLERO
@@ -372,10 +376,10 @@ put(tb, "H4", "◄ cambie estas dos fechas y todo el tablero se recalcula", font
 tb.merge_cells("H4:M4"); tb.row_dimensions[4].height = 22
 
 PN = f'{N("B")},">="&$E$4,{N("B")},"<="&$G$4'
-PE = f'{E("B")},">="&$E$4,{E("B")},"<="&$G$4'
+PE = f'{E("C")},">="&$E$4,{E("C")},"<="&$G$4'
 ABIERTAS = lambda extra="": "+".join(
-    f'COUNTIFS({N("Z")},"{s}",{PN}{extra})' for s in ["En plazo","Por vencer","Vencida","Sin clasificar"])
-ENTREGADOS = f'(COUNTIFS({E("P")},"OTIF",{PE})+COUNTIFS({E("P")},"Falló",{PE}))'
+    f'COUNTIFS({N("AA")},"{s}",{PN}{extra})' for s in ["En plazo","Por vencer","Vencida","Sin clasificar"])
+ENTREGADOS = f'(COUNTIFS({E("Q")},"OTIF",{PE})+COUNTIFS({E("Q")},"Falló",{PE}))'
 
 def kpi_row(row, label, cards):
     put(tb, f"B{row}", label, font=Font(name=FN, size=10, bold=True, color=WHITE), fill=INK2, al=CEN)
@@ -390,24 +394,24 @@ def kpi_row(row, label, cards):
     tb.row_dimensions[row].height = 20; tb.row_dimensions[row+1].height = 34
 
 kpi_row(6, "LAS ENTREGAS", [
- ("D","E","OTIF (a tiempo y completo)", f'=IFERROR(COUNTIFS({E("P")},"OTIF",{PE})/{ENTREGADOS},"—")', PCT),
- ("F","G","ENTREGAS A TIEMPO",          f'=IFERROR(COUNTIFS({E("M")},"Sí",{PE})/{ENTREGADOS},"—")', PCT),
- ("H","I","TASA DE NOVEDADES",          f'=IFERROR(COUNTIFS({E("N")},">0",{PE})/COUNTIFS({PE}),"—")', PCT),
- ("J","K","VALOR AFECTADO",             f'=SUMIFS({N("T")},{PN})', MONEY),
+ ("D","E","OTIF (a tiempo y completo)", f'=IFERROR(COUNTIFS({E("Q")},"OTIF",{PE})/{ENTREGADOS},"—")', PCT),
+ ("F","G","ENTREGAS A TIEMPO",          f'=IFERROR(COUNTIFS({E("N")},"Sí",{PE})/{ENTREGADOS},"—")', PCT),
+ ("H","I","TASA DE NOVEDADES",          f'=IFERROR(COUNTIFS({E("O")},">0",{PE})/COUNTIFS({PE}),"—")', PCT),
+ ("J","K","VALOR AFECTADO",             f'=SUMIFS({N("U")},{PN})', MONEY),
  ("L","M","ENVÍOS DEL PERIODO",         f'=COUNTIFS({PE})', NUM),
 ])
 kpi_row(9, "LA GESTIÓN", [
  ("D","E","NOVEDADES",            f'=COUNTIFS({PN})', NUM),
  ("F","G","ABIERTAS",             "=" + ABIERTAS(), NUM),
- ("H","I","VENCIDAS (SLA roto)",  f'=COUNTIFS({N("Z")},"Vencida",{PN})', NUM),
- ("J","K","DÍAS PROM. SOLUCIÓN",  f'=IFERROR(ROUND(AVERAGEIFS({N("Y")},{PN}),1),0)', DEC),
- ("L","M","CUMPLIMIENTO DE SLA",  f'=IFERROR(COUNTIFS({N("Z")},"Resuelta a tiempo",{PN})/COUNTIFS({N("Z")},"Resuelta*",{PN}),"—")', PCT),
+ ("H","I","VENCIDAS (SLA roto)",  f'=COUNTIFS({N("AA")},"Vencida",{PN})', NUM),
+ ("J","K","DÍAS PROM. SOLUCIÓN",  f'=IFERROR(ROUND(AVERAGEIFS({N("Z")},{PN}),1),0)', DEC),
+ ("L","M","CUMPLIMIENTO DE SLA",  f'=IFERROR(COUNTIFS({N("AA")},"Resuelta a tiempo",{PN})/COUNTIFS({N("AA")},"Resuelta*",{PN}),"—")', PCT),
 ])
 kpi_row(12, "DÓNDE NACEN", [
  ("D","E","EN RUTA (transporte)", f'=COUNTIFS({N("C")},"En ruta",{PN})', NUM),
  ("F","G","INTERNAS (la empresa)",f'=COUNTIFS({N("C")},"Interna",{PN})', NUM),
  ("H","I","% INTERNAS",           f'=IFERROR(COUNTIFS({N("C")},"Interna",{PN})/COUNTIFS({PN}),"—")', PCT),
- ("J","K","VALOR DE LAS INTERNAS",f'=SUMIFS({N("T")},{N("C")},"Interna",{PN})', MONEY),
+ ("J","K","VALOR DE LAS INTERNAS",f'=SUMIFS({N("U")},{N("C")},"Interna",{PN})', MONEY),
  ("L","M","PUNTO INTERNO MÁS FRECUENTE",
                                   '=IF(MAX($D$87:$D$97)=0,"—",IFERROR(INDEX($B$87:$B$97,'
                                   'MATCH(MAX($D$87:$D$97),$D$87:$D$97,0)),"—"))', "General"),
@@ -446,24 +450,24 @@ tb["C17"].fill = fl(BLUE); tb["C17"].border = BOX; tb.merge_cells("B17:C17")
 for r in range(18, 28):
     lr = r - 14
     name_cell(r, f'=IF(CONFIG!$R{lr}="","",CONFIG!$R{lr})')
-    g = f'{N("H")},$B{r}'; e = f'{E("E")},$B{r}'
+    g = f'{N("I")},$B{r}'; e = f'{E("F")},$B{r}'
     cell(f"D{r}", f'=IF($B{r}="","",COUNTIFS({e},{PE}))', NUM)
-    cell(f"E{r}", f'=IF($B{r}="","",IFERROR(COUNTIFS({e},{E("P")},"OTIF",{PE})'
-                  f'/(COUNTIFS({e},{E("P")},"OTIF",{PE})+COUNTIFS({e},{E("P")},"Falló",{PE})),"—"))', PCT1)
+    cell(f"E{r}", f'=IF($B{r}="","",IFERROR(COUNTIFS({e},{E("Q")},"OTIF",{PE})'
+                  f'/(COUNTIFS({e},{E("Q")},"OTIF",{PE})+COUNTIFS({e},{E("Q")},"Falló",{PE})),"—"))', PCT1)
     cell(f"F{r}", f'=IF($B{r}="","",COUNTIFS({g},{PN}))', NUM)
-    cell(f"G{r}", f'=IF($B{r}="","",IFERROR(COUNTIFS({e},{E("N")},">0",{PE})/$D{r},"—"))', PCT1)
+    cell(f"G{r}", f'=IF($B{r}="","",IFERROR(COUNTIFS({e},{E("O")},">0",{PE})/$D{r},"—"))', PCT1)
     cell(f"H{r}", f'=IF($B{r}="","",{ABIERTAS(f",{g}")})', NUM)
-    cell(f"I{r}", f'=IF($B{r}="","",COUNTIFS({g},{N("Z")},"Vencida",{PN}))', NUM)
-    cell(f"J{r}", f'=IF($B{r}="","",IFERROR(ROUND(AVERAGEIFS({N("Y")},{g},{PN}),1),0))', DEC)
-    cell(f"K{r}", f'=IF($B{r}="","",SUMIFS({N("T")},{g},{PN}))', MONEY)
+    cell(f"I{r}", f'=IF($B{r}="","",COUNTIFS({g},{N("AA")},"Vencida",{PN}))', NUM)
+    cell(f"J{r}", f'=IF($B{r}="","",IFERROR(ROUND(AVERAGEIFS({N("Z")},{g},{PN}),1),0))', DEC)
+    cell(f"K{r}", f'=IF($B{r}="","",SUMIFS({N("U")},{g},{PN}))', MONEY)
     cell(f"L{r}", f'=IF(OR($B{r}="",$D{r}=0,NOT(ISNUMBER($E{r}))),"—",'
                   f'ROUND($E{r}*60+(1-N($G{r}))*25+IF($F{r}=0,15,(1-$I{r}/$F{r})*15),0))', NUM)
     cell(f"M{r}", f'=IF(NOT(ISNUMBER($L{r})),"—",IF($L{r}>=90,"A",IF($L{r}>=80,"B",IF($L{r}>=70,"C","D"))))')
 name_cell(28, '="TOTAL"', bold=True)
 for col in "DFHI": cell(f"{col}28", f"=SUM(${col}$18:${col}$27)", NUM, bold=True)
-cell("E28", f'=IFERROR(COUNTIFS({E("P")},"OTIF",{PE})/{ENTREGADOS},"—")', PCT1, bold=True)
-cell("G28", f'=IFERROR(COUNTIFS({E("N")},">0",{PE})/COUNTIFS({PE}),"—")', PCT1, bold=True)
-cell("J28", f'=IFERROR(ROUND(AVERAGEIFS({N("Y")},{N("C")},"En ruta",{PN}),1),0)', DEC, bold=True)
+cell("E28", f'=IFERROR(COUNTIFS({E("Q")},"OTIF",{PE})/{ENTREGADOS},"—")', PCT1, bold=True)
+cell("G28", f'=IFERROR(COUNTIFS({E("O")},">0",{PE})/COUNTIFS({PE}),"—")', PCT1, bold=True)
+cell("J28", f'=IFERROR(ROUND(AVERAGEIFS({N("Z")},{N("C")},"En ruta",{PN}),1),0)', DEC, bold=True)
 cell("K28", "=SUM($K$18:$K$27)", MONEY, bold=True)
 relleno(28, "LM", bold=True)
 
@@ -483,14 +487,14 @@ for r in range(33, 45):
     cell(f"D{r}", f'=IF($B{r}="","",ROUNDDOWN(LARGE({HELP},{k}),0))', NUM)
     cell(f"E{r}", f'=IF($B{r}="","",IFERROR($D{r}/$D$45,0))', PCT1)
     cell(f"F{r}", f'=IF($B{r}="","",IFERROR(SUM($D$33:$D{r})/$D$45,0))', PCT1)
-    cell(f"G{r}", f'=IF($B{r}="","",SUMIFS({N("T")},{N("P")},$B{r},{PN}))', MONEY)
+    cell(f"G{r}", f'=IF($B{r}="","",SUMIFS({N("U")},{N("Q")},$B{r},{PN}))', MONEY)
     cell(f"H{r}", f'=IF($B{r}="","",IFERROR(INDEX({C("H")},MATCH($B{r},{C("G")},0)),""))')
     cell(f"I{r}", f'=IF($B{r}="","",IFERROR(INDEX({C("I")},MATCH($B{r},{C("G")},0)),""))')
     relleno(r, "JKLM")
 name_cell(45, '="TOTAL de novedades del periodo"', bold=True)
 cell("D45", f'=COUNTIFS({PN})', NUM, bold=True)
 cell("E45", '=IF($D$45=0,0,1)', PCT1, bold=True); cell("F45", "", bold=True)
-cell("G45", f'=SUMIFS({N("T")},{PN})', MONEY, bold=True)
+cell("G45", f'=SUMIFS({N("U")},{PN})', MONEY, bold=True)
 relleno(45, "HIJKLM", bold=True)
 
 # ---- 3. NOVEDADES POR TIPO ----
@@ -502,21 +506,21 @@ for col in "LM": put(tb, f"{col}48", None, font=f_hdr, fill=BLUE, al=CEN)
 for r in range(49, 81):
     lr = r - 45
     name_cell(r, f'=IF(CONFIG!$A{lr}="","",CONFIG!$A{lr})')
-    t = f'{N("L")},$B{r}'
+    t = f'{N("M")},$B{r}'
     cell(f"D{r}", f'=IF($B{r}="","",COUNTIFS({t},{PN}))', NUM)
     cell(f"E{r}", f'=IF($B{r}="","",IFERROR($D{r}/$D$81,0))', PCT1)
-    cell(f"F{r}", f'=IF($B{r}="","",SUMIFS({N("T")},{t},{PN}))', MONEY)
+    cell(f"F{r}", f'=IF($B{r}="","",SUMIFS({N("U")},{t},{PN}))', MONEY)
     cell(f"G{r}", f'=IF($B{r}="","",IFERROR(INDEX({C("B")},MATCH($B{r},{C("A")},0)),""))')
     cell(f"H{r}", f'=IF($B{r}="","",IFERROR(INDEX({C("C")},MATCH($B{r},{C("A")},0)),""))')
     cell(f"I{r}", f'=IF($B{r}="","",{ABIERTAS(f",{t}")})', NUM)
-    cell(f"J{r}", f'=IF($B{r}="","",COUNTIFS({t},{N("Z")},"Vencida",{PN}))', NUM)
-    cell(f"K{r}", f'=IF($B{r}="","",IFERROR(ROUND(AVERAGEIFS({N("Y")},{t},{PN}),1),0))', DEC)
+    cell(f"J{r}", f'=IF($B{r}="","",COUNTIFS({t},{N("AA")},"Vencida",{PN}))', NUM)
+    cell(f"K{r}", f'=IF($B{r}="","",IFERROR(ROUND(AVERAGEIFS({N("Z")},{t},{PN}),1),0))', DEC)
     relleno(r, "LM")
 name_cell(81, '="TOTAL"', bold=True)
 for col in "DIJ": cell(f"{col}81", f"=SUM(${col}$49:${col}$80)", NUM, bold=True)
 cell("E81", '=IF($D$81=0,0,1)', PCT1, bold=True)
 cell("F81", "=SUM($F$49:$F$80)", MONEY, bold=True)
-cell("K81", f'=IFERROR(ROUND(AVERAGEIFS({N("Y")},{PN}),1),0)', DEC, bold=True)
+cell("K81", f'=IFERROR(ROUND(AVERAGEIFS({N("Z")},{PN}),1),0)', DEC, bold=True)
 relleno(81, "GHLM", bold=True)
 
 # ---- 4. DONDE OCURREN LAS NOVEDADES ----
@@ -531,13 +535,13 @@ for col in "JKLM": put(tb, f"{col}85", None, font=f_hdr, fill=BLUE, al=CEN)
 for r in range(86, 98):
     lr = r - 82
     name_cell(r, f'=IF(CONFIG!$N{lr}="","",CONFIG!$N{lr})')
-    q = f'{N("O")},$B{r}'
+    q = f'{N("P")},$B{r}'
     cell(f"D{r}", f'=IF($B{r}="","",COUNTIFS({q},{PN}))', NUM)
     cell(f"E{r}", f'=IF($B{r}="","",IFERROR($D{r}/$D$98,0))', PCT1)
-    cell(f"F{r}", f'=IF($B{r}="","",SUMIFS({N("T")},{q},{PN}))', MONEY)
+    cell(f"F{r}", f'=IF($B{r}="","",SUMIFS({N("U")},{q},{PN}))', MONEY)
     cell(f"G{r}", f'=IF($B{r}="","",{ABIERTAS(f",{q}")})', NUM)
-    cell(f"H{r}", f'=IF($B{r}="","",COUNTIFS({q},{N("Z")},"Vencida",{PN}))', NUM)
-    cell(f"I{r}", f'=IF($B{r}="","",IFERROR(ROUND(AVERAGEIFS({N("Y")},{q},{PN}),1),0))', DEC)
+    cell(f"H{r}", f'=IF($B{r}="","",COUNTIFS({q},{N("AA")},"Vencida",{PN}))', NUM)
+    cell(f"I{r}", f'=IF($B{r}="","",IFERROR(ROUND(AVERAGEIFS({N("Z")},{q},{PN}),1),0))', DEC)
     relleno(r, "JKLM")
 name_cell(98, '="TOTAL con punto asignado"', bold=True)
 for col in "DGH": cell(f"{col}98", f"=SUM(${col}$86:${col}$97)", NUM, bold=True)
@@ -558,16 +562,16 @@ for r in range(102, 110):
     if i < 6:
         lr = r - 98
         name_cell(r, f'=IF(CONFIG!$K{lr}="","",CONFIG!$K{lr})')
-        cell(f"D{r}", f'=IF($B{r}="","",COUNTIFS({N("U")},$B{r},{PN}))', NUM)
+        cell(f"D{r}", f'=IF($B{r}="","",COUNTIFS({N("V")},$B{r},{PN}))', NUM)
         cell(f"E{r}", f'=IF($B{r}="","",IFERROR($D{r}/$D$110,0))', PCT1)
     else:
         name_cell(r, None); cell(f"D{r}", None); cell(f"E{r}", None)
     put(tb, f"F{r}", None, fill=CALC, al=CEN)
     put(tb, f"G{r}", FAMILIAS[i], fill=CALC, al=LEF)
     put(tb, f"H{r}", None, fill=CALC, al=LEF); tb.merge_cells(f"G{r}:H{r}")
-    cell(f"I{r}", f'=COUNTIFS({N("Q")},$G{r},{PN})', NUM)
+    cell(f"I{r}", f'=COUNTIFS({N("R")},$G{r},{PN})', NUM)
     cell(f"J{r}", f'=IFERROR($I{r}/$I$110,0)', PCT1)
-    cell(f"K{r}", f'=SUMIFS({N("T")},{N("Q")},$G{r},{PN})', MONEY)
+    cell(f"K{r}", f'=SUMIFS({N("U")},{N("R")},$G{r},{PN})', MONEY)
     relleno(r, "LM")
 name_cell(110, '="TOTAL"', bold=True)
 cell("D110", "=SUM($D$102:$D$107)", NUM, bold=True); cell("E110", '=IF($D$110=0,0,1)', PCT1, bold=True)
@@ -578,33 +582,36 @@ cell("I110", "=SUM($I$102:$I$109)", NUM, bold=True); cell("J110", '=IF($I$110=0,
 cell("K110", "=SUM($K$102:$K$109)", MONEY, bold=True)
 relleno(110, "LM", bold=True)
 
-# ---- 6. BUSCADOR DE GUIA ----
+# ---- 6. BUSCADOR: acepta guia o pedido ----
 seccion(tb, 112, "B", "M", "6 · BUSCADOR — la ficha completa de un envío")
-put(tb, "B113", "Escriba el Nº de guía →", font=f_bold, fill=CARD, al=LEF)
+put(tb, "B113", "Escriba el Nº de guía o de pedido →", font=f_bold, fill=CARD, al=LEF)
 put(tb, "C113", None, fill=CARD); tb.merge_cells("B113:C113")
 put(tb, "D113", None, font=Font(name=FN, size=12, bold=True, color=INK), fill=EDIT, al=CEN, editable=True)
 put(tb, "E113", None, fill=EDIT, editable=True); tb.merge_cells("D113:E113")
-put(tb, "F113", "◄ la ficha de abajo se llena sola (solo aplica a novedades en ruta)", font=f_note, al=LEF, box=False)
+put(tb, "F113", "◄ sirve cualquiera de los dos; la ficha de abajo se llena sola", font=f_note, al=LEF, box=False)
 tb.merge_cells("F113:M113"); tb.row_dimensions[113].height = 22
 
-LK = lambda rng: f'IFERROR(INDEX({rng},MATCH($D$113,{E("A")},0)),"—")'
+FILA = "CONFIG!$X$4"   # fila del envio que coincide, por guia o por pedido
+LK = lambda rng: f'IFERROR(INDEX({rng},{FILA}),"—")'
 FICHA = [
- ("Cliente",               f'=IF($D$113="","—",{LK(E("C"))})', "General"),
- ("Ciudad destino",        f'=IF($D$113="","—",{LK(E("D"))})', "General"),
- ("Transportadora",        f'=IF($D$113="","—",{LK(E("E"))})', "General"),
- ("Conductor",             f'=IF($D$113="","—",{LK(E("F"))})', "General"),
- ("Placa",                 f'=IF($D$113="","—",{LK(E("G"))})', "General"),
- ("Fecha despacho",        f'=IF($D$113="","—",{LK(E("B"))})', FECHA),
- ("Fecha promesa",         f'=IF($D$113="","—",{LK(E("J"))})', FECHA),
- ("Fecha entrega real",    f'=IF($D$113="","—",{LK(E("K"))})', FECHA),
- ("¿Llegó a tiempo?",      f'=IF($D$113="","—",{LK(E("M"))})', "General"),
- ("¿Llegó completa?",      f'=IF($D$113="","—",{LK(E("O"))})', "General"),
- ("OTIF",                  f'=IF($D$113="","—",{LK(E("P"))})', "General"),
- ("Novedades registradas", f'=IF($D$113="","—",COUNTIFS({N("D")},$D$113))', NUM),
- ("Valor afectado",        f'=IF($D$113="","—",SUMIFS({N("T")},{N("D")},$D$113))', MONEY),
- ("Última novedad",        f'=IF($D$113="","—",IFERROR(LOOKUP(2,1/({N("D")}=$D$113),{N("L")}),"—"))', "General"),
- ("Estado de esa novedad", f'=IF($D$113="","—",IFERROR(LOOKUP(2,1/({N("D")}=$D$113),{N("U")}),"—"))', "General"),
- ("Estado SLA",            f'=IF($D$113="","—",IFERROR(LOOKUP(2,1/({N("D")}=$D$113),{N("Z")}),"—"))', "General"),
+ ("Nº Guía / Remisión",    f'=IF($D$113="","—",{LK(E("A"))})', "General"),
+ ("Nº Pedido",             f'=IF($D$113="","—",{LK(E("B"))})', "General"),
+ ("Cliente",               f'=IF($D$113="","—",{LK(E("D"))})', "General"),
+ ("Ciudad destino",        f'=IF($D$113="","—",{LK(E("E"))})', "General"),
+ ("Transportadora",        f'=IF($D$113="","—",{LK(E("F"))})', "General"),
+ ("Conductor",             f'=IF($D$113="","—",{LK(E("G"))})', "General"),
+ ("Placa",                 f'=IF($D$113="","—",{LK(E("H"))})', "General"),
+ ("Fecha despacho",        f'=IF($D$113="","—",{LK(E("C"))})', FECHA),
+ ("Fecha promesa",         f'=IF($D$113="","—",{LK(E("K"))})', FECHA),
+ ("Fecha entrega real",    f'=IF($D$113="","—",{LK(E("L"))})', FECHA),
+ ("¿Llegó a tiempo?",      f'=IF($D$113="","—",{LK(E("N"))})', "General"),
+ ("¿Llegó completa?",      f'=IF($D$113="","—",{LK(E("P"))})', "General"),
+ ("OTIF",                  f'=IF($D$113="","—",{LK(E("Q"))})', "General"),
+ ("Novedades registradas", f'=IF($D$115="—","—",COUNTIFS({N("D")},$D$115))', NUM),
+ ("Valor afectado",        f'=IF($D$115="—","—",SUMIFS({N("U")},{N("D")},$D$115))', MONEY),
+ ("Última novedad",        f'=IF($D$115="—","—",IFERROR(LOOKUP(2,1/({N("D")}=$D$115),{N("M")}),"—"))', "General"),
+ ("Estado de esa novedad", f'=IF($D$115="—","—",IFERROR(LOOKUP(2,1/({N("D")}=$D$115),{N("V")}),"—"))', "General"),
+ ("Estado SLA",            f'=IF($D$115="—","—",IFERROR(LOOKUP(2,1/({N("D")}=$D$115),{N("AA")}),"—"))', "General"),
 ]
 for i, (lbl, frm, fmt) in enumerate(FICHA):
     r = 115 + i
@@ -616,13 +623,18 @@ for i, (lbl, frm, fmt) in enumerate(FICHA):
     tb.row_dimensions[r].height = 16
 tb.freeze_panes = "B5"
 
-# ---- columna auxiliar del Pareto, en CONFIG ----
+# ---- columnas auxiliares en CONFIG ----
 put(cf, "V3", "⚙ CÁLCULO DEL TABLERO — no borrar", font=f_hdr, fill=INK2, al=CEN)
 cf.column_dimensions["U"].width = 2; cf.column_dimensions["V"].width = 30
 for r in range(4, 34):
-    put(cf, f"V{r}", f'=IF($G{r}="","",COUNTIFS({N("P")},$G{r},{N("B")},">="&TABLERO!$E$4,'
+    put(cf, f"V{r}", f'=IF($G{r}="","",COUNTIFS({N("Q")},$G{r},{N("B")},">="&TABLERO!$E$4,'
                      f'{N("B")},"<="&TABLERO!$G$4)+ROW()/100000)',
         font=f_base, fill=CALC, fmt="0.00000", al=CEN)
+put(cf, "X3", "⚙ BUSCADOR — fila del envío", font=f_hdr, fill=INK2, al=CEN)
+cf.column_dimensions["W"].width = 2; cf.column_dimensions["X"].width = 28
+put(cf, "X4", f'=IFERROR(MATCH(TABLERO!$D$113,{E("A")},0),'
+              f'IFERROR(MATCH(TABLERO!$D$113,{E("B")},0),""))',
+    font=f_base, fill=CALC, al=CEN)
 
 # =========================================================================
 # INICIO
@@ -633,13 +645,15 @@ GUIA = [
  ("T", "", "MATRIZ DE NOVEDADES · LOGÍSTICA Y TRANSPORTE"),
  ("P", "", "Un solo archivo para registrar todo lo que sale mal —en la carretera y dentro de la empresa—, saber a quién cobrárselo y medir si la operación está mejorando."),
  ("H", "", "CÓMO SE USA — TRES PASOS"),
- ("S", "1", "ENVÍOS.  Cada despacho es una fila. Escriba guía, fecha, cliente, ciudad, transportadora, conductor, placa, unidades, valor y la FECHA PROMESA DE ENTREGA. Cuando llegue, escriba la fecha de entrega real. Con eso el archivo calcula solo si llegó a tiempo y si llegó completo."),
- ("S", "2", "NOVEDADES.  ¿Algo salió mal? Escriba la fecha, marque el ORIGEN y clasifique. Si fue en ruta, agregue el Nº de guía y el cliente, la ciudad, la transportadora, el conductor y la placa se traen solos."),
+ ("S", "1", "ENVÍOS.  Cada despacho es una fila. Escriba Nº de guía, Nº de pedido, fecha, cliente, ciudad, transportadora, conductor, placa, unidades, valor y la FECHA PROMESA DE ENTREGA. Cuando llegue, escriba la fecha de entrega real. Con eso el archivo calcula solo si llegó a tiempo y si llegó completo."),
+ ("S", "2", "NOVEDADES.  ¿Algo salió mal? Escriba la fecha, marque el ORIGEN y clasifique. Si fue en ruta, agregue el Nº de guía: el Nº de pedido, el cliente, la ciudad, la transportadora, el conductor y la placa se traen solos."),
  ("S", "3", "TABLERO.  Ponga el periodo arriba y lea. Le dice su OTIF, qué transportadora rinde y cuál no, en qué punto de la operación se rompe y cuáles causas explican el 80% de sus problemas."),
  ("H", "", "LAS DOS CLASES DE NOVEDAD"),
  ("P", "", "EN RUTA: pasó con un envío ya despachado (cliente ausente, avería, retraso, rechazo). Lleva Nº de guía y se le carga a la transportadora."),
  ("P", "", "INTERNA: pasó dentro de la empresa, casi siempre antes de despachar (error de alistamiento, descuadre de inventario, demora en el cargue, falla de un equipo de bodega, accidente laboral). NO lleva guía: deje esa casilla vacía y la validación dirá «Sin guía (interna)», que es lo correcto."),
  ("P", "", "Las internas nunca entran al scorecard de transportadoras ni a la tasa de novedades por envío, porque no son culpa del transportador ni corresponden a una entrega. Sí entran al Pareto de causas, a las 6M y al punto de ocurrencia — que es donde usted mira su propia casa."),
+ ("H", "", "GUÍA Y PEDIDO"),
+ ("P", "", "La LLAVE es el Nº de guía o remisión: es el documento de transporte, uno por viaje, y es lo que amarra la novedad con el transportador. El Nº de pedido va al lado para dar trazabilidad de punta a punta: pedido → guía → cliente → novedad. No se usa como llave porque un mismo pedido puede salir en dos guías. En el buscador del tablero sirve cualquiera de los dos."),
  ("H", "", "LA REGLA DE COLORES"),
  ("P", "", "AMARILLO = usted lo escribe.        GRIS = se calcula solo, no lo toque.        Encabezado dorado = columna de captura.        Encabezado azul = columna calculada."),
  ("P", "", "Además, cada hoja tiene una banda oscura arriba que separa las zonas: lo que se digita, lo que se calcula y lo que es seguimiento."),
@@ -702,33 +716,33 @@ dv(nv, R_NOV("C"), formula1="ORIGENES", errorTitle="Origen no válido",
    error="«En ruta» si pasó con un envío despachado; «Interna» si pasó dentro de la empresa.",
    promptTitle="Origen", prompt="En ruta = lleva Nº de guía.  Interna = deje la guía vacía.",
    showInputMessage=True, **LISTA)
-dv(nv, R_NOV("L"), formula1="TIPOS_NOVEDAD", errorTitle="Tipo no válido",
+dv(nv, R_NOV("M"), formula1="TIPOS_NOVEDAD", errorTitle="Tipo no válido",
    error="Elíjalo de la lista. Para agregar uno nuevo vaya a CONFIG, columna A.",
    promptTitle="Tipo de novedad", prompt="Define la gravedad y el plazo (SLA).", showInputMessage=True, **LISTA)
-dv(nv, R_NOV("O"), formula1="PUNTOS_OCURRENCIA", errorTitle="Punto no válido",
+dv(nv, R_NOV("P"), formula1="PUNTOS_OCURRENCIA", errorTitle="Punto no válido",
    error="Elíjalo de la lista. Para agregar uno nuevo vaya a CONFIG, columna N.",
    promptTitle="Punto de ocurrencia", prompt="En qué parte de la operación se rompió.",
    showInputMessage=True, **LISTA)
-dv(nv, R_NOV("P"), formula1="CAUSAS_RAIZ", errorTitle="Causa no válida",
+dv(nv, R_NOV("Q"), formula1="CAUSAS_RAIZ", errorTitle="Causa no válida",
    error="Elíjala de la lista. Para agregar una nueva vaya a CONFIG, columna G.",
    promptTitle="Causa raíz", prompt="Por qué pasó. Define la familia 6M y el área responsable.",
    showInputMessage=True, **LISTA)
-dv(nv, R_NOV("U"), formula1="ESTADOS_NOVEDAD", errorTitle="Estado no válido",
+dv(nv, R_NOV("V"), formula1="ESTADOS_NOVEDAD", errorTitle="Estado no válido",
    error="Elíjalo de la lista. Para agregar uno nuevo vaya a CONFIG, columna K.",
    promptTitle="Estado", prompt="Los estados con ¿CIERRA EL CASO? = SÍ detienen el conteo de días.",
    showInputMessage=True, **LISTA)
-dv(nv, R_NOV("V"), formula1="RESPONSABLES", errorTitle="Responsable no válido",
+dv(nv, R_NOV("W"), formula1="RESPONSABLES", errorTitle="Responsable no válido",
    error="Elíjalo de la lista (CONFIG, columna T).", **LISTA)
 dv(nv, R_NOV("B"), type="date", operator="between", formula1="DATE(2020,1,1)", formula2="DATE(2040,12,31)",
    allow_blank=True, showErrorMessage=True, errorTitle="Fecha no válida", error="Escriba una fecha real (dd/mm/aaaa).")
-dv(nv, R_NOV("X"), type="custom", formula1=f'OR($X{NOV0}="",AND(ISNUMBER($X{NOV0}),$X{NOV0}>=$B{NOV0}))',
+dv(nv, R_NOV("Y"), type="custom", formula1=f'OR($Y{NOV0}="",AND(ISNUMBER($Y{NOV0}),$Y{NOV0}>=$B{NOV0}))',
    allow_blank=True, showErrorMessage=True, errorTitle="Fecha de solución inválida",
    error="No puede ser anterior a la fecha de la novedad.")
-for col in ("S", "T"):
+for col in ("T", "U"):
     dv(nv, R_NOV(col), type="decimal", operator="greaterThanOrEqual", formula1="0", allow_blank=True,
        showErrorMessage=True, errorTitle="Valor inválido", error="Debe ser un número mayor o igual a 0.")
 
-dv(ev, R_ENV("E"), warn=True, formula1="TRANSPORTADORAS", errorTitle="Transportadora nueva",
+dv(ev, R_ENV("F"), warn=True, formula1="TRANSPORTADORAS", errorTitle="Transportadora nueva",
    error="No está en CONFIG. Si es correcta, agréguela en CONFIG columna R para que entre al tablero.", **LISTA)
 for col in ("B", "J", "K"):
     dv(ev, R_ENV(col), warn=True, type="date", operator="between", formula1="DATE(2020,1,1)",
@@ -757,11 +771,11 @@ for v, bg, tx in [("En plazo", OK_BG, OK_TX), ("Por vencer", WARN_BG, WARN_TX),
                   ("Vencida", DANG_BG, DANG_TX), ("Resuelta a tiempo", INFO_BG, INFO_TX),
                   ("Resuelta tarde", "FFFFE4C4", "FF9A3412"), ("Resuelta", MUTE_BG, MUTE_TX),
                   ("Sin clasificar", MUTE_BG, MUTE_TX)]:
-    txt_rule(nv, R_NOV("Z"), v, bg, tx)
+    txt_rule(nv, R_NOV("AA"), v, bg, tx)
 for v, bg, tx in [("Crítica", "FF991B1B", WHITE), ("Alta", DANG_BG, DANG_TX),
                   ("Media", WARN_BG, WARN_TX), ("Baja", OK_BG, OK_TX)]:
-    txt_rule(nv, R_NOV("M"), v, bg, tx)
-txt_rule(nv, R_NOV("N"), "SÍ", WARN_BG, WARN_TX)
+    txt_rule(nv, R_NOV("N"), v, bg, tx)
+txt_rule(nv, R_NOV("O"), "SÍ", WARN_BG, WARN_TX)
 txt_rule(nv, R_NOV("C"), "Interna", INFO_BG, INFO_TX)
 txt_rule(nv, R_NOV("C"), "En ruta", MUTE_BG, MUTE_TX)
 txt_rule(nv, R_NOV("E"), "OK", OK_BG, OK_TX)
@@ -770,23 +784,23 @@ txt_rule(nv, R_NOV("E"), "FALTA GUÍA", DANG_BG, DANG_TX)
 txt_rule(nv, R_NOV("E"), "DUPLICADA", WARN_BG, WARN_TX)
 txt_rule(nv, R_NOV("E"), "Sin guía (interna)", MUTE_BG, MUTE_TX, bold=False)
 CIERRA = f'IFERROR(INDEX({C("L")},MATCH($U{NOV0},{C("K")},0)),"NO")'
-fx_rule(nv, R_NOV("U"), f'$U{NOV0}="Sin gestionar"', DANG_BG, DANG_TX)
-fx_rule(nv, R_NOV("U"), f'AND($U{NOV0}<>"",{CIERRA}="SÍ")', OK_BG, OK_TX)
-fx_rule(nv, R_NOV("U"), f'AND($U{NOV0}<>"",{CIERRA}="NO")', WARN_BG, WARN_TX)
-fx_rule(nv, R_NOV("X"), f'AND($X{NOV0}="",$Z{NOV0}="Resuelta")', DANG_BG, DANG_TX)
-nv.conditional_formatting.add(R_NOV("T"), DataBarRule(start_type="num", start_value=0,
+fx_rule(nv, R_NOV("V"), f'$U{NOV0}="Sin gestionar"', DANG_BG, DANG_TX)
+fx_rule(nv, R_NOV("V"), f'AND($U{NOV0}<>"",{CIERRA}="SÍ")', OK_BG, OK_TX)
+fx_rule(nv, R_NOV("V"), f'AND($U{NOV0}<>"",{CIERRA}="NO")', WARN_BG, WARN_TX)
+fx_rule(nv, R_NOV("Y"), f'AND($X{NOV0}="",$Z{NOV0}="Resuelta")', DANG_BG, DANG_TX)
+nv.conditional_formatting.add(R_NOV("U"), DataBarRule(start_type="num", start_value=0,
     end_type="percentile", end_value=95, color=AMBER[2:], showValue=True))
-nv.conditional_formatting.add(R_NOV("Y"), DataBarRule(start_type="num", start_value=0,
+nv.conditional_formatting.add(R_NOV("Z"), DataBarRule(start_type="num", start_value=0,
     end_type="percentile", end_value=95, color="94A3B8", showValue=True))
 fx_rule(nv, f"A{NOV0}:AB{NOV1}", f'$Z{NOV0}="Vencida"', None, DANG_TX)
 
 # --- ENVIOS ---
 for v, bg, tx in [("Sí", OK_BG, OK_TX), ("No", DANG_BG, DANG_TX),
                   ("En ruta", MUTE_BG, MUTE_TX), ("Atrasado", DANG_BG, DANG_TX)]:
-    txt_rule(ev, R_ENV("M"), v, bg, tx)
-txt_rule(ev, R_ENV("O"), "Sí", OK_BG, OK_TX); txt_rule(ev, R_ENV("O"), "No", DANG_BG, DANG_TX)
-txt_rule(ev, R_ENV("P"), "OTIF", OK_BG, OK_TX); txt_rule(ev, R_ENV("P"), "Falló", DANG_BG, DANG_TX)
-num_rule(ev, R_ENV("N"), "greaterThan", ["0"], WARN_BG, WARN_TX)
+    txt_rule(ev, R_ENV("N"), v, bg, tx)
+txt_rule(ev, R_ENV("P"), "Sí", OK_BG, OK_TX); txt_rule(ev, R_ENV("P"), "No", DANG_BG, DANG_TX)
+txt_rule(ev, R_ENV("Q"), "OTIF", OK_BG, OK_TX); txt_rule(ev, R_ENV("Q"), "Falló", DANG_BG, DANG_TX)
+num_rule(ev, R_ENV("O"), "greaterThan", ["0"], WARN_BG, WARN_TX)
 fx_rule(ev, f"A{ENV0}:P{ENV1}", f'AND($A{ENV0}<>"",COUNTIFS($A${ENV0}:$A${ENV1},$A{ENV0})>1)', None, "FF9A3412")
 
 # --- TABLERO ---
@@ -821,7 +835,7 @@ for v, bg, tx in [("Sí", OK_BG, OK_TX), ("No", DANG_BG, DANG_TX), ("OTIF", OK_B
                   ("Falló", DANG_BG, DANG_TX), ("En ruta", MUTE_BG, MUTE_TX), ("Atrasado", DANG_BG, DANG_TX),
                   ("Vencida", DANG_BG, DANG_TX), ("En plazo", OK_BG, OK_TX), ("Por vencer", WARN_BG, WARN_TX),
                   ("Resuelta a tiempo", INFO_BG, INFO_TX), ("Resuelta tarde", "FFFFE4C4", "FF9A3412")]:
-    txt_rule(tb, "D115:D130", v, bg, tx)
+    txt_rule(tb, "D115:D132", v, bg, tx)
 
 # =========================================================================
 # GRAFICAS DEL TABLERO
