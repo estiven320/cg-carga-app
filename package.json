@@ -1,0 +1,23 @@
+{
+  "name": "cg-carga-app",
+  "version": "1.0.0",
+  "description": "Descarga del APK de la app de conductores CG CARGA",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/estiven320/cg-carga-app.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/estiven320/cg-carga-app/issues"
+  },
+  "homepage": "https://github.com/estiven320/cg-carga-app#readme",
+  "dependencies": {
+    "playwright": "^1.63.0"
+  }
+}
