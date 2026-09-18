@@ -1,88 +1,89 @@
-// Genera el dataset "crudo" de viajes de CG CARGA con imperfecciones reales
-// (nulos, duplicados, formatos mixtos, atipicos) para demostrar la limpieza.
+/* Genera el dataset de practica para la evidencia AA2-EV03.
+   Ventas de una tienda de tecnologia, con imperfecciones deliberadas
+   (duplicados, nulos, formatos mixtos, valores fuera de dominio y atipicos)
+   para que la etapa de limpieza con la IA tenga algo real que corregir. */
 const fs = require('fs');
 const path = require('path');
 
-let seed = 20260918;
-function rnd() { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; }
-function pick(a) { return a[Math.floor(rnd() * a.length)]; }
-function gauss(mu, sd) {
+let semilla = 20260918;
+function rnd() { semilla = (semilla * 1103515245 + 12345) & 0x7fffffff; return semilla / 0x7fffffff; }
+function elegir(a) { return a[Math.floor(rnd() * a.length)]; }
+function normal(mu, sd) {
   const u = Math.max(rnd(), 1e-9), v = Math.max(rnd(), 1e-9);
   return mu + sd * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
 }
 
-const RUTAS = [
-  ['Bogota', 'Medellin', 415], ['Bogota', 'Cali', 460], ['Bogota', 'Barranquilla', 995],
-  ['Medellin', 'Cartagena', 640], ['Cali', 'Buenaventura', 120], ['Bogota', 'Bucaramanga', 395],
-  ['Medellin', 'Bogota', 415], ['Barranquilla', 'Santa Marta', 95], ['Cali', 'Medellin', 420],
-  ['Bogota', 'Villavicencio', 125], ['Bucaramanga', 'Cucuta', 200], ['Cartagena', 'Bogota', 1050],
+const CIUDADES = ['Bogota', 'Medellin', 'Cali', 'Barranquilla', 'Bucaramanga', 'Cartagena', 'Pereira'];
+const CATALOGO = [
+  { cat: 'Computadores', prod: 'Portatil 14 pulgadas', precio: 2450000 },
+  { cat: 'Computadores', prod: 'Portatil gamer', precio: 4890000 },
+  { cat: 'Computadores', prod: 'Todo en uno 24', precio: 2190000 },
+  { cat: 'Perifericos', prod: 'Teclado mecanico', precio: 289000 },
+  { cat: 'Perifericos', prod: 'Mouse inalambrico', precio: 96000 },
+  { cat: 'Perifericos', prod: 'Monitor 27 pulgadas', precio: 1090000 },
+  { cat: 'Audio', prod: 'Audifonos bluetooth', precio: 349000 },
+  { cat: 'Audio', prod: 'Parlante portatil', precio: 259000 },
+  { cat: 'Audio', prod: 'Microfono USB', precio: 419000 },
+  { cat: 'Almacenamiento', prod: 'Disco SSD 1 TB', precio: 389000 },
+  { cat: 'Almacenamiento', prod: 'Memoria USB 128 GB', precio: 79000 },
+  { cat: 'Accesorios', prod: 'Base refrigerante', precio: 139000 },
+  { cat: 'Accesorios', prod: 'Cargador universal', precio: 119000 },
+  { cat: 'Accesorios', prod: 'Maletin para portatil', precio: 169000 },
 ];
-const VEHICULOS = [
-  { tipo: 'Turbo', cap: 4.5, tarifa: 2100 },
-  { tipo: 'Sencillo', cap: 9, tarifa: 2950 },
-  { tipo: 'Doble troque', cap: 16, tarifa: 3900 },
-  { tipo: 'Tractomula', cap: 32, tarifa: 5400 },
-];
-const CONDUCTORES = [
-  'Luis Ramirez', 'Andres Gomez', 'Carlos Pena', 'Jorge Muñoz', 'Diego Salazar',
-  'Wilson Ortiz', 'Fabian Rojas', 'Hector Vargas', 'Mauricio Leon', 'Julian Castro',
-];
-const ESTADOS = ['Entregado', 'Entregado', 'Entregado', 'Entregado', 'En ruta', 'Cancelado'];
+const PAGOS = ['Tarjeta credito', 'Tarjeta debito', 'Efectivo', 'Transferencia', 'PSE'];
 
 function fechaMixta(d) {
-  const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, '0'), day = String(d.getDate()).padStart(2, '0');
+  const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, '0'), dd = String(d.getDate()).padStart(2, '0');
   const r = rnd();
-  if (r < 0.70) return `${y}-${m}-${day}`;
-  if (r < 0.90) return `${day}/${m}/${y}`;
-  return `${day}-${m}-${y}`;
+  if (r < 0.68) return `${y}-${m}-${dd}`;
+  if (r < 0.89) return `${dd}/${m}/${y}`;
+  return `${dd}-${m}-${y}`;
 }
 
 const filas = [];
-const inicio = new Date('2026-01-06');
-for (let i = 1; i <= 520; i++) {
-  const [origen, destino, kmBase] = pick(RUTAS);
-  const veh = pick(VEHICULOS);
+const inicio = new Date('2026-01-05');
+for (let i = 1; i <= 480; i++) {
+  const art = elegir(CATALOGO);
   const fecha = new Date(inicio.getTime() + Math.floor(rnd() * 250) * 86400000);
-  const km = Math.max(40, Math.round(gauss(kmBase, kmBase * 0.06)));
-  const peso = Math.max(0.8, +(gauss(veh.cap * 0.78, veh.cap * 0.16)).toFixed(1));
-  const costo = Math.round((km * veh.tarifa + peso * 42000 + gauss(0, 110000)) / 1000) * 1000;
-  const galones = Math.max(4, +(km / gauss(9.2 - veh.cap * 0.12, 0.5)).toFixed(1));
-  const horas = +(km / gauss(46, 4) + gauss(1.6, 0.5)).toFixed(1);
+  // El descuento impulsa las unidades vendidas: esa es la relacion que
+  // debera encontrar la regresion lineal.
+  const descuento = Math.round(Math.max(0, Math.min(40, normal(17, 11))));
+  const unidades = Math.max(1, Math.round(2 + 0.22 * descuento + normal(0, 1.1)));
+  const total = Math.round(unidades * art.precio * (1 - descuento / 100));
 
   let f = {
-    id_viaje: 'CG-' + String(1000 + i),
+    id_venta: 'V-' + String(1000 + i),
     fecha: fechaMixta(fecha),
-    conductor: pick(CONDUCTORES),
-    ciudad_origen: origen,
-    ciudad_destino: destino,
-    tipo_vehiculo: veh.tipo,
-    distancia_km: String(km),
-    peso_toneladas: String(peso),
-    costo_flete: String(costo),
-    combustible_gal: String(galones),
-    duracion_horas: String(horas),
-    estado: pick(ESTADOS),
+    ciudad: elegir(CIUDADES),
+    categoria: art.cat,
+    producto: art.prod,
+    unidades: String(unidades),
+    precio_unitario: String(art.precio),
+    descuento_pct: String(descuento),
+    total: String(total),
+    metodo_pago: elegir(PAGOS),
+    calificacion_cliente: String(Math.max(1, Math.min(5, Math.round(normal(4.1, 0.9))))),
   };
 
-  // --- Imperfecciones controladas para la fase de limpieza ---
+  // --- Imperfecciones controladas ---
   const r = rnd();
-  if (r < 0.055) f.costo_flete = '';                                   // nulos en costo
-  else if (r < 0.085) f.peso_toneladas = '';                           // nulos en peso
-  else if (r < 0.105) f.distancia_km = '-' + f.distancia_km;           // distancia negativa
-  else if (r < 0.125) f.costo_flete = String(Number(f.costo_flete) * 14); // atipico extremo
-  else if (r < 0.150) f.duracion_horas = '';                           // nulos en duracion
+  if (r < 0.050) f.total = '';                                     // nulos en total
+  else if (r < 0.080) f.precio_unitario = '';                      // nulos en precio
+  else if (r < 0.100) f.unidades = '-' + f.unidades;               // unidades negativas
+  else if (r < 0.120) f.total = String(Number(f.total) * 12);       // atipico extremo
+  else if (r < 0.150) f.calificacion_cliente = '';                 // nulos en calificacion
 
-  if (rnd() < 0.18) f.ciudad_origen = '  ' + f.ciudad_origen.toUpperCase() + ' ';
-  if (rnd() < 0.14) f.ciudad_destino = f.ciudad_destino.toLowerCase();
-  if (rnd() < 0.20) f.conductor = f.conductor.toUpperCase();
-  if (rnd() < 0.22 && f.costo_flete) {
-    f.costo_flete = '$ ' + Number(f.costo_flete).toLocaleString('es-CO'); // formato moneda
-  }
+  if (rnd() < 0.18) f.ciudad = '  ' + f.ciudad.toUpperCase() + ' ';
+  if (rnd() < 0.14) f.categoria = f.categoria.toLowerCase();
+  if (rnd() < 0.12) f.metodo_pago = f.metodo_pago.toUpperCase();
+  if (rnd() < 0.22 && f.total) f.total = '$ ' + Number(f.total).toLocaleString('es-CO');
+  if (rnd() < 0.10 && f.precio_unitario) f.precio_unitario = '$' + Number(f.precio_unitario).toLocaleString('es-CO');
+
   filas.push(f);
 }
 
-// Duplicados exactos (registros reenviados por la app movil)
-for (let i = 0; i < 34; i++) filas.push({ ...filas[Math.floor(rnd() * filas.length)] });
+// Duplicados exactos (ventas registradas dos veces en la caja)
+for (let i = 0; i < 31; i++) filas.push({ ...filas[Math.floor(rnd() * filas.length)] });
 
 // Mezcla para que los duplicados no queden contiguos
 for (let i = filas.length - 1; i > 0; i--) {
@@ -92,12 +93,12 @@ for (let i = filas.length - 1; i > 0; i--) {
 
 const cols = Object.keys(filas[0]);
 const csv = [cols.join(',')].concat(
-  filas.map(f => cols.map(c => {
+  filas.map((f) => cols.map((c) => {
     const v = String(f[c] ?? '');
     return /[",]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
   }).join(','))
 ).join('\n');
 
-const out = path.join(__dirname, '..', 'analitica', 'data', 'viajes_cg_carga.csv');
-fs.writeFileSync(out, csv + '\n', 'utf8');
-console.log('Filas generadas:', filas.length, '->', out);
+const salida = path.join(__dirname, '..', 'datos', 'ventas_tienda_tecnologia.csv');
+fs.writeFileSync(salida, csv + '\n', 'utf8');
+console.log('Filas:', filas.length, '->', salida);

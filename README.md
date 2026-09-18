@@ -1,61 +1,59 @@
-# CG CARGA · Evidencia AA2-EV03
+# Evidencia AA2-EV03 · Analítica de datos con IA generativa
 
-Consola de analítica de datos para la operación de transporte de CG CARGA y video de
-la evidencia **AA2-EV03 · Video configuración de analítica de datos**.
+Kit para grabar la evidencia **AA2-EV03 · Video configuración de analítica de datos**
+usando **Gemini** como herramienta de analítica.
 
 Programa de formación: *Aplicación de la inteligencia artificial en la integración de datos*
 · Resultado de aprendizaje **220501115-02**.
 
-## Qué contiene la entrega
+## Qué hay aquí
 
-| Archivo | Descripción |
+| Archivo | Para qué sirve |
 |---|---|
-| `entrega/AA2-EV03-configuracion-analitica.mp4` | Video de 6:35 · 1280×720 · H.264. Recorre las siete etapas de configuración. |
-| `entrega/AA2-EV03-entrega.pdf` | Documento de entrega con los datos generales, la justificación, el paso a paso y el espacio para el enlace del video. |
-| `entrega/guion-narracion.md` | Guion con códigos de tiempo para narrar el video con voz propia. |
-| `entrega/capturas/` | Fotogramas del video usados como figuras del documento. |
+| `datos/ventas_tienda_tecnologia.csv` | El archivo que subes a Gemini. 511 registros, 11 columnas, sucio a propósito. |
+| `guion/prompts-gemini.md` | Los nueve prompts en orden, listos para copiar y pegar. |
+| `guion/guion-video.md` | Qué mostrar y qué decir minuto a minuto, y cómo cumple cada criterio. |
+| `guion/resultados-esperados.md` | Cifras de referencia para verificar que Gemini responde bien. |
+| `entrega/AA2-EV03-guia-para-grabar.mp4` | Video guía de 3:40 (4 MB) con los prompts y los valores esperados. |
+| `entrega/AA2-EV03-entrega.pdf` | Documento de entrega, con los campos y las capturas por completar. |
 
-## La herramienta
+> El video guía **no es la evidencia**. La evidencia es tu propia grabación de pantalla,
+> con tu voz y tu cuenta de Gemini. La guía existe para que esa grabación te salga bien
+> en el primer intento.
 
-`analitica/` es una consola que corre en el navegador, sin dependencias externas ni servicios en la nube.
-El flujo tiene siete etapas:
+## Cómo grabar
 
-1. **Justificación** — problema de negocio y alternativas evaluadas (Excel, Power BI, Looker Studio).
-2. **Configuración inicial** — origen, delimitador, codificación, campo temporal, formato de fecha, moneda y granularidad.
-3. **Importación y perfilado** — carga del CSV y diagnóstico automático de nulos, duplicados y tipos.
-4. **Limpieza** — siete reglas: deduplicación, normalización de texto, conversión de tipos,
-   validación de dominio, tratamiento de nulos con imputación por mediana, atípicos por rango
-   intercuartil y enriquecimiento con campos calculados.
-5. **Filtros y segmentación** — parámetros de análisis y comparación por tipo de vehículo.
-6. **Algoritmos** — regresión lineal por mínimos cuadrados y K-Means con estandarización z-score.
-7. **Resultados** — indicadores del pipeline y conclusiones.
+1. Abre una conversación nueva en [gemini.google.com](https://gemini.google.com).
+2. Empieza a grabar la pantalla (`Win + G` en Windows, `Cmd + Shift + 5` en Mac, u OBS).
+3. Sube `datos/ventas_tienda_tecnologia.csv` y sigue `guion/prompts-gemini.md` en orden.
+4. Narra según `guion/guion-video.md`, apoyándote en las cifras que aparecen en pantalla.
+5. Sube el video, pega el enlace en el PDF y verifícalo en una ventana de incógnito.
 
-El dataset `analitica/data/viajes_cg_carga.csv` simula el export semanal de la app de conductores
-e incluye a propósito duplicados, nulos, formatos mixtos y valores atípicos, para que la etapa de
-limpieza tenga algo real que corregir.
+## El conjunto de datos
 
-## Reproducir
+Ventas de una tienda de tecnología con imperfecciones deliberadas, para que la limpieza
+tenga algo real que corregir:
+
+- 31 registros duplicados (doble registro en caja)
+- 69 celdas vacías en `precio_unitario`, `total` y `calificacion_cliente`
+- 9 registros con `unidades` negativas
+- 3 formatos de fecha mezclados
+- 106 montos escritos como texto (`$ 1.234.500`)
+- 14 variantes de escritura para 7 ciudades y 10 para 5 categorías
+- Atípicos de `total` inflados 12 veces
+
+La relación que debe encontrar la regresión: el descuento impulsa las unidades vendidas
+(`unidades ≈ 2,04 + 0,221 · descuento_pct`, R² = 0,796 tras la limpieza).
+
+## Reproducir los archivos generados
 
 ```bash
-npm install                      # playwright
-node scripts/generar_dataset.js  # regenera el CSV (opcional, es determinista)
-node scripts/servidor.js         # sirve la consola en http://localhost:4173
+npm install
+npm run dataset      # regenera el CSV (determinista, misma semilla)
+npm run referencia   # imprime las cifras de referencia
+npm run video        # regraba el video guía y lo comprime bajo 10 MB
+npm run pdf          # regenera el PDF desde entrega/informe.html
 ```
 
-Con el servidor arriba, en otra terminal:
-
-```bash
-node scripts/grabar_video.mjs    # graba el MP4 y regenera el guion
-node scripts/generar_pdf.mjs     # renderiza el PDF de entrega
-```
-
-La grabación usa el Chromium de Playwright (`/opt/pw-browsers/chromium`) y convierte el `.webm`
-a MP4 con `ffmpeg`. `scripts/overlay.js` dibuja los subtítulos, el indicador de paso y el cursor
-simulado; solo se inyecta durante la grabación, no forma parte de la consola.
-
-## Antes de entregar
-
-1. Grabe su voz sobre el video siguiendo `entrega/guion-narracion.md`.
-2. Suba el MP4 a YouTube (no listado) o Google Drive con permiso de lectura pública.
-3. Complete en `entrega/informe.html` sus datos personales y el enlace del video,
-   y vuelva a ejecutar `node scripts/generar_pdf.mjs`.
+El video se graba con el Chromium de Playwright sobre `video/guia.html` y se comprime con
+`ffmpeg`; el script sube el CRF automáticamente si el archivo supera los 10 MB.

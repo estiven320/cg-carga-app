@@ -1,23 +1,13 @@
 {
-  "name": "cg-carga-app",
+  "name": "evidencia-aa2-ev03",
+  "private": true,
   "version": "1.0.0",
-  "description": "Descarga del APK de la app de conductores CG CARGA",
-  "main": "index.js",
+  "description": "Kit para grabar la evidencia AA2-EV03: analitica de datos con Gemini",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dataset": "node scripts/generar_dataset.js",
+    "referencia": "node scripts/resultados_esperados.js",
+    "video": "node scripts/grabar_guia.mjs",
+    "pdf": "node scripts/generar_pdf.mjs"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/estiven320/cg-carga-app.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/estiven320/cg-carga-app/issues"
-  },
-  "homepage": "https://github.com/estiven320/cg-carga-app#readme",
-  "dependencies": {
-    "playwright": "^1.63.0"
-  }
+  "dependencies": { "playwright": "^1.63.0" }
 }
