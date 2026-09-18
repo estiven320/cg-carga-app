@@ -1,13 +1,14 @@
 # Guion del video · Evidencia AA2-EV03
 
 **Duración objetivo:** 7 a 9 minutos.
-**Herramienta grabada:** Gemini (gemini.google.com).
+**Herramienta grabada:** ChatGPT (`guion/prompts-chatgpt.md`) o Gemini (`guion/prompts-gemini.md`).
+Los tiempos y la narración son los mismos; solo cambian los prompts.
 **Archivo a subir:** `datos/ventas_tienda_tecnologia.csv`
 
 ## Antes de grabar
 
-1. Abre una conversación **nueva** en Gemini, sin historial visible.
-2. Ten abierto `guion/prompts-gemini.md` en otra ventana para copiar los prompts.
+1. Abre una conversación **nueva** en la herramienta que elijas, sin historial visible.
+2. Ten abierto el archivo de prompts de tu herramienta en otra ventana para copiarlos.
 3. Cierra pestañas, notificaciones y cualquier dato personal en pantalla.
 4. Graba con el navegador maximizado y el zoom al 100 % o 110 %, para que el texto
    se lea en el video.
@@ -22,9 +23,9 @@
 
 | Tiempo | Qué se ve en pantalla | Qué dices |
 |:---:|---|---|
-| 00:00 – 00:35 | Pantalla de inicio de Gemini, sin escribir nada todavía | Te presentas: nombre completo, número de ficha y programa de formación. Enuncias la evidencia: «AA2-EV03, video de configuración de analítica de datos». Dices qué vas a hacer: procesar un archivo de ventas con una IA generativa, aplicando limpieza, segmentación y dos algoritmos. |
+| 00:00 – 00:35 | Pantalla de inicio de la herramienta, sin escribir nada todavía | Te presentas: nombre completo, número de ficha y programa de formación. Enuncias la evidencia: «AA2-EV03, video de configuración de analítica de datos». Dices qué vas a hacer: procesar un archivo de ventas con una IA generativa, aplicando limpieza, segmentación y dos algoritmos. |
 | 00:35 – 01:20 | Adjuntas el CSV y envías el **Prompt 1** | Explicas de dónde sale el archivo (ventas de una tienda de tecnología), cuántos registros trae y qué significa cada columna. Señalas en pantalla `descuento_pct` y `unidades`, que serán las variables del modelo. |
-| 01:20 – 02:10 | **Prompt 2**, la tabla comparativa de herramientas | Justificas la elección: Gemini no requiere instalación ni licencia, ejecuta Python real sobre el archivo, documenta cada paso en lenguaje natural y permite corregir el análisis conversando. Mencionas por qué descartas Excel (limpieza manual sin registro) y Power BI (licencia). |
+| 01:20 – 02:10 | **Prompt 2**, la tabla comparativa de herramientas | Justificas la elección: la herramienta no requiere instalación ni licencia, ejecuta Python real sobre el archivo, documenta cada paso en lenguaje natural y permite corregir el análisis conversando. Mencionas por qué descartas Excel (limpieza manual sin registro) y Power BI (licencia). |
 | 02:10 – 03:10 | **Prompt 3**, el diagnóstico de calidad | Lees en voz alta los hallazgos: 69 celdas vacías, 31 duplicados, 9 registros con unidades negativas, 3 formatos de fecha distintos y 106 totales escritos como texto con signo pesos. Concluyes que el dataset **no** se puede analizar tal como está. |
 | 03:10 – 04:30 | **Prompt 4**, la limpieza regla por regla | Vas nombrando cada regla mientras aparece su conteo: deduplicación, normalización de texto, conversión de tipos, validación de dominio, tratamiento de nulos con imputación por mediana y atípicos por rango intercuartil. Cierras con el dato clave: de 511 registros quedan **389 válidos, el 76,1 %**. |
 | 04:30 – 05:30 | **Prompt 5**, segmentaciones y filtros | Comparas las categorías: Periféricos vende más veces, pero Computadores tiene el ticket más alto con solo 30 ventas. Luego aplicas el filtro de Computadores y explicas que el filtro cambia la muestra sobre la que se ajustará el modelo. |
@@ -51,11 +52,11 @@
 ## Errores que cuestan puntos
 
 - **Leer el guion palabra por palabra.** Habla de los números que ves en pantalla; si
-  Gemini devuelve una cifra distinta a la de referencia, di la que salió y por qué
+  la IA devuelve una cifra distinta a la de referencia, di la que salió y por qué
   puede variar (el modelo elige el criterio de imputación o de atípicos).
 - **Pasar los prompts sin explicar.** El criterio 1 evalúa que se vea la
   *configuración*, no solo el resultado. Di qué le estás pidiendo y para qué.
-- **Silencios largos mientras Gemini procesa.** Aprovecha esos segundos para explicar
+- **Silencios largos mientras la IA procesa.** Aprovecha esos segundos para explicar
   lo que acabas de pedir o lo que esperas recibir.
 - **Zoom pequeño.** Si el evaluador no puede leer las tablas, los criterios 3, 4 y 5
   quedan sin evidencia.

@@ -1,7 +1,7 @@
 # Evidencia AA2-EV03 · Analítica de datos con IA generativa
 
 Kit para grabar la evidencia **AA2-EV03 · Video configuración de analítica de datos**
-usando **Gemini** como herramienta de analítica.
+usando **ChatGPT o Gemini** como herramienta de analítica.
 
 Programa de formación: *Aplicación de la inteligencia artificial en la integración de datos*
 · Resultado de aprendizaje **220501115-02**.
@@ -10,22 +10,23 @@ Programa de formación: *Aplicación de la inteligencia artificial en la integra
 
 | Archivo | Para qué sirve |
 |---|---|
-| `datos/ventas_tienda_tecnologia.csv` | El archivo que subes a Gemini. 511 registros, 11 columnas, sucio a propósito. |
-| `guion/prompts-gemini.md` | Los nueve prompts en orden, listos para copiar y pegar. |
+| `datos/ventas_tienda_tecnologia.csv` | El archivo que subes a la IA. 511 registros, 11 columnas, sucio a propósito. |
+| `guion/prompts-chatgpt.md` | Los nueve prompts en orden para ChatGPT, con sus particularidades. |
+| `guion/prompts-gemini.md` | Los mismos nueve prompts adaptados a Gemini. |
 | `guion/guion-video.md` | Qué mostrar y qué decir minuto a minuto, y cómo cumple cada criterio. |
-| `guion/resultados-esperados.md` | Cifras de referencia para verificar que Gemini responde bien. |
+| `guion/resultados-esperados.md` | Cifras de referencia para verificar que la IA responde bien. |
 | `entrega/AA2-EV03-guia-para-grabar.mp4` | Video guía de 3:40 (4 MB) con los prompts y los valores esperados. |
 | `entrega/AA2-EV03-entrega.pdf` | Documento de entrega, con los campos y las capturas por completar. |
 
 > El video guía **no es la evidencia**. La evidencia es tu propia grabación de pantalla,
-> con tu voz y tu cuenta de Gemini. La guía existe para que esa grabación te salga bien
-> en el primer intento.
+> con tu voz y tu cuenta. La guía existe para que esa grabación te salga bien en el
+> primer intento.
 
 ## Cómo grabar
 
-1. Abre una conversación nueva en [gemini.google.com](https://gemini.google.com).
+1. Abre una conversación nueva en [chatgpt.com](https://chatgpt.com) o [gemini.google.com](https://gemini.google.com).
 2. Empieza a grabar la pantalla (`Win + G` en Windows, `Cmd + Shift + 5` en Mac, u OBS).
-3. Sube `datos/ventas_tienda_tecnologia.csv` y sigue `guion/prompts-gemini.md` en orden.
+3. Sube `datos/ventas_tienda_tecnologia.csv` y sigue el archivo de prompts de tu herramienta, en orden.
 4. Narra según `guion/guion-video.md`, apoyándote en las cifras que aparecen en pantalla.
 5. Sube el video, pega el enlace en el PDF y verifícalo en una ventana de incógnito.
 

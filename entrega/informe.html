@@ -39,9 +39,9 @@
 <div class="portada">
   <div class="ev">Evidencia AA2-EV03 · Video configuración de analítica de datos</div>
   <h1>Configuración de un análisis de datos con inteligencia artificial generativa</h1>
-  <div class="sub">Procesamiento de un archivo de ventas de una tienda de tecnología usando
-    <b>Gemini</b> como herramienta de analítica: diagnóstico de calidad, limpieza,
-    segmentación, regresión lineal y agrupamiento K-Means.</div>
+  <div class="sub">Procesamiento de un archivo de ventas de una tienda de tecnología usando una
+    <b>IA generativa con ejecución de código</b> como herramienta de analítica: diagnóstico
+    de calidad, limpieza, segmentación, regresión lineal y agrupamiento K-Means.</div>
 </div>
 
 <h2>1. Datos generales de la entrega</h2>
@@ -57,7 +57,7 @@
   <tr><td class="campo">Actividad de aprendizaje</td><td>AA2 · Procesar conjuntos de datos mediante el uso de herramientas de
     inteligencia artificial generativa y técnicas estadísticas, según una metodología técnica definida</td></tr>
   <tr><td class="campo">Evidencia</td><td>AA2-EV03 · Video configuración de analítica de datos</td></tr>
-  <tr><td class="campo">Herramienta de analítica</td><td>Gemini (Google) · gemini.google.com</td></tr>
+  <tr><td class="campo">Herramienta de analítica</td><td class="rellenar">Escriba la herramienta que usó y su dirección: ChatGPT (chatgpt.com) o Gemini (gemini.google.com)</td></tr>
   <tr><td class="campo">Conjunto de datos</td><td><code>ventas_tienda_tecnologia.csv</code> · 511 registros · 11 columnas</td></tr>
   <tr><td class="campo">Duración del video</td><td class="rellenar">MM minutos SS segundos</td></tr>
 </table>
@@ -76,14 +76,14 @@
 vacías, montos escritos como texto con símbolo de moneda, fechas en tres formatos distintos
 y nombres de ciudad y categoría con mayúsculas y espacios inconsistentes. Analizarlo tal como
 está no es posible.</p>
-<p>Se seleccionó <b>Gemini</b> como herramienta de analítica de datos por los criterios que se
-comparan a continuación:</p>
+<p>Se seleccionó una <b>IA generativa con ejecución de código</b> —indique en la sección 1
+cuál utilizó— por los criterios que se comparan a continuación:</p>
 <table>
   <tr><th>Alternativa</th><th>Ventaja principal</th><th>Limitación frente a este caso</th></tr>
   <tr><td>Hoja de cálculo (Excel)</td><td>Conocida y disponible</td><td>La limpieza es manual y no deja registro auditable de lo que se hizo</td></tr>
   <tr><td>Power BI</td><td>Visualización potente</td><td>Requiere licencia por usuario para compartir el tablero</td></tr>
   <tr><td>Script de Python a mano</td><td>Control total del procedimiento</td><td>Exige instalar entorno y reescribir código en cada iteración</td></tr>
-  <tr><td><b>Gemini (seleccionada)</b></td><td><b>Ejecuta Python real sobre el archivo subido, documenta cada paso en
+  <tr><td><b>IA generativa (seleccionada)</b></td><td><b>Ejecuta Python real sobre el archivo subido, documenta cada paso en
     lenguaje natural y permite corregir el análisis conversando</b></td><td><b>Depende de conexión y de que la cuenta
     tenga habilitada la ejecución de código</b></td></tr>
 </table>
@@ -98,7 +98,7 @@ natural y <b>capacidad de iterar</b> sin reescribir el análisis desde cero.</p>
   <tr><th style="width:12%">Minuto</th><th style="width:25%">Etapa configurada</th><th>Instrucción dada a la IA</th></tr>
   <tr><td>00:00 – 00:35</td><td>Presentación</td><td>Identificación del aprendiz, la ficha, el programa y la evidencia.</td></tr>
   <tr><td>00:35 – 01:20</td><td>Configuración inicial</td><td>Definición del rol de analista, del trabajo por etapas y del contrato de salida: código Python visible más resultados en tablas. Carga del archivo CSV.</td></tr>
-  <tr><td>01:20 – 02:10</td><td>Justificación</td><td>Comparación técnica de Gemini frente a Excel, Power BI y un script de Python escrito a mano.</td></tr>
+  <tr><td>01:20 – 02:10</td><td>Justificación</td><td>Comparación técnica de la herramienta frente a Excel, Power BI y un script de Python escrito a mano.</td></tr>
   <tr><td>02:10 – 03:10</td><td>Diagnóstico de calidad</td><td>Conteo de nulos por columna, duplicados por clave, valores fuera de dominio, formatos de fecha, montos como texto y variantes de escritura.</td></tr>
   <tr><td>03:10 – 04:30</td><td>Limpieza y transformación</td><td>Siete reglas en orden, cada una con el número de registros que afecta.</td></tr>
   <tr><td>04:30 – 05:30</td><td>Filtros y segmentación</td><td>Segmentación por categoría y por ciudad; filtro por categoría y filtro por nivel de descuento.</td></tr>
@@ -106,7 +106,7 @@ natural y <b>capacidad de iterar</b> sin reescribir el análisis desde cero.</p>
   <tr><td>06:40 – 07:50</td><td>Algoritmo no supervisado</td><td>Agrupamiento K-Means con k = 3 y estandarización z-score.</td></tr>
   <tr><td>07:50 – 08:30</td><td>Conclusiones</td><td>Cinco conclusiones accionables, cada una citando una cifra del análisis.</td></tr>
 </table>
-<div class="captura">Pegue aquí la captura de la pantalla de Gemini con el archivo cargado<br>y la respuesta al primer prompt</div>
+<div class="captura">Pegue aquí la captura de la pantalla de la IA con el archivo cargado<br>y la respuesta al primer prompt</div>
 <div class="pieimg">Figura 1. Configuración inicial: carga del archivo y definición del rol y del contrato de salida.</div>
 
 <h2>5. Diagnóstico de calidad y limpieza de datos</h2>
@@ -138,7 +138,7 @@ natural y <b>capacidad de iterar</b> sin reescribir el análisis desde cero.</p>
 </table>
 <p>Resultado: de <b>511 registros crudos</b> se obtuvieron <b>389 registros válidos</b>, es decir
 una <b>retención del 76,1 %</b> del volumen original.</p>
-<div class="captura">Pegue aquí la captura de la tabla de limpieza generada por Gemini,<br>con el conteo de registros por regla</div>
+<div class="captura">Pegue aquí la captura de la tabla de limpieza generada por la IA,<br>con el conteo de registros por regla</div>
 <div class="pieimg">Figura 2. Limpieza regla por regla con el conteo de registros afectados y la retención final.</div>
 
 <h2>6. Filtros, parámetros y segmentación aplicados</h2>
@@ -174,7 +174,7 @@ los 389 registros válidos.</p>
   <tr><th>Descuento</th><th>0 %</th><th>10 %</th><th>20 %</th><th>30 %</th><th>40 %</th></tr>
   <tr><td><b>Unidades estimadas</b></td><td>2,04</td><td>4,25</td><td>6,46</td><td>8,67</td><td>10,88</td></tr>
 </table>
-<div class="captura">Pegue aquí la captura del gráfico de dispersión con la recta de ajuste<br>generado por Gemini</div>
+<div class="captura">Pegue aquí la captura del gráfico de dispersión con la recta de ajuste<br>generado por la IA</div>
 <div class="pieimg">Figura 3. Regresión lineal: dispersión de unidades frente a descuento con la recta de ajuste.</div>
 
 <h3>7.2 Agrupamiento K-Means (no supervisado)</h3>
@@ -186,7 +186,7 @@ con z-score, con k = 3. El algoritmo agrupó sin recibir etiquetas previas.</p>
   <tr><td>2</td><td>Volumen con descuento alto</td><td>158</td><td>$ 1.243.073</td><td>7,9</td><td>25,6 %</td></tr>
   <tr><td>3</td><td>Ticket alto (computadores)</td><td>52</td><td>$ 7.287.983</td><td>6,0</td><td>17,8 %</td></tr>
 </table>
-<div class="captura">Pegue aquí la captura del gráfico de clusters<br>y de la tabla de perfiles generada por Gemini</div>
+<div class="captura">Pegue aquí la captura del gráfico de clusters<br>y de la tabla de perfiles generada por la IA</div>
 <div class="pieimg">Figura 4. Segmentación K-Means en tres perfiles comerciales diferenciados.</div>
 
 <h2>8. Resultados y conclusiones</h2>
@@ -212,7 +212,7 @@ con z-score, con k = 3. El algoritmo agrupó sin recibir etiquetas previas.</p>
   <tr><td class="rot">Firma del aprendiz</td><td class="sep"></td><td class="rot">Fecha de entrega</td></tr>
 </table>
 
-<div class="pie">Evidencia AA2-EV03 · Video configuración de analítica de datos · Herramienta: Gemini</div>
+<div class="pie">Evidencia AA2-EV03 · Video configuración de analítica de datos · Herramienta: IA generativa</div>
 
 </body>
 </html>
