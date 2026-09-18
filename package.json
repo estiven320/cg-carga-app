@@ -9,5 +9,7 @@
     "video": "node scripts/grabar_guia.mjs",
     "pdf": "node scripts/generar_pdf.mjs"
   },
-  "dependencies": { "playwright": "^1.63.0" }
+  "dependencies": {
+    "playwright": "^1.63.0"
+  }
 }
