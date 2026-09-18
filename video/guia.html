@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Guía AA2-EV03 · Análisis de datos con Gemini</title>
+<style>
+:root{
+  --fondo:#0a1020; --panel:#131d33; --panel2:#1b2843; --borde:#2a3b5c;
+  --texto:#eaf0fc; --tenue:#9db0d2; --ia:#8ab4f8; --ok:#81c995; --alerta:#fdd663; --malo:#f28b82;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1280px;height:720px;overflow:hidden}
+body{background:var(--fondo);color:var(--texto);
+  font-family:system-ui,"DejaVu Sans",sans-serif;font-size:17px;line-height:1.5}
+.slide{position:absolute;inset:0;padding:46px 58px;opacity:0;
+  transition:opacity .45s ease;display:flex;flex-direction:column}
+.slide.on{opacity:1}
+.eyebrow{font-size:12.5px;letter-spacing:2.2px;text-transform:uppercase;color:var(--ia);font-weight:700;margin-bottom:10px}
+h1{font-size:40px;line-height:1.16;letter-spacing:-.9px;margin-bottom:14px}
+h2{font-size:31px;line-height:1.2;letter-spacing:-.6px;margin-bottom:16px}
+h3{font-size:19px;margin-bottom:9px;color:var(--ia)}
+p{color:var(--tenue);margin-bottom:11px;max-width:1080px}
+p b,li b{color:var(--texto)}
+.centro{align-items:center;justify-content:center;text-align:center}
+.centro h1{max-width:1000px}
+.marca{display:flex;align-items:center;gap:13px;margin-bottom:26px}
+.marca-ico{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#8ab4f8,#5b8def);
+  display:grid;place-items:center;font-size:27px}
+.marca b{font-size:19px;display:block}.marca span{font-size:12.5px;color:var(--tenue);letter-spacing:1.2px;text-transform:uppercase}
+.aviso{background:rgba(253,214,99,.12);border:1px solid rgba(253,214,99,.4);border-radius:12px;
+  padding:16px 22px;font-size:17px;color:var(--alerta);max-width:900px;margin-top:22px;text-align:left}
+.aviso b{color:#ffe9a8}
+.meta{margin-top:26px;color:var(--tenue);font-size:15.5px;line-height:1.95}
+.meta b{color:var(--texto)}
+.prompt{background:#070c17;border:1px solid var(--borde);border-left:4px solid var(--ia);
+  border-radius:0 11px 11px 0;padding:19px 24px;font-size:16.5px;line-height:1.62;
+  color:#dce6fa;max-height:352px;overflow:hidden;white-space:pre-wrap}
+.prompt .q{color:var(--ia);font-weight:700}
+.dos{display:grid;grid-template-columns:1fr 1fr;gap:22px;flex:1;min-height:0}
+.caja{background:var(--panel);border:1px solid var(--borde);border-radius:13px;padding:19px 22px;min-height:0;overflow:hidden}
+.caja.ok{border-color:rgba(129,201,149,.45)}
+.lista{list-style:none}
+.lista li{display:flex;gap:11px;align-items:flex-start;padding:7px 0;color:var(--tenue);font-size:16px}
+.lista li::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ia);flex:none;margin-top:8px}
+.lista.v li::before{content:"✓";background:none;width:auto;height:auto;color:var(--ok);font-weight:700;margin-top:0}
+.lista.x li::before{content:"✕";background:none;width:auto;height:auto;color:var(--malo);font-weight:700;margin-top:0}
+.cifras{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:14px;margin-top:18px}
+.cifra{background:var(--panel2);border:1px solid var(--borde);border-radius:11px;padding:15px 17px}
+.cifra b{display:block;font-size:26px;letter-spacing:-.6px;white-space:nowrap}
+.cifra span{font-size:13px;color:var(--tenue)}
+.cifra.ok b{color:var(--ok)}.cifra.mal b{color:var(--malo)}
+table{width:100%;border-collapse:collapse;font-size:15px;margin-top:6px}
+th{text-align:left;padding:8px 11px;background:var(--panel2);color:var(--ia);font-size:12.5px;
+  letter-spacing:.9px;text-transform:uppercase;border-bottom:1px solid var(--borde)}
+td{padding:7.5px 11px;border-bottom:1px solid var(--borde);color:var(--tenue)}
+td b{color:var(--texto)}
+.paso-n{position:absolute;top:34px;right:52px;font-size:12.5px;letter-spacing:1.6px;
+  text-transform:uppercase;color:var(--ia);font-weight:700;background:var(--panel);
+  border:1px solid var(--borde);border-radius:9px;padding:7px 15px}
+.pie{margin-top:auto;padding-top:16px;border-top:1px solid var(--borde);color:var(--tenue);font-size:14.5px}
+.pie b{color:var(--texto)}
+code{font-family:"DejaVu Sans Mono",monospace;font-size:15px;background:#070c17;
+  border:1px solid var(--borde);border-radius:5px;padding:1px 6px;color:#dce6fa}
+</style>
+</head>
+<body>
+
+<!-- 1 -->
+<section class="slide centro">
+  <div class="marca"><div class="marca-ico">✨</div>
+    <div><b>Análisis de datos con IA generativa</b><span>Gemini · Google</span></div></div>
+  <h1>Guía para grabar tu evidencia<br>AA2-EV03</h1>
+  <p style="font-size:20px">Video configuración de analítica de datos</p>
+  <div class="aviso"><b>Esto es una guía, no la evidencia.</b> El video que entregas debe ser
+    tu propia pantalla, con tu voz, usando tu cuenta de Gemini. Esta guía te dice
+    exactamente qué pegar, qué debe salir y qué decir en cada momento.</div>
+</section>
+
+<!-- 2 -->
+<section class="slide">
+  <div class="paso-n">Antes de grabar</div>
+  <div class="eyebrow">Preparación</div>
+  <h2>Cinco cosas antes de presionar grabar</h2>
+  <div class="dos">
+    <div class="caja">
+      <h3>Montaje</h3>
+      <ul class="lista">
+        <li>Conversación <b>nueva</b> en gemini.google.com, sin historial visible</li>
+        <li><code>prompts-gemini.md</code> abierto en otra ventana para copiar</li>
+        <li>Navegador maximizado, zoom al <b>100 % o 110 %</b></li>
+        <li>Notificaciones y datos personales fuera de pantalla</li>
+        <li>Prueba de micrófono de 10 segundos antes de empezar</li>
+      </ul>
+    </div>
+    <div class="caja">
+      <h3>Con qué grabar</h3>
+      <ul class="lista">
+        <li><b>Windows:</b> <code>Win + G</code> (Xbox Game Bar) u OBS Studio</li>
+        <li><b>Mac:</b> <code>Cmd + Shift + 5</code></li>
+        <li><b>Cualquiera:</b> Loom, o grabar una reunión de Google Meet contigo mismo</li>
+      </ul>
+      <h3 style="margin-top:18px">El archivo</h3>
+      <ul class="lista">
+        <li><code>ventas_tienda_tecnologia.csv</code></li>
+        <li>511 registros · 11 columnas · sucio a propósito</li>
+      </ul>
+    </div>
+  </div>
+  <div class="pie">Duración objetivo del video: <b>7 a 9 minutos</b> · nueve prompts en una sola conversación</div>
+</section>
+
+<!-- 3 -->
+<section class="slide">
+  <div class="paso-n">Prompt 1 · 00:35</div>
+  <div class="eyebrow">Configuración inicial</div>
+  <h2>Definir el rol y el contrato de trabajo</h2>
+  <div class="prompt"><span class="q">Actúa como analista de datos.</span> Voy a configurar contigo un análisis completo de un archivo de ventas de una tienda de tecnología. Trabajaremos por etapas y en cada una quiero que muestres el código Python que ejecutas y los resultados en tablas. No avances a la etapa siguiente hasta que yo te lo pida.
+
+Primera etapa: acabo de subir el archivo <span class="q">ventas_tienda_tecnologia.csv</span>. Descríbeme su estructura: cuántos registros y columnas tiene, el tipo de dato de cada columna y una muestra de las primeras 10 filas.</div>
+  <div class="pie">Sube el CSV <b>antes</b> de enviar este prompt, con el clip o el botón <code>+</code>.
+    Debe responder <b>511 registros y 11 columnas</b>.</div>
+</section>
+
+<!-- 4 -->
+<section class="slide">
+  <div class="paso-n">Prompt 2 · 01:20</div>
+  <div class="eyebrow">Criterio 2 de la lista de verificación</div>
+  <h2>Justificar por qué eliges esta herramienta</h2>
+  <div class="prompt"><span class="q">Antes de seguir: justifica técnicamente</span> por qué una IA generativa como tú es una herramienta válida de analítica de datos para este caso, comparándola con Excel, Power BI y un script de Python escrito a mano. Preséntalo en una tabla con las columnas: herramienta, ventaja principal, limitación frente a este caso.</div>
+  <h3 style="margin-top:20px">Mientras responde, di tus propios criterios</h3>
+  <table>
+    <tr><th>Criterio</th><th>Por qué pesa en este caso</th></tr>
+    <tr><td><b>Sin instalación ni licencia</b></td><td>Frente a Power BI, que cobra por usuario para compartir</td></tr>
+    <tr><td><b>Ejecuta Python real</b></td><td>No estima: calcula sobre el archivo que subiste</td></tr>
+    <tr><td><b>Documenta en lenguaje natural</b></td><td>Frente a Excel, donde la limpieza manual no deja registro</td></tr>
+    <tr><td><b>Permite iterar conversando</b></td><td>Corriges el análisis sin reescribir el script</td></tr>
+  </table>
+</section>
+
+<!-- 5 -->
+<section class="slide">
+  <div class="paso-n">Prompt 3 · 02:10</div>
+  <div class="eyebrow">Criterio 3 · primera mitad</div>
+  <h2>Diagnóstico de calidad: por qué no se puede analizar aún</h2>
+  <div class="prompt" style="max-height:236px"><span class="q">Segunda etapa: haz un diagnóstico de calidad del dataset.</span> Repórtame en una tabla: celdas vacías por columna; registros duplicados según id_venta; valores fuera de dominio (unidades menores o iguales a cero); cuántos formatos distintos de fecha aparecen y cuáles son; cuántos valores de total y precio_unitario están escritos como texto con símbolo de moneda; y cuántas variantes de escritura tienen ciudad y categoria. Al final dime en una frase si el dataset se puede analizar tal como está.</div>
+  <div class="cifras">
+    <div class="cifra mal"><b>69</b><span>celdas vacías</span></div>
+    <div class="cifra mal"><b>31</b><span>duplicados</span></div>
+    <div class="cifra mal"><b>9</b><span>unidades negativas</span></div>
+    <div class="cifra mal"><b>3</b><span>formatos de fecha</span></div>
+    <div class="cifra mal"><b>106</b><span>totales como texto</span></div>
+    <div class="cifra mal"><b>14 → 7</b><span>variantes de ciudad</span></div>
+  </div>
+</section>
+
+<!-- 6 -->
+<section class="slide">
+  <div class="paso-n">Prompt 4 · 03:10</div>
+  <div class="eyebrow">Criterio 3 · segunda mitad</div>
+  <h2>Limpieza: siete reglas, cada una con su conteo</h2>
+  <div class="dos">
+    <div class="caja">
+      <table>
+        <tr><th>Regla</th><th>Técnica</th></tr>
+        <tr><td><b>R1</b></td><td>Deduplicación por <code>id_venta</code></td></tr>
+        <tr><td><b>R2</b></td><td>Normalización de texto</td></tr>
+        <tr><td><b>R3</b></td><td>Conversión de tipos y fechas</td></tr>
+        <tr><td><b>R4</b></td><td>Validación de dominio</td></tr>
+        <tr><td><b>R5</b></td><td>Nulos + imputación por mediana</td></tr>
+        <tr><td><b>R6</b></td><td>Atípicos por rango intercuartil</td></tr>
+        <tr><td><b>R7</b></td><td>Columnas calculadas</td></tr>
+      </table>
+    </div>
+    <div class="caja ok">
+      <h3>Lo que debe salir</h3>
+      <table>
+        <tr><th>Paso</th><th>Registros</th></tr>
+        <tr><td>Crudo</td><td><b>511</b></td></tr>
+        <tr><td>R1 · −31 duplicados</td><td>480</td></tr>
+        <tr><td>R4 · −9 negativas</td><td>471</td></tr>
+        <tr><td>R5 · −26 nulos, 37 imputados</td><td>445</td></tr>
+        <tr><td>R6 · −56 atípicos</td><td><b style="color:#81c995">389</b></td></tr>
+      </table>
+      <p style="margin-top:14px;font-size:16px">Retención final <b>76,1 %</b>.
+        Límite IQR ≈ <b>$ 9.925.390</b>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 7 -->
+<section class="slide">
+  <div class="paso-n">Prompt 5 · 04:30</div>
+  <div class="eyebrow">Criterio 4 de la lista de verificación</div>
+  <h2>Filtros, parámetros y segmentación</h2>
+  <p>Pide segmentar por <b>categoría</b> y por <b>ciudad</b>, y luego aplicar dos filtros:
+     solo <code>Computadores</code>, y después solo ventas con <code>descuento_pct ≥ 20</code>.</p>
+  <table>
+    <tr><th>Categoría</th><th>Ventas</th><th>Ingreso</th><th>Ticket promedio</th><th>Descuento</th></tr>
+    <tr><td><b>Periféricos</b></td><td>111</td><td>$ 272,1 M</td><td>$ 2,45 M</td><td>15,8 %</td></tr>
+    <tr><td><b>Computadores</b></td><td>30</td><td>$ 220,9 M</td><td><b style="color:#81c995">$ 7,36 M</b></td><td>8,2 %</td></tr>
+    <tr><td><b>Audio</b></td><td>96</td><td>$ 155,9 M</td><td>$ 1,62 M</td><td>17,6 %</td></tr>
+    <tr><td><b>Accesorios</b></td><td>103</td><td>$ 86,2 M</td><td>$ 0,84 M</td><td>17,6 %</td></tr>
+    <tr><td><b>Almacenamiento</b></td><td>49</td><td>$ 46,7 M</td><td>$ 0,95 M</td><td>20,7 %</td></tr>
+  </table>
+  <div class="pie">Frase que conviene decir: <b>Periféricos vende más veces, pero Computadores
+    factura casi lo mismo con 30 ventas.</b> El filtro no es decorativo: cambia la muestra
+    sobre la que se ajusta el modelo.</div>
+</section>
+
+<!-- 8 -->
+<section class="slide">
+  <div class="paso-n">Prompt 6 · 05:30</div>
+  <div class="eyebrow">Criterio 5 · algoritmo supervisado</div>
+  <h2>Regresión lineal: ¿cuánto vende cada punto de descuento?</h2>
+  <div class="prompt" style="max-height:150px"><span class="q">Ajusta una regresión lineal simple por mínimos cuadrados</span> con descuento_pct como variable predictora y unidades como variable objetivo. Dame la ecuación, el R², la correlación de Pearson, el RMSE, un gráfico de dispersión con la recta de ajuste y la predicción para descuentos de 0, 10, 20, 30 y 40 %.</div>
+  <div class="cifras">
+    <div class="cifra"><b>2,04 + 0,221·d</b><span>ecuación estimada</span></div>
+    <div class="cifra ok"><b>0,7957</b><span>R²</span></div>
+    <div class="cifra ok"><b>0,8920</b><span>r de Pearson</span></div>
+    <div class="cifra"><b>1,15</b><span>RMSE en unidades</span></div>
+    <div class="cifra"><b>389</b><span>observaciones</span></div>
+  </div>
+  <div class="pie">Interpretación para narrar: <b>cada punto de descuento agrega unas 0,22 unidades
+    vendidas</b>, es decir ~2,2 unidades por cada 10 puntos. El descuento explica cerca del
+    <b>80 %</b> de la variación en el volumen.</div>
+</section>
+
+<!-- 9 -->
+<section class="slide">
+  <div class="paso-n">Prompt 7 · 06:40</div>
+  <div class="eyebrow">Criterio 5 · algoritmo no supervisado</div>
+  <h2>K-Means: tres perfiles de venta que nadie etiquetó</h2>
+  <div class="prompt" style="max-height:126px"><span class="q">Ejecuta K-Means con k = 3</span> sobre las variables total, unidades y descuento_pct, estandarizadas con z-score. Dame las iteraciones hasta converger, la inercia total, una tabla con el perfil de cada cluster, un nombre descriptivo para cada uno, un gráfico de dispersión por color y qué decisión comercial tomarías con cada segmento.</div>
+  <table>
+    <tr><th>Cluster</th><th>Ventas</th><th>Ticket promedio</th><th>Unidades</th><th>Descuento</th></tr>
+    <tr><td><b>Ticket bajo, poco descuento</b></td><td>≈ 179</td><td>$ 1,15 M</td><td>3,7</td><td>8,6 %</td></tr>
+    <tr><td><b>Volumen con descuento alto</b></td><td>≈ 158</td><td>$ 1,24 M</td><td>7,9</td><td>25,6 %</td></tr>
+    <tr><td><b>Ticket alto (computadores)</b></td><td>≈ 52</td><td><b style="color:#81c995">$ 7,29 M</b></td><td>6,0</td><td>17,8 %</td></tr>
+  </table>
+  <div class="pie">Di en voz alta que K-Means es <b>no supervisado</b>: nadie le dio las etiquetas,
+    el algoritmo encontró los grupos solo. Inercia total ≈ <b>404</b>.</div>
+</section>
+
+<!-- 10 -->
+<section class="slide">
+  <div class="paso-n">Prompt 8 · 07:50</div>
+  <div class="eyebrow">Cierre</div>
+  <h2>Conclusiones y recapitulación</h2>
+  <div class="prompt" style="max-height:120px"><span class="q">Última etapa: cierra el análisis.</span> Dame cinco conclusiones accionables numeradas que se desprendan de todo lo que hicimos — el diagnóstico de calidad, la limpieza, la segmentación, la regresión y el K-Means. Cada conclusión debe citar un número concreto obtenido en el análisis.</div>
+  <h3 style="margin-top:20px">Lo que dices tú antes de despedirte</h3>
+  <ul class="lista v">
+    <li>Nombra las <b>seis etapas</b> que configuraste: contexto, justificación, diagnóstico, limpieza, segmentación y algoritmos</li>
+    <li>Repite las dos cifras que más pesan: <b>76,1 % de retención</b> y <b>R² de 0,7957</b></li>
+    <li>Cierra agradeciendo al instructor</li>
+  </ul>
+</section>
+
+<!-- 11 -->
+<section class="slide">
+  <div class="paso-n">Verificación</div>
+  <div class="eyebrow">Lista de verificación del instrumento</div>
+  <h2>Cómo cumple cada criterio</h2>
+  <table>
+    <tr><th>#</th><th>Criterio</th><th>Dónde se cumple</th></tr>
+    <tr><td><b>1</b></td><td>Paso a paso de la configuración inicial</td><td>00:35 – 02:10 · subida del archivo, rol y contrato de salida</td></tr>
+    <tr><td><b>2</b></td><td>Justificación de la herramienta</td><td>01:20 – 02:10 · tabla comparativa</td></tr>
+    <tr><td><b>3</b></td><td>Importación y limpieza básica</td><td>02:10 – 04:30 · diagnóstico y siete reglas</td></tr>
+    <tr><td><b>4</b></td><td>Filtros, segmentaciones o parámetros</td><td>04:30 – 05:30 · categoría, ciudad y dos filtros</td></tr>
+    <tr><td><b>5</b></td><td>Técnica o algoritmo de análisis</td><td>05:30 – 07:50 · <b>dos</b> algoritmos</td></tr>
+    <tr><td><b>6</b></td><td>Narración clara y estructurada</td><td>El guion minuto a minuto</td></tr>
+    <tr><td><b>7</b></td><td>PDF con los datos y el enlace</td><td><code>AA2-EV03-entrega.pdf</code></td></tr>
+  </table>
+</section>
+
+<!-- 12 -->
+<section class="slide">
+  <div class="paso-n">Cuidado</div>
+  <div class="eyebrow">Lo que cuesta puntos</div>
+  <h2>Cinco errores que evalúan mal</h2>
+  <ul class="lista x" style="font-size:17px">
+    <li><b>Leer el guion palabra por palabra.</b> Habla de los números que ves en pantalla. Si Gemini da una cifra distinta, di la que salió y por qué puede variar.</li>
+    <li><b>Pegar los prompts sin explicar.</b> El criterio 1 evalúa que se vea la configuración, no solo el resultado.</li>
+    <li><b>Silencios largos mientras procesa.</b> Usa esos segundos para explicar qué pediste y qué esperas recibir.</li>
+    <li><b>Zoom pequeño.</b> Si el evaluador no puede leer las tablas, los criterios 3, 4 y 5 quedan sin evidencia.</li>
+    <li><b>Enlace sin verificar.</b> Ábrelo en una ventana de incógnito antes de entregar.</li>
+  </ul>
+</section>
+
+<!-- 13 -->
+<section class="slide centro">
+  <div class="marca-ico" style="width:66px;height:66px;font-size:33px;margin-bottom:22px">✅</div>
+  <h1 style="font-size:36px">Ya tienes todo para grabar</h1>
+  <div class="meta">
+    <b>datos/ventas_tienda_tecnologia.csv</b> — el archivo que subes a Gemini<br>
+    <b>guion/prompts-gemini.md</b> — los nueve prompts en orden, para copiar y pegar<br>
+    <b>guion/guion-video.md</b> — qué mostrar y qué decir minuto a minuto<br>
+    <b>guion/resultados-esperados.md</b> — cifras de referencia para verificar a Gemini<br>
+    <b>entrega/AA2-EV03-entrega.pdf</b> — documento de entrega por completar
+  </div>
+  <div class="aviso" style="margin-top:28px;max-width:860px">
+    <b>Recuerda:</b> graba tu pantalla con tu voz y tu cuenta. Luego sube el video,
+    pega el enlace en el PDF y verifícalo en una ventana de incógnito.</div>
+</section>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  window.total = slides.length;
+  window.ir = (n) => slides.forEach((s, i) => s.classList.toggle('on', i === n));
+  window.ir(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,512 @@
+id_venta,fecha,ciudad,categoria,producto,unidades,precio_unitario,descuento_pct,total,metodo_pago,calificacion_cliente
+V-1312,2026-01-22,Cartagena,Audio,Microfono USB,10,419000,34,2765400,Efectivo,5
+V-1164,2026-05-24,Cartagena,Audio,Audifonos bluetooth,6,349000,12,1842720,Tarjeta credito,4
+V-1111,2026-08-11,Bogota,Almacenamiento,Disco SSD 1 TB,2,389000,3,754660,Efectivo,4
+V-1006,2026-05-02,  CARTAGENA ,audio,Parlante portatil,8,259000,37,1305360,Transferencia,4
+V-1467,2026-06-20,Pereira,almacenamiento,Memoria USB 128 GB,3,79000,10,$ 213.300,Transferencia,3
+V-1347,2026-03-14,Bogota,Computadores,Todo en uno 24,5,2190000,13,$ 9.526.500,Transferencia,
+V-1019,2026-04-26,Cartagena,Computadores,Portatil 14 pulgadas,9,$2.450.000,31,15214500,Efectivo,4
+V-1330,21-08-2026,Cali,Perifericos,Teclado mecanico,7,289000,16,1699320,TARJETA DEBITO,3
+V-1063,25/06/2026,  CARTAGENA ,Computadores,Portatil gamer,6,4890000,21,23178600,TARJETA CREDITO,4
+V-1395,22-06-2026,Barranquilla,accesorios,Cargador universal,1,119000,0,,Tarjeta debito,2
+V-1261,2026-02-17,Bogota,Perifericos,Monitor 27 pulgadas,6,1090000,19,5297400,Transferencia,3
+V-1453,20/01/2026,Cartagena,Almacenamiento,Memoria USB 128 GB,3,79000,0,237000,EFECTIVO,3
+V-1024,2026-04-17,Barranquilla,Perifericos,Mouse inalambrico,7,96000,28,483840,Tarjeta credito,5
+V-1127,2026-09-03,Cali,Audio,Audifonos bluetooth,6,349000,17,$ 1.738.020,Efectivo,
+V-1052,2026-07-03,Medellin,Computadores,Portatil gamer,6,4890000,22,,PSE,4
+V-1406,03/06/2026,Barranquilla,almacenamiento,Memoria USB 128 GB,9,79000,28,511920,TRANSFERENCIA,3
+V-1028,2026-06-04,Cartagena,Perifericos,Teclado mecanico,4,289000,8,1063520,Transferencia,5
+V-1109,22-04-2026,  MEDELLIN ,Audio,Audifonos bluetooth,7,349000,14,2100980,PSE,4
+V-1326,2026-03-25,Medellin,Computadores,Portatil gamer,2,4890000,0,$ 9.780.000,PSE,4
+V-1106,2026-03-13,  MEDELLIN ,Audio,Audifonos bluetooth,7,349000,38,1514660,Tarjeta credito,3
+V-1090,2026-02-05,Bogota,Audio,Parlante portatil,5,259000,13,1126650,Tarjeta debito,3
+V-1065,24/08/2026,Cartagena,accesorios,Maletin para portatil,5,169000,8,777400,Transferencia,3
+V-1016,13/08/2026,Pereira,accesorios,Maletin para portatil,2,169000,2,331240,PSE,5
+V-1273,2026-04-10,  PEREIRA ,Perifericos,Mouse inalambrico,3,96000,0,288000,Transferencia,5
+V-1221,2026-08-05,Pereira,almacenamiento,Memoria USB 128 GB,6,79000,18,388680,Transferencia,5
+V-1212,2026-03-28,Pereira,Audio,Audifonos bluetooth,8,349000,26,2066080,Transferencia,4
+V-1383,2026-02-08,  CARTAGENA ,computadores,Todo en uno 24,3,$2.190.000,0,,PSE,3
+V-1265,2026-06-30,Bucaramanga,Almacenamiento,Disco SSD 1 TB,4,389000,5,1478200,TRANSFERENCIA,
+V-1310,2026-07-19,  BUCARAMANGA ,Almacenamiento,Memoria USB 128 GB,6,79000,26,$ 350.760,PSE,5
+V-1410,2026-04-01,Bucaramanga,Audio,Audifonos bluetooth,8,349000,29,1982320,PSE,4
+V-1374,2026-02-02,Cali,Accesorios,Base refrigerante,8,139000,25,834000,Tarjeta credito,4
+V-1132,29/03/2026,Bogota,audio,Parlante portatil,8,259000,24,1574720,Transferencia,4
+V-1333,2026-07-03,Pereira,Accesorios,Base refrigerante,2,139000,3,$ 269.660,Transferencia,5
+V-1089,2026-02-12,  MEDELLIN ,accesorios,Base refrigerante,9,139000,32,$ 10.208.160,Efectivo,3
+V-1029,2026-04-18,Cali,Audio,Microfono USB,10,419000,36,$ 2.681.600,Tarjeta debito,4
+V-1309,2026-07-24,Bucaramanga,Almacenamiento,Memoria USB 128 GB,8,$79.000,27,461360,Efectivo,5
+V-1003,2026-06-21,Bogota,Perifericos,Teclado mecanico,5,289000,14,$ 1.242.700,Tarjeta debito,5
+V-1260,07/02/2026,Bucaramanga,Audio,Parlante portatil,10,259000,22,2020200,PSE,3
+V-1461,2026-01-20,Medellin,Audio,Audifonos bluetooth,6,349000,24,1591440,Transferencia,4
+V-1097,2026-03-08,Bogota,Accesorios,Cargador universal,2,119000,0,$ 238.000,Tarjeta debito,4
+V-1102,08/09/2026,Medellin,computadores,Portatil gamer,6,4890000,16,24645600,Tarjeta debito,3
+V-1328,2026-08-05,Bucaramanga,Computadores,Todo en uno 24,5,2190000,12,9636000,Transferencia,4
+V-1073,2026-06-04,Bogota,Audio,Parlante portatil,2,259000,6,486920,TARJETA CREDITO,3
+V-1151,2026-01-09,Bogota,Audio,Audifonos bluetooth,8,349000,27,$ 2.038.160,TARJETA CREDITO,4
+V-1409,2026-01-21,Cartagena,perifericos,Teclado mecanico,8,289000,15,1965200,Tarjeta debito,4
+V-1306,19/04/2026,Medellin,almacenamiento,Disco SSD 1 TB,6,389000,25,1750500,PSE,4
+V-1054,17/07/2026,  BOGOTA ,Audio,Microfono USB,7,419000,13,2551710,Tarjeta credito,5
+V-1387,2026-07-11,Cali,Accesorios,Base refrigerante,3,139000,11,371130,Tarjeta credito,4
+V-1047,17-04-2026,  BOGOTA ,Audio,Microfono USB,5,419000,12,$ 1.843.600,Tarjeta credito,4
+V-1440,2026-01-10,Bucaramanga,Audio,Microfono USB,4,419000,5,19106400,Tarjeta credito,4
+V-1403,08/03/2026,Bucaramanga,Accesorios,Base refrigerante,7,139000,21,$ 768.670,Efectivo,4
+V-1390,2026-03-24,Cali,Accesorios,Cargador universal,6,119000,21,564060,PSE,4
+V-1340,2026-03-20,Barranquilla,Accesorios,Cargador universal,7,119000,26,,TARJETA DEBITO,5
+V-1391,2026-08-21,  CALI ,Computadores,Todo en uno 24,3,$2.190.000,0,6570000,PSE,2
+V-1249,2026-06-08,Bucaramanga,Computadores,Portatil gamer,10,,36,31296000,Tarjeta credito,3
+V-1056,2026-05-01,  CARTAGENA ,Perifericos,Mouse inalambrico,7,96000,23,517440,Efectivo,
+V-1242,2026-03-12,  CALI ,Computadores,Portatil 14 pulgadas,6,,19,11907000,EFECTIVO,5
+V-1049,27/03/2026,Medellin,perifericos,Monitor 27 pulgadas,8,1090000,30,6104000,Tarjeta credito,2
+V-1059,2026-05-05,Bucaramanga,Audio,Audifonos bluetooth,3,349000,11,931830,Tarjeta debito,5
+V-1268,11-02-2026,Bucaramanga,Perifericos,Monitor 27 pulgadas,9,1090000,26,7259400,Transferencia,5
+V-1293,2026-06-13,  BARRANQUILLA ,Perifericos,Mouse inalambrico,7,96000,20,537600,Transferencia,5
+V-1256,2026-04-28,Bucaramanga,Perifericos,Mouse inalambrico,7,96000,18,551040,Transferencia,5
+V-1044,2026-03-27,  CALI ,Perifericos,Monitor 27 pulgadas,5,1090000,14,4687000,PSE,5
+V-1014,2026-04-01,Barranquilla,computadores,Portatil gamer,8,4890000,22,30513600,TARJETA CREDITO,4
+V-1075,2026-09-05,Bucaramanga,Accesorios,Maletin para portatil,11,169000,39,1133990,PSE,4
+V-1375,09-01-2026,Cali,perifericos,Monitor 27 pulgadas,6,1090000,23,$ 5.035.800,Efectivo,4
+V-1041,2026-04-02,Bucaramanga,Computadores,Portatil gamer,5,4890000,17,$ 20.293.500,TARJETA DEBITO,5
+V-1202,2026-01-25,  CARTAGENA ,Audio,Audifonos bluetooth,5,349000,20,1396000,PSE,
+V-1033,2026-05-30,Bucaramanga,Accesorios,Maletin para portatil,3,169000,0,507000,PSE,5
+V-1315,2026-07-02,Pereira,Accesorios,Cargador universal,7,119000,26,616420,Efectivo,4
+V-1248,17-04-2026,Pereira,Audio,Parlante portatil,9,259000,28,$ 1.678.320,Transferencia,5
+V-1241,2026-06-19,Barranquilla,Perifericos,Mouse inalambrico,3,96000,8,264960,Tarjeta credito,5
+V-1434,10-03-2026,  CALI ,Computadores,Todo en uno 24,2,2190000,4,4204800,Efectivo,3
+V-1416,2026-01-07,Bogota,Perifericos,Monitor 27 pulgadas,2,1090000,3,2114600,Tarjeta debito,4
+V-1344,2026-06-22,Pereira,Perifericos,Teclado mecanico,7,289000,10,1820700,Efectivo,3
+V-1121,2026-01-15,Cartagena,Almacenamiento,Memoria USB 128 GB,9,79000,29,504810,TRANSFERENCIA,4
+V-1071,05/04/2026,Medellin,Computadores,Todo en uno 24,9,,22,$ 15.373.800,PSE,4
+V-1243,2026-05-03,Bucaramanga,Audio,Microfono USB,5,419000,9,1906450,Tarjeta credito,4
+V-1184,2026-01-16,Bucaramanga,Accesorios,Maletin para portatil,6,169000,24,770640,Tarjeta credito,5
+V-1450,2026-08-29,Cartagena,Computadores,Portatil 14 pulgadas,3,2450000,4,7056000,Tarjeta credito,3
+V-1224,2026-08-29,Bogota,Accesorios,Cargador universal,7,119000,16,699720,PSE,3
+V-1235,2026-07-28,Cali,Audio,Microfono USB,9,419000,25,2828250,Tarjeta debito,4
+V-1339,2026-01-09,Bogota,Almacenamiento,Disco SSD 1 TB,-3,389000,14,1003620,Tarjeta credito,3
+V-1366,2026-02-14,Medellin,Computadores,Todo en uno 24,-7,2190000,24,11650800,Efectivo,3
+V-1240,2026-03-02,  BARRANQUILLA ,Perifericos,Teclado mecanico,-8,289000,27,1687760,Tarjeta credito,4
+V-1427,27-05-2026,Medellin,Computadores,Todo en uno 24,9,2190000,24,14979600,Tarjeta credito,3
+V-1179,2026-06-23,  PEREIRA ,Computadores,Portatil gamer,8,4890000,27,28557600,PSE,3
+V-1439,2026-08-25,Medellin,accesorios,Base refrigerante,6,139000,11,742260,Efectivo,4
+V-1397,2026-04-24,Cartagena,Accesorios,Maletin para portatil,1,169000,1,2007720,PSE,4
+V-1480,2026-05-03,Bucaramanga,Perifericos,Mouse inalambrico,6,$96.000,18,472320,EFECTIVO,3
+V-1441,2026-08-02,  MEDELLIN ,Computadores,Portatil 14 pulgadas,2,2450000,0,4900000,Efectivo,5
+V-1083,2026-02-08,  BOGOTA ,Accesorios,Base refrigerante,5,139000,11,618550,Tarjeta credito,4
+V-1320,2026-05-04,Cartagena,Computadores,Portatil gamer,6,4890000,11,,Transferencia,4
+V-1036,2026-03-30,Bucaramanga,accesorios,Base refrigerante,3,139000,3,,TRANSFERENCIA,4
+V-1314,2026-02-28,Cartagena,perifericos,Monitor 27 pulgadas,2,1090000,9,1983800,Transferencia,4
+V-1149,28/07/2026,Barranquilla,Perifericos,Monitor 27 pulgadas,9,1090000,27,7161300,TARJETA CREDITO,3
+V-1064,2026-05-09,Cali,Almacenamiento,Memoria USB 128 GB,6,79000,17,393420,Efectivo,5
+V-1138,2026-08-23,Pereira,Almacenamiento,Memoria USB 128 GB,13,79000,40,616200,Tarjeta debito,3
+V-1477,2026-02-14,Medellin,Computadores,Portatil gamer,5,4890000,16,$ 20.538.000,Transferencia,4
+V-1369,2026-06-18,  BARRANQUILLA ,Accesorios,Cargador universal,3,119000,11,317730,Tarjeta credito,4
+V-1205,2026-01-22,Bucaramanga,Audio,Parlante portatil,7,,12,1595440,Tarjeta debito,3
+V-1411,2026-02-09,Bogota,Computadores,Portatil gamer,4,4890000,11,,Tarjeta credito,5
+V-1346,19/01/2026,Bucaramanga,Perifericos,Mouse inalambrico,-3,96000,2,282240,Efectivo,4
+V-1022,04/07/2026,Cali,Almacenamiento,Disco SSD 1 TB,7,$389.000,25,2042250,Transferencia,4
+V-1106,2026-03-13,  MEDELLIN ,Audio,Audifonos bluetooth,7,349000,38,1514660,Tarjeta credito,3
+V-1121,2026-01-15,Cartagena,Almacenamiento,Memoria USB 128 GB,9,79000,29,504810,TRANSFERENCIA,4
+V-1245,2026-02-15,Cartagena,Perifericos,Monitor 27 pulgadas,11,1090000,36,7673600,Efectivo,5
+V-1421,17/03/2026,Medellin,Audio,Microfono USB,6,419000,11,2237460,Tarjeta debito,5
+V-1109,22-04-2026,  MEDELLIN ,Audio,Audifonos bluetooth,7,349000,14,2100980,PSE,4
+V-1152,20/07/2026,  CALI ,Audio,Parlante portatil,1,259000,0,259000,PSE,4
+V-1031,2026-03-27,Cali,Accesorios,Base refrigerante,6,139000,20,667200,EFECTIVO,4
+V-1080,2026-03-27,Bucaramanga,Audio,Microfono USB,6,419000,26,,Transferencia,4
+V-1452,2026-01-29,Pereira,Audio,Microfono USB,5,419000,15,1780750,PSE,
+V-1300,2026-03-04,Medellin,Accesorios,Cargador universal,4,119000,4,$ 456.960,PSE,5
+V-1252,2026-04-30,Medellin,Almacenamiento,Disco SSD 1 TB,5,389000,8,1789400,Tarjeta debito,4
+V-1034,2026-08-17,Medellin,Accesorios,Maletin para portatil,7,169000,12,1041040,EFECTIVO,5
+V-1389,15/07/2026,Medellin,Accesorios,Maletin para portatil,7,169000,21,$ 934.570,PSE,4
+V-1210,25-02-2026,Pereira,Accesorios,Base refrigerante,5,139000,14,597700,EFECTIVO,4
+V-1139,2026-04-01,  CALI ,Perifericos,Mouse inalambrico,5,96000,13,$ 417.600,Tarjeta credito,4
+V-1044,2026-03-27,  CALI ,Perifericos,Monitor 27 pulgadas,5,1090000,14,4687000,PSE,5
+V-1423,12/04/2026,Medellin,Perifericos,Monitor 27 pulgadas,8,1090000,22,6801600,Tarjeta debito,4
+V-1447,2026-01-07,Bogota,Almacenamiento,Disco SSD 1 TB,8,389000,28,2240640,Transferencia,3
+V-1079,2026-04-16,Cartagena,Audio,Parlante portatil,4,259000,10,932400,Transferencia,5
+V-1066,2026-04-10,Bucaramanga,Perifericos,Mouse inalambrico,7,96000,23,517440,Tarjeta credito,4
+V-1051,27/08/2026,Bogota,Accesorios,Base refrigerante,4,139000,5,528200,Tarjeta debito,5
+V-1157,25/02/2026,Bogota,Accesorios,Cargador universal,11,,40,785400,PSE,3
+V-1323,2026-01-10,Bucaramanga,accesorios,Maletin para portatil,5,169000,8,777400,Tarjeta credito,3
+V-1269,2026-06-05,Cartagena,Perifericos,Monitor 27 pulgadas,10,1090000,38,6758000,PSE,5
+V-1201,2026-02-04,Barranquilla,Computadores,Todo en uno 24,7,$2.190.000,19,12417300,PSE,5
+V-1174,2026-04-14,  PEREIRA ,Audio,Audifonos bluetooth,8,349000,23,$ 2.149.840,Transferencia,3
+V-1145,02/08/2026,Bucaramanga,Accesorios,Base refrigerante,8,139000,18,911840,Tarjeta debito,2
+V-1183,2026-05-02,  BUCARAMANGA ,Audio,Microfono USB,7,419000,29,2082430,Tarjeta credito,4
+V-1289,2026-06-25,Bucaramanga,Audio,Parlante portatil,5,259000,22,1010100,Tarjeta credito,4
+V-1171,2026-03-04,Bogota,Accesorios,Cargador universal,7,119000,23,$ 641.410,Tarjeta debito,4
+V-1343,07-05-2026,Cartagena,perifericos,Mouse inalambrico,6,96000,15,489600,PSE,3
+V-1128,2026-05-12,  MEDELLIN ,Computadores,Portatil gamer,7,4890000,19,,Efectivo,5
+V-1093,25-07-2026,Medellin,Accesorios,Cargador universal,4,119000,13,414120,Transferencia,3
+V-1207,2026-04-24,Cali,Perifericos,Teclado mecanico,11,289000,31,2193510,Transferencia,4
+V-1129,2026-08-29,  BARRANQUILLA ,Perifericos,Mouse inalambrico,3,96000,8,$ 264.960,Efectivo,3
+V-1150,2026-02-02,Medellin,Perifericos,Mouse inalambrico,6,96000,19,$ 466.560,Transferencia,2
+V-1230,2026-05-03,Cartagena,Accesorios,Maletin para portatil,7,169000,23,910910,PSE,5
+V-1236,2026-06-07,Cartagena,Audio,Microfono USB,1,419000,0,419000,TARJETA CREDITO,4
+V-1015,2026-02-02,Barranquilla,Accesorios,Cargador universal,4,119000,9,433160,Tarjeta debito,3
+V-1285,2026-07-09,  BARRANQUILLA ,Perifericos,Monitor 27 pulgadas,8,1090000,28,6278400,TARJETA CREDITO,3
+V-1360,2026-04-27,Barranquilla,Almacenamiento,Memoria USB 128 GB,5,79000,18,323900,Efectivo,3
+V-1257,2026-07-14,  CALI ,Audio,Parlante portatil,7,259000,29,1287230,Tarjeta debito,4
+V-1086,18-08-2026,Cartagena,Accesorios,Cargador universal,8,119000,27,694960,Transferencia,4
+V-1412,25/01/2026,Bogota,Perifericos,Teclado mecanico,8,289000,26,1710880,Tarjeta debito,4
+V-1191,06/06/2026,Bucaramanga,Accesorios,Cargador universal,4,,13,414120,PSE,3
+V-1060,04-02-2026,Medellin,Computadores,Portatil 14 pulgadas,9,2450000,29,15655500,Transferencia,
+V-1226,26/08/2026,  MEDELLIN ,Computadores,Todo en uno 24,6,2190000,14,11300400,Efectivo,4
+V-1228,2026-01-05,Bogota,Accesorios,Maletin para portatil,-7,169000,17,981890,PSE,4
+V-1419,26-07-2026,Barranquilla,Audio,Audifonos bluetooth,7,349000,24,1856680,Efectivo,4
+V-1162,07/07/2026,Cali,Perifericos,Mouse inalambrico,6,96000,17,$ 5.736.960,Transferencia,4
+V-1088,2026-02-03,Medellin,Accesorios,Maletin para portatil,9,169000,40,$ 912.600,Tarjeta debito,4
+V-1087,2026-07-23,Medellin,Computadores,Todo en uno 24,1,2190000,0,2190000,Transferencia,3
+V-1303,2026-01-23,Pereira,Perifericos,Mouse inalambrico,4,96000,8,353280,Tarjeta debito,5
+V-1437,2026-02-27,  CARTAGENA ,Accesorios,Cargador universal,4,$119.000,9,433160,Tarjeta debito,4
+V-1227,2026-06-26,Cartagena,Perifericos,Teclado mecanico,2,289000,0,578000,Transferencia,4
+V-1307,2026-01-26,Medellin,Accesorios,Base refrigerante,4,,9,505960,Efectivo,5
+V-1279,2026-01-11,Bogota,Computadores,Portatil gamer,3,4890000,10,13203000,Tarjeta debito,3
+V-1288,11/04/2026,  CALI ,Audio,Microfono USB,4,419000,10,$ 1.508.400,Tarjeta debito,5
+V-1007,12/05/2026,Cartagena,Computadores,Portatil gamer,2,4890000,0,9780000,Tarjeta credito,3
+V-1085,12/01/2026,Medellin,Perifericos,Monitor 27 pulgadas,7,1090000,26,5646200,PSE,4
+V-1332,2026-06-14,Barranquilla,accesorios,Cargador universal,7,119000,25,7497000,Tarjeta credito,5
+V-1277,2026-06-22,Medellin,Accesorios,Maletin para portatil,4,169000,20,,PSE,5
+V-1200,2026-07-05,Cartagena,Audio,Audifonos bluetooth,6,$349.000,20,1675200,Tarjeta debito,4
+V-1229,2026-07-02,  BUCARAMANGA ,Almacenamiento,Disco SSD 1 TB,9,389000,31,2415690,Efectivo,4
+V-1394,2026-05-09,  BUCARAMANGA ,Computadores,Portatil gamer,6,4890000,19,23765400,Transferencia,3
+V-1232,09/09/2026,Cartagena,accesorios,Base refrigerante,9,139000,25,938250,TARJETA DEBITO,5
+V-1146,2026-08-26,  PEREIRA ,Almacenamiento,Disco SSD 1 TB,8,$389.000,25,2334000,Tarjeta credito,4
+V-1137,2026-08-11,Pereira,Perifericos,Teclado mecanico,4,289000,17,959480,Tarjeta credito,4
+V-1139,2026-04-01,  CALI ,Perifericos,Mouse inalambrico,5,96000,13,$ 417.600,Tarjeta credito,4
+V-1163,17/02/2026,Cartagena,Accesorios,Cargador universal,6,$119.000,17,7111440,Tarjeta credito,5
+V-1123,2026-07-07,Bogota,Perifericos,Teclado mecanico,3,289000,13,$ 754.290,PSE,4
+V-1321,2026-05-09,  PEREIRA ,Audio,Audifonos bluetooth,2,349000,5,,TARJETA CREDITO,3
+V-1104,13-08-2026,Bogota,Accesorios,Cargador universal,3,$119.000,12,314160,EFECTIVO,5
+V-1092,2026-04-17,Cali,computadores,Portatil gamer,6,4890000,18,$ 24.058.800,Efectivo,4
+V-1290,2026-06-29,Bogota,Perifericos,Teclado mecanico,4,289000,13,1005720,Tarjeta credito,4
+V-1401,19-06-2026,Cartagena,Perifericos,Mouse inalambrico,3,96000,0,288000,Tarjeta debito,4
+V-1413,28/05/2026,Cartagena,Computadores,Portatil 14 pulgadas,9,2450000,31,15214500,Efectivo,4
+V-1186,2026-06-14,Pereira,Accesorios,Base refrigerante,8,139000,21,878480,Efectivo,
+V-1362,22/02/2026,Cartagena,Audio,Microfono USB,4,419000,6,1575440,Transferencia,5
+V-1078,26/08/2026,Pereira,Computadores,Todo en uno 24,4,2190000,14,$ 7.533.600,PSE,5
+V-1368,2026-07-13,Barranquilla,Almacenamiento,Disco SSD 1 TB,8,389000,32,2116160,Efectivo,5
+V-1070,2026-06-05,Pereira,perifericos,Monitor 27 pulgadas,6,1090000,20,5232000,Tarjeta credito,3
+V-1112,2026-09-05,Cali,Perifericos,Mouse inalambrico,8,$96.000,19,$ 622.080,Efectivo,4
+V-1196,2026-06-07,  BARRANQUILLA ,Computadores,Portatil 14 pulgadas,9,2450000,30,15435000,Efectivo,4
+V-1280,2026-05-15,Bogota,Accesorios,Maletin para portatil,6,169000,9,922740,Efectivo,5
+V-1399,30/08/2026,Medellin,Audio,Parlante portatil,5,259000,10,1165500,PSE,5
+V-1454,2026-03-24,Bogota,Computadores,Portatil gamer,10,4890000,37,$ 30.807.000,Tarjeta credito,4
+V-1143,2026-06-04,Pereira,Perifericos,Mouse inalambrico,10,96000,31,662400,Tarjeta credito,4
+V-1407,2026-05-12,Pereira,Computadores,Todo en uno 24,8,2190000,22,13665600,Tarjeta debito,3
+V-1426,08-03-2026,Cali,Perifericos,Teclado mecanico,6,289000,19,1404540,PSE,4
+V-1182,2026-04-19,Pereira,Perifericos,Monitor 27 pulgadas,6,1090000,19,$ 5.297.400,Tarjeta credito,4
+V-1351,20/04/2026,Cartagena,Accesorios,Maletin para portatil,3,169000,5,481650,Efectivo,5
+V-1195,2026-01-18,Medellin,Perifericos,Monitor 27 pulgadas,4,1090000,21,3444400,Transferencia,5
+V-1428,2026-05-17,  CARTAGENA ,Perifericos,Monitor 27 pulgadas,5,,20,4360000,Efectivo,3
+V-1158,2026-06-16,  MEDELLIN ,accesorios,Base refrigerante,6,139000,17,$ 692.220,Tarjeta credito,5
+V-1325,2026-05-24,Bogota,audio,Parlante portatil,5,259000,5,1230250,Tarjeta credito,5
+V-1095,19/05/2026,Bogota,perifericos,Teclado mecanico,-4,289000,6,1086640,PSE,5
+V-1260,07/02/2026,Bucaramanga,Audio,Parlante portatil,10,259000,22,2020200,PSE,3
+V-1354,04/03/2026,Cali,Accesorios,Maletin para portatil,6,169000,23,780780,Efectivo,5
+V-1275,16-04-2026,Barranquilla,Almacenamiento,Memoria USB 128 GB,12,79000,35,616200,Efectivo,3
+V-1099,26-03-2026,  PEREIRA ,Computadores,Todo en uno 24,9,2190000,26,14585400,Tarjeta credito,4
+V-1013,2026-06-19,Cali,Audio,Parlante portatil,7,259000,19,$ 1.468.530,Tarjeta debito,4
+V-1465,2026-07-20,Medellin,Almacenamiento,Memoria USB 128 GB,5,79000,11,351550,Transferencia,4
+V-1380,2026-03-29,Bucaramanga,Perifericos,Monitor 27 pulgadas,12,1090000,34,8632800,Tarjeta debito,2
+V-1106,2026-03-13,  MEDELLIN ,Audio,Audifonos bluetooth,7,349000,38,1514660,Tarjeta credito,3
+V-1076,2026-07-09,Pereira,almacenamiento,Memoria USB 128 GB,7,79000,26,409220,Transferencia,5
+V-1429,2026-01-08,Medellin,Accesorios,Base refrigerante,4,139000,8,511520,PSE,4
+V-1074,2026-08-30,Medellin,Audio,Audifonos bluetooth,4,349000,6,1312240,Tarjeta credito,4
+V-1100,2026-06-16,  BARRANQUILLA ,Perifericos,Mouse inalambrico,7,96000,26,$ 497.280,Tarjeta credito,
+V-1094,26/06/2026,  PEREIRA ,Perifericos,Monitor 27 pulgadas,8,1090000,26,6452800,Tarjeta credito,5
+V-1276,06/06/2026,Pereira,Accesorios,Base refrigerante,4,139000,5,$ 528.200,Tarjeta credito,5
+V-1213,25-02-2026,Medellin,Accesorios,Base refrigerante,6,139000,10,750600,PSE,3
+V-1062,02/07/2026,Barranquilla,Audio,Audifonos bluetooth,2,349000,0,698000,PSE,4
+V-1424,2026-05-10,Pereira,Audio,Microfono USB,4,419000,15,1424600,EFECTIVO,5
+V-1203,2026-03-27,  MEDELLIN ,Perifericos,Monitor 27 pulgadas,7,$1.090.000,19,6180300,EFECTIVO,5
+V-1192,26/07/2026,Barranquilla,Computadores,Portatil 14 pulgadas,5,2450000,20,$ 9.800.000,Tarjeta credito,3
+V-1382,27-02-2026,  CALI ,Computadores,Portatil 14 pulgadas,6,2450000,22,$ 11.466.000,Tarjeta debito,5
+V-1371,2026-08-13,Bucaramanga,audio,Parlante portatil,5,259000,11,1152550,Transferencia,5
+V-1046,2026-07-18,Bogota,Audio,Microfono USB,6,419000,13,2187180,Tarjeta credito,3
+V-1420,27/05/2026,  CARTAGENA ,Accesorios,Maletin para portatil,2,169000,9,$ 307.580,Tarjeta credito,5
+V-1106,2026-03-13,  MEDELLIN ,Audio,Audifonos bluetooth,7,349000,38,1514660,Tarjeta credito,3
+V-1037,2026-08-18,Medellin,Almacenamiento,Disco SSD 1 TB,4,389000,13,1353720,Tarjeta debito,4
+V-1057,2026-04-25,Bogota,accesorios,Base refrigerante,10,139000,36,889600,TARJETA CREDITO,4
+V-1214,2026-03-31,Cartagena,accesorios,Maletin para portatil,6,169000,22,790920,Transferencia,4
+V-1166,2026-01-23,  PEREIRA ,Almacenamiento,Memoria USB 128 GB,5,79000,14,$ 339.700,TARJETA DEBITO,3
+V-1448,17/02/2026,Pereira,computadores,Todo en uno 24,5,2190000,20,8760000,PSE,3
+V-1255,10-06-2026,Pereira,Perifericos,Monitor 27 pulgadas,5,$1.090.000,17,4523500,Tarjeta credito,5
+V-1135,20/01/2026,  BOGOTA ,Computadores,Portatil gamer,10,,30,34230000,PSE,4
+V-1159,2026-08-28,Cartagena,Almacenamiento,Disco SSD 1 TB,5,389000,12,1711600,Efectivo,3
+V-1317,08/08/2026,Bogota,Audio,Parlante portatil,7,259000,22,1414140,Efectivo,4
+V-1341,2026-04-09,Barranquilla,Audio,Parlante portatil,6,259000,18,$ 1.274.280,PSE,5
+V-1238,2026-09-06,Cali,Accesorios,Base refrigerante,8,,32,756160,Tarjeta credito,3
+V-1234,2026-04-01,Medellin,Accesorios,Maletin para portatil,4,169000,11,601640,TRANSFERENCIA,5
+V-1345,29/04/2026,Bogota,Accesorios,Cargador universal,6,119000,16,,Tarjeta credito,5
+V-1364,2026-02-17,Cartagena,Audio,Audifonos bluetooth,4,$349.000,14,1200560,Efectivo,5
+V-1237,21-07-2026,Barranquilla,Audio,Microfono USB,4,419000,16,$ 1.407.840,PSE,5
+V-1384,03/03/2026,Bucaramanga,Audio,Audifonos bluetooth,8,349000,27,$ 2.038.160,PSE,4
+V-1449,2026-03-25,  CALI ,Perifericos,Monitor 27 pulgadas,-4,$1.090.000,12,3836800,Tarjeta debito,4
+V-1367,2026-06-30,Cartagena,Audio,Audifonos bluetooth,2,349000,2,684040,TRANSFERENCIA,5
+V-1363,2026-02-06,  BARRANQUILLA ,Accesorios,Cargador universal,3,119000,2,349860,Transferencia,5
+V-1220,2026-05-28,Barranquilla,Accesorios,Maletin para portatil,10,169000,37,1064700,Tarjeta debito,4
+V-1422,2026-02-27,Cali,computadores,Todo en uno 24,2,2190000,9,$ 3.985.800,PSE,5
+V-1175,2026-05-21,  BOGOTA ,accesorios,Cargador universal,7,119000,20,666400,Tarjeta debito,5
+V-1322,10-09-2026,  BOGOTA ,Accesorios,Base refrigerante,6,139000,13,725580,Transferencia,4
+V-1189,2026-02-26,Bogota,Perifericos,Teclado mecanico,5,289000,11,1286050,Tarjeta credito,3
+V-1126,2026-05-28,Barranquilla,Accesorios,Maletin para portatil,4,169000,6,,Tarjeta credito,3
+V-1263,2026-07-13,  BOGOTA ,Accesorios,Base refrigerante,7,139000,20,778400,Efectivo,3
+V-1258,2026-05-08,Cali,perifericos,Monitor 27 pulgadas,3,$1.090.000,3,3171900,PSE,4
+V-1165,2026-04-12,Barranquilla,Audio,Audifonos bluetooth,-9,349000,33,$ 2.104.470,Tarjeta credito,4
+V-1153,2026-01-22,Cali,Accesorios,Cargador universal,9,119000,23,824670,Efectivo,3
+V-1002,29/05/2026,Cali,Audio,Audifonos bluetooth,7,349000,28,1758960,TRANSFERENCIA,4
+V-1219,01/05/2026,Bucaramanga,Audio,Audifonos bluetooth,4,349000,14,1200560,Transferencia,4
+V-1141,2026-02-24,Pereira,Computadores,Portatil gamer,5,4890000,18,$ 20.049.000,Tarjeta debito,4
+V-1438,12/03/2026,Cali,perifericos,Monitor 27 pulgadas,4,1090000,1,$ 4.316.400,Transferencia,4
+V-1084,07/04/2026,Cartagena,Perifericos,Mouse inalambrico,8,96000,26,$ 568.320,Transferencia,4
+V-1043,2026-02-12,Cartagena,Audio,Audifonos bluetooth,10,349000,36,2233600,Transferencia,5
+V-1049,27/03/2026,Medellin,perifericos,Monitor 27 pulgadas,8,1090000,30,6104000,Tarjeta credito,2
+V-1250,30/05/2026,Barranquilla,Accesorios,Maletin para portatil,7,169000,23,$ 910.910,PSE,5
+V-1025,2026-03-02,Bucaramanga,Computadores,Todo en uno 24,6,2190000,13,11431800,Tarjeta credito,3
+V-1211,18/03/2026,Cartagena,Accesorios,Maletin para portatil,4,169000,13,588120,PSE,4
+V-1319,2026-08-09,Pereira,Computadores,Portatil gamer,10,4890000,31,33741000,Tarjeta credito,3
+V-1115,2026-03-21,  BOGOTA ,accesorios,Maletin para portatil,6,169000,14,872040,Transferencia,4
+V-1337,21/02/2026,Pereira,Accesorios,Maletin para portatil,9,169000,40,912600,EFECTIVO,4
+V-1008,2026-07-12,Cartagena,Perifericos,Teclado mecanico,8,$289.000,22,1803360,TARJETA DEBITO,5
+V-1341,2026-04-09,Barranquilla,Audio,Parlante portatil,6,259000,18,$ 1.274.280,PSE,5
+V-1292,2026-04-26,Barranquilla,Almacenamiento,Disco SSD 1 TB,5,389000,22,1517100,PSE,4
+V-1415,2026-01-14,  PEREIRA ,Accesorios,Maletin para portatil,5,169000,23,650650,Tarjeta debito,4
+V-1243,2026-05-03,Bucaramanga,Audio,Microfono USB,5,419000,9,1906450,Tarjeta credito,4
+V-1318,10/08/2026,Bogota,Perifericos,Teclado mecanico,4,$289.000,10,$ 1.040.400,Tarjeta debito,3
+V-1402,2026-05-29,Medellin,Perifericos,Teclado mecanico,4,289000,12,1017280,TARJETA DEBITO,4
+V-1442,2026-04-03,Bogota,Audio,Parlante portatil,1,259000,0,259000,Tarjeta credito,3
+V-1353,2026-07-29,  BARRANQUILLA ,Perifericos,Teclado mecanico,3,$289.000,9,788970,Tarjeta debito,3
+V-1021,2026-05-15,Cartagena,perifericos,Teclado mecanico,8,$289.000,17,1918960,PSE,4
+V-1005,2026-05-09,Cartagena,audio,Microfono USB,7,419000,20,$ 2.346.400,Tarjeta credito,4
+V-1068,2026-06-24,Cartagena,Perifericos,Monitor 27 pulgadas,1,1090000,0,1090000,Transferencia,3
+V-1282,18/05/2026,Bucaramanga,Perifericos,Teclado mecanico,6,289000,20,1387200,Tarjeta debito,4
+V-1238,2026-09-06,Cali,Accesorios,Base refrigerante,8,,32,756160,Tarjeta credito,3
+V-1393,2026-08-07,Bucaramanga,audio,Audifonos bluetooth,6,349000,28,1507680,PSE,5
+V-1098,2026-05-28,  BARRANQUILLA ,Computadores,Portatil 14 pulgadas,3,2450000,11,6541500,PSE,4
+V-1027,25-08-2026,Bogota,Almacenamiento,Disco SSD 1 TB,7,389000,30,1906100,Transferencia,5
+V-1204,2026-01-28,Pereira,Computadores,Portatil 14 pulgadas,7,2450000,30,12005000,Efectivo,5
+V-1110,2026-09-01,  BOGOTA ,Accesorios,Cargador universal,10,119000,37,$ 749.700,Tarjeta debito,5
+V-1304,2026-03-19,Cali,Accesorios,Cargador universal,7,119000,22,649740,PSE,5
+V-1458,2026-01-24,Barranquilla,Audio,Microfono USB,5,$419.000,10,1885500,TRANSFERENCIA,5
+V-1361,10/08/2026,Medellin,Almacenamiento,Memoria USB 128 GB,8,79000,29,448720,Tarjeta debito,4
+V-1264,2026-02-18,Bogota,almacenamiento,Memoria USB 128 GB,6,79000,20,379200,Efectivo,3
+V-1009,2026-03-06,Bogota,computadores,Portatil 14 pulgadas,7,2450000,16,14406000,Efectivo,5
+V-1443,16-04-2026,  PEREIRA ,Accesorios,Maletin para portatil,5,169000,15,718250,Transferencia,5
+V-1475,2026-09-01,Medellin,Audio,Audifonos bluetooth,7,349000,19,1978830,Tarjeta debito,4
+V-1042,2026-04-06,Barranquilla,computadores,Todo en uno 24,4,2190000,17,7270800,Efectivo,4
+V-1208,16/06/2026,Barranquilla,Accesorios,Base refrigerante,11,139000,36,978560,PSE,3
+V-1479,2026-03-30,Pereira,perifericos,Teclado mecanico,3,289000,1,858330,TRANSFERENCIA,
+V-1017,2026-05-10,Pereira,Computadores,Portatil gamer,6,4890000,19,23765400,Transferencia,3
+V-1471,17-01-2026,Pereira,Computadores,Portatil 14 pulgadas,7,$2.450.000,10,$ 185.220.000,Tarjeta credito,5
+V-1058,2026-04-06,Medellin,Accesorios,Cargador universal,2,119000,0,$ 238.000,Tarjeta debito,5
+V-1125,2026-06-13,Pereira,Accesorios,Maletin para portatil,10,169000,24,$ 1.284.400,PSE,3
+V-1156,19-07-2026,Medellin,Accesorios,Maletin para portatil,2,$169.000,4,324480,PSE,3
+V-1038,2026-03-11,Bucaramanga,Accesorios,Maletin para portatil,8,169000,28,973440,Transferencia,3
+V-1012,2026-04-15,Bucaramanga,Accesorios,Maletin para portatil,5,169000,13,$ 735.150,Tarjeta credito,4
+V-1061,2026-02-10,Barranquilla,Audio,Parlante portatil,3,259000,0,777000,EFECTIVO,3
+V-1301,22/04/2026,Cartagena,Audio,Parlante portatil,5,259000,14,,Tarjeta credito,4
+V-1254,2026-07-05,Pereira,Accesorios,Maletin para portatil,5,169000,18,692900,TRANSFERENCIA,3
+V-1473,2026-06-16,Barranquilla,Perifericos,Monitor 27 pulgadas,2,1090000,0,2180000,Transferencia,5
+V-1350,2026-01-09,Barranquilla,Accesorios,Cargador universal,11,,31,$ 903.210,Transferencia,4
+V-1400,30/05/2026,  CALI ,Perifericos,Teclado mecanico,6,289000,18,1421880,Tarjeta debito,4
+V-1427,27-05-2026,Medellin,Computadores,Todo en uno 24,9,2190000,24,14979600,Tarjeta credito,3
+V-1096,2026-05-23,Barranquilla,perifericos,Teclado mecanico,7,289000,9,1840930,Transferencia,5
+V-1358,04/06/2026,Medellin,Accesorios,Cargador universal,11,119000,40,$ 785.400,Tarjeta debito,3
+V-1026,2026-01-07,Barranquilla,Audio,Microfono USB,7,419000,11,2610370,Efectivo,3
+V-1294,2026-05-19,Barranquilla,Accesorios,Cargador universal,8,119000,25,714000,PSE,4
+V-1176,2026-03-06,  CARTAGENA ,Perifericos,Monitor 27 pulgadas,3,1090000,4,,Transferencia,3
+V-1459,2026-08-04,Pereira,Computadores,Portatil 14 pulgadas,7,2450000,25,12862500,Tarjeta credito,5
+V-1020,2026-03-30,  CALI ,Perifericos,Mouse inalambrico,9,96000,34,$ 570.240,TARJETA CREDITO,4
+V-1147,2026-03-23,Barranquilla,Audio,Microfono USB,4,419000,21,$ 1.324.040,Tarjeta credito,4
+V-1431,23-02-2026,Cartagena,Accesorios,Base refrigerante,4,,4,533760,Efectivo,5
+V-1281,2026-08-13,Medellin,Computadores,Todo en uno 24,10,2190000,37,$ 13.797.000,Tarjeta credito,
+V-1386,2026-02-01,Barranquilla,perifericos,Monitor 27 pulgadas,4,1090000,11,3880400,Tarjeta debito,5
+V-1274,21/04/2026,  CALI ,Perifericos,Mouse inalambrico,2,96000,2,188160,PSE,4
+V-1091,2026-07-23,  MEDELLIN ,Accesorios,Maletin para portatil,6,169000,14,872040,PSE,3
+V-1045,2026-03-23,Cartagena,Almacenamiento,Memoria USB 128 GB,10,79000,32,537200,PSE,3
+V-1302,08/05/2026,Medellin,Almacenamiento,Memoria USB 128 GB,8,79000,24,480320,Transferencia,4
+V-1468,2026-04-12,Pereira,Accesorios,Base refrigerante,7,139000,16,817320,Efectivo,4
+V-1178,01/06/2026,Cartagena,Perifericos,Mouse inalambrico,2,96000,3,$ 186.240,PSE,5
+V-1132,29/03/2026,Bogota,audio,Parlante portatil,8,259000,24,1574720,Transferencia,4
+V-1331,2026-07-07,Cali,Audio,Microfono USB,4,419000,11,1491640,Tarjeta credito,
+V-1430,2026-01-30,Cali,Perifericos,Mouse inalambrico,4,96000,10,$ 345.600,TRANSFERENCIA,5
+V-1068,2026-06-24,Cartagena,Perifericos,Monitor 27 pulgadas,1,1090000,0,1090000,Transferencia,3
+V-1155,2026-01-27,Bucaramanga,Accesorios,Base refrigerante,2,139000,4,266880,Efectivo,3
+V-1040,2026-07-23,Barranquilla,Computadores,Portatil gamer,8,4890000,31,$ 26.992.800,PSE,4
+V-1244,06/09/2026,Bucaramanga,perifericos,Mouse inalambrico,11,96000,28,$ 760.320,Efectivo,4
+V-1217,2026-04-10,Pereira,Accesorios,Cargador universal,2,$119.000,7,221340,Transferencia,3
+V-1320,2026-05-04,Cartagena,Computadores,Portatil gamer,6,4890000,11,,Transferencia,4
+V-1435,2026-02-09,Barranquilla,Accesorios,Maletin para portatil,5,169000,18,$ 692.900,EFECTIVO,5
+V-1469,21/01/2026,Medellin,Audio,Audifonos bluetooth,5,349000,9,1587950,Efectivo,5
+V-1251,2026-02-14,  BARRANQUILLA ,Audio,Parlante portatil,12,,37,1958040,Transferencia,5
+V-1190,2026-08-18,Medellin,Perifericos,Monitor 27 pulgadas,2,1090000,8,2005600,Efectivo,5
+V-1133,2026-02-06,Bucaramanga,Almacenamiento,Memoria USB 128 GB,9,79000,27,519030,EFECTIVO,5
+V-1311,2026-01-23,Cali,Perifericos,Monitor 27 pulgadas,9,1090000,24,7455600,Tarjeta debito,5
+V-1352,30/07/2026,Bucaramanga,Audio,Parlante portatil,7,259000,22,$ 1.414.140,PSE,4
+V-1370,2026-01-16,Barranquilla,Audio,Microfono USB,12,419000,38,3117360,PSE,5
+V-1172,26/02/2026,  PEREIRA ,Audio,Audifonos bluetooth,6,$349.000,14,1800840,Transferencia,3
+V-1105,2026-09-03,Bucaramanga,Computadores,Todo en uno 24,6,2190000,20,$ 10.512.000,PSE,2
+V-1211,18/03/2026,Cartagena,Accesorios,Maletin para portatil,4,169000,13,588120,PSE,4
+V-1069,10-03-2026,  BUCARAMANGA ,audio,Audifonos bluetooth,3,349000,9,952770,Tarjeta debito,3
+V-1441,2026-08-02,  MEDELLIN ,Computadores,Portatil 14 pulgadas,2,2450000,0,4900000,Efectivo,5
+V-1004,25/04/2026,Cartagena,Computadores,Todo en uno 24,9,2190000,31,13599900,Transferencia,5
+V-1348,24-03-2026,Cali,Computadores,Portatil gamer,8,$4.890.000,29,,Transferencia,4
+V-1271,2026-08-18,  MEDELLIN ,Audio,Microfono USB,11,419000,32,,Transferencia,5
+V-1252,2026-04-30,Medellin,Almacenamiento,Disco SSD 1 TB,5,389000,8,1789400,Tarjeta debito,4
+V-1446,04/02/2026,  CARTAGENA ,Accesorios,Base refrigerante,2,139000,4,3202560,Tarjeta debito,4
+V-1053,2026-08-24,Bogota,Audio,Microfono USB,4,419000,8,,Tarjeta debito,4
+V-1313,2026-03-12,Cartagena,Perifericos,Monitor 27 pulgadas,2,$1.090.000,0,,Tarjeta debito,4
+V-1103,2026-04-14,Pereira,Perifericos,Teclado mecanico,4,289000,0,$ 1.156.000,Tarjeta credito,
+V-1425,2026-06-14,Barranquilla,Perifericos,Teclado mecanico,6,289000,19,1404540,PSE,5
+V-1378,09/02/2026,Bucaramanga,Audio,Parlante portatil,8,259000,33,1388240,Efectivo,4
+V-1272,2026-07-24,Medellin,Almacenamiento,Memoria USB 128 GB,7,79000,25,414750,TARJETA DEBITO,4
+V-1476,08/05/2026,Bogota,Audio,Microfono USB,6,$419.000,13,2187180,Transferencia,4
+V-1032,2026-05-17,Medellin,Audio,Microfono USB,3,$419.000,16,$ 1.055.880,Tarjeta credito,4
+V-1336,2026-01-08,Bogota,Audio,Audifonos bluetooth,9,349000,23,$ 2.418.570,EFECTIVO,4
+V-1180,25/06/2026,Medellin,Almacenamiento,Memoria USB 128 GB,6,79000,16,,TARJETA DEBITO,4
+V-1194,2026-07-13,Medellin,Accesorios,Cargador universal,3,119000,13,$ 310.590,Tarjeta debito,4
+V-1216,2026-04-04,Barranquilla,Perifericos,Monitor 27 pulgadas,9,1090000,18,8044200,Transferencia,4
+V-1134,10-06-2026,Bogota,Accesorios,Cargador universal,9,119000,32,$ 728.280,Tarjeta credito,5
+V-1185,2026-07-31,Medellin,Audio,Parlante portatil,7,$259.000,18,$ 1.486.660,Efectivo,
+V-1144,14-06-2026,Cartagena,Accesorios,Maletin para portatil,5,169000,16,$ 709.800,PSE,5
+V-1222,03-02-2026,Pereira,Almacenamiento,Memoria USB 128 GB,4,79000,12,278080,Transferencia,3
+V-1398,2026-01-14,Barranquilla,Computadores,Todo en uno 24,6,2190000,20,10512000,Tarjeta credito,3
+V-1456,2026-02-13,Cartagena,Almacenamiento,Memoria USB 128 GB,7,79000,20,442400,Tarjeta debito,4
+V-1445,2026-01-12,Cartagena,Audio,Microfono USB,7,419000,20,2346400,Transferencia,5
+V-1148,2026-07-19,Bogota,Computadores,Portatil gamer,4,4890000,11,$ 17.408.400,Transferencia,3
+V-1169,2026-03-10,Cali,Audio,Audifonos bluetooth,10,349000,28,2512800,TARJETA CREDITO,
+V-1357,2026-07-06,Cartagena,Accesorios,Base refrigerante,10,$139.000,34,$ 917.400,PSE,3
+V-1209,2026-04-23,Cali,Computadores,Todo en uno 24,4,,15,$ 7.446.000,Efectivo,5
+V-1385,2026-05-24,Bucaramanga,Audio,Microfono USB,7,,12,$ 2.581.040,Efectivo,4
+V-1417,2026-03-10,Barranquilla,almacenamiento,Memoria USB 128 GB,3,79000,15,201450,Efectivo,5
+V-1298,2026-02-04,Barranquilla,Audio,Parlante portatil,3,259000,0,777000,PSE,4
+V-1154,2026-01-08,Barranquilla,Computadores,Portatil 14 pulgadas,6,2450000,18,12054000,Tarjeta debito,4
+V-1432,2026-07-29,Barranquilla,Computadores,Portatil gamer,4,4890000,10,17604000,Efectivo,4
+V-1463,2026-02-11,Medellin,perifericos,Teclado mecanico,3,289000,0,867000,PSE,4
+V-1464,2026-05-23,Cali,Perifericos,Mouse inalambrico,9,96000,34,$ 570.240,Efectivo,5
+V-1124,2026-06-18,  CALI ,Computadores,Todo en uno 24,5,2190000,12,115632000,Transferencia,5
+V-1355,03/06/2026,Cali,Audio,Microfono USB,6,$419.000,21,$ 1.986.060,Efectivo,5
+V-1392,2026-06-06,  BARRANQUILLA ,Computadores,Todo en uno 24,5,2190000,16,9198000,TRANSFERENCIA,5
+V-1122,2026-05-13,Pereira,Perifericos,Mouse inalambrico,3,96000,12,253440,PSE,3
+V-1193,2026-02-06,Cali,Accesorios,Maletin para portatil,8,169000,28,$ 973.440,Efectivo,5
+V-1167,2026-04-27,Bucaramanga,Perifericos,Mouse inalambrico,4,96000,2,376320,Tarjeta debito,4
+V-1478,19-05-2026,Cali,Perifericos,Monitor 27 pulgadas,7,1090000,19,6180300,Tarjeta debito,3
+V-1342,2026-07-28,Barranquilla,Computadores,Todo en uno 24,5,2190000,11,9745500,Transferencia,5
+V-1474,18/05/2026,Barranquilla,Accesorios,Base refrigerante,4,139000,12,489280,Tarjeta credito,3
+V-1400,30/05/2026,  CALI ,Perifericos,Teclado mecanico,6,289000,18,1421880,Tarjeta debito,4
+V-1377,2026-01-19,Pereira,Perifericos,Monitor 27 pulgadas,4,1090000,14,$ 3.749.600,TARJETA DEBITO,3
+V-1404,19/02/2026,Bogota,Perifericos,Mouse inalambrico,6,96000,15,489600,PSE,4
+V-1418,2026-04-02,Cartagena,Computadores,Portatil 14 pulgadas,8,2450000,24,14896000,Tarjeta debito,5
+V-1181,2026-05-14,Cali,computadores,Portatil 14 pulgadas,3,2450000,0,7350000,Transferencia,5
+V-1308,05/04/2026,  PEREIRA ,Perifericos,Mouse inalambrico,6,96000,15,489600,Tarjeta credito,4
+V-1405,2026-06-11,  BARRANQUILLA ,Audio,Parlante portatil,5,259000,16,$ 1.087.800,TRANSFERENCIA,4
+V-1259,17-07-2026,Medellin,Perifericos,Mouse inalambrico,3,96000,11,$ 256.320,PSE,4
+V-1218,2026-04-19,Medellin,Audio,Microfono USB,3,419000,7,1169010,Efectivo,4
+V-1206,2026-02-10,Bucaramanga,Computadores,Todo en uno 24,5,2190000,17,9088500,Tarjeta credito,2
+V-1381,2026-06-04,Bucaramanga,Almacenamiento,Disco SSD 1 TB,7,389000,18,2232860,Transferencia,3
+V-1108,2026-09-04,Pereira,Computadores,Portatil 14 pulgadas,13,2450000,39,19428500,EFECTIVO,4
+V-1457,11/03/2026,  BOGOTA ,audio,Audifonos bluetooth,5,349000,12,$ 1.535.600,Efectivo,3
+V-1334,2026-08-22,Cartagena,Perifericos,Monitor 27 pulgadas,3,1090000,2,3204600,Tarjeta debito,4
+V-1071,05/04/2026,Medellin,Computadores,Todo en uno 24,9,,22,$ 15.373.800,PSE,4
+V-1287,2026-09-08,Pereira,Perifericos,Monitor 27 pulgadas,7,1090000,25,$ 5.722.500,PSE,5
+V-1170,2026-02-04,Barranquilla,Computadores,Portatil 14 pulgadas,2,2450000,0,4900000,Tarjeta credito,5
+V-1116,2026-09-09,Barranquilla,Computadores,Portatil gamer,1,4890000,0,4890000,Tarjeta debito,4
+V-1130,2026-09-02,Medellin,Perifericos,Monitor 27 pulgadas,5,$1.090.000,14,4687000,Tarjeta debito,3
+V-1466,23-06-2026,  BOGOTA ,Perifericos,Mouse inalambrico,5,96000,20,384000,Tarjeta credito,3
+V-1284,2026-01-10,Cali,Audio,Audifonos bluetooth,8,349000,21,,Transferencia,5
+V-1253,2026-08-01,Bucaramanga,Computadores,Portatil 14 pulgadas,2,2450000,7,4557000,Transferencia,4
+V-1472,15/04/2026,Cartagena,Perifericos,Teclado mecanico,4,$289.000,12,1017280,Transferencia,3
+V-1117,2026-08-25,Pereira,Computadores,Portatil 14 pulgadas,9,2450000,21,17419500,Tarjeta credito,5
+V-1270,13-08-2026,Cartagena,Audio,Parlante portatil,9,$259.000,31,1608390,Efectivo,5
+V-1299,2026-03-23,  MEDELLIN ,Audio,Microfono USB,7,419000,21,2317070,PSE,5
+V-1372,2026-03-02,Cartagena,Perifericos,Monitor 27 pulgadas,7,1090000,21,$ 6.027.700,Tarjeta credito,3
+V-1266,2026-01-10,Bucaramanga,Almacenamiento,Memoria USB 128 GB,5,$79.000,12,,Tarjeta debito,4
+V-1151,2026-01-09,Bogota,Audio,Audifonos bluetooth,8,349000,27,$ 2.038.160,TARJETA CREDITO,4
+V-1379,01/08/2026,Bogota,Audio,Microfono USB,7,419000,25,2199750,TARJETA DEBITO,4
+V-1239,2026-08-10,Medellin,Audio,Audifonos bluetooth,6,349000,18,1717080,Transferencia,3
+V-1455,2026-06-12,Bogota,Almacenamiento,Memoria USB 128 GB,7,79000,20,442400,Transferencia,4
+V-1048,2026-03-11,Pereira,Accesorios,Cargador universal,7,119000,24,633080,PSE,3
+V-1187,2026-09-01,Cali,Accesorios,Base refrigerante,7,139000,17,$ 807.590,Efectivo,2
+V-1436,05/09/2026,Pereira,Computadores,Portatil gamer,5,$4.890.000,21,19315500,Transferencia,4
+V-1451,2026-07-08,  BOGOTA ,Computadores,Portatil 14 pulgadas,7,2450000,23,13205500,Tarjeta debito,3
+V-1349,01-02-2026,  PEREIRA ,Almacenamiento,Memoria USB 128 GB,9,79000,20,568800,Efectivo,5
+V-1081,2026-04-28,Cali,perifericos,Mouse inalambrico,8,96000,19,622080,TARJETA CREDITO,3
+V-1223,25-05-2026,Medellin,Accesorios,Maletin para portatil,4,$169.000,9,615160,Transferencia,
+V-1050,2026-02-23,Medellin,Audio,Microfono USB,2,419000,5,796100,Tarjeta credito,5
+V-1209,2026-04-23,Cali,Computadores,Todo en uno 24,4,,15,$ 7.446.000,Efectivo,5
+V-1444,2026-03-27,Barranquilla,Audio,Microfono USB,10,419000,40,2514000,PSE,3
+V-1414,05-03-2026,Cali,Almacenamiento,Memoria USB 128 GB,4,79000,18,,Efectivo,5
+V-1168,2026-02-24,Cali,almacenamiento,Memoria USB 128 GB,2,79000,7,,Efectivo,4
+V-1128,2026-05-12,  MEDELLIN ,Computadores,Portatil gamer,7,4890000,19,,Efectivo,5
+V-1376,2026-08-16,Barranquilla,Computadores,Todo en uno 24,7,2190000,13,$ 13.337.100,Transferencia,5
+V-1077,2026-08-30,Medellin,Computadores,Portatil gamer,2,4890000,2,9584400,Tarjeta credito,3
+V-1215,2026-02-10,Cartagena,Audio,Audifonos bluetooth,8,349000,24,2121920,PSE,5
+V-1231,11/08/2026,Bogota,Perifericos,Teclado mecanico,5,289000,9,1314950,PSE,4
+V-1263,2026-07-13,  BOGOTA ,Accesorios,Base refrigerante,7,139000,20,778400,Efectivo,3
+V-1011,2026-09-04,Cali,Almacenamiento,Disco SSD 1 TB,10,389000,36,2489600,Tarjeta credito,4
+V-1131,14-07-2026,  MEDELLIN ,Computadores,Todo en uno 24,5,2190000,11,$ 9.745.500,Tarjeta credito,3
+V-1198,2026-02-11,  CARTAGENA ,Almacenamiento,Disco SSD 1 TB,9,389000,25,2625750,Tarjeta debito,5
+V-1388,2026-06-02,Bogota,Perifericos,Teclado mecanico,3,289000,6,814980,Transferencia,5
+V-1010,2026-01-09,Barranquilla,Almacenamiento,Disco SSD 1 TB,-6,389000,19,1890540,Tarjeta credito,4
+V-1023,2026-03-11,Bucaramanga,Computadores,Portatil 14 pulgadas,9,2450000,27,16096500,Tarjeta debito,4
+V-1262,20/06/2026,Medellin,Computadores,Portatil gamer,4,4890000,16,16430400,Transferencia,3
+V-1120,2026-02-09,  BUCARAMANGA ,Perifericos,Mouse inalambrico,6,96000,23,443520,Efectivo,5
+V-1295,2026-02-10,Bogota,Perifericos,Monitor 27 pulgadas,3,1090000,5,3106500,Tarjeta debito,2
+V-1002,29/05/2026,Cali,Audio,Audifonos bluetooth,7,349000,28,1758960,TRANSFERENCIA,4
+V-1327,2026-05-05,Medellin,Accesorios,Maletin para portatil,9,169000,30,,Transferencia,3
+V-1470,2026-02-14,  BUCARAMANGA ,Perifericos,Teclado mecanico,5,289000,16,1213800,Transferencia,3
+V-1396,2026-01-15,Cali,Almacenamiento,Memoria USB 128 GB,4,79000,19,255960,Tarjeta credito,4
+V-1177,2026-06-05,Medellin,audio,Microfono USB,1,419000,0,$ 419.000,Tarjeta credito,4
+V-1161,2026-01-23,  MEDELLIN ,Almacenamiento,Memoria USB 128 GB,8,79000,25,474000,PSE,4
+V-1039,2026-09-01,Medellin,Perifericos,Mouse inalambrico,4,96000,12,337920,PSE,5
+V-1278,2026-03-22,Barranquilla,Accesorios,Maletin para portatil,3,169000,12,446160,Tarjeta credito,5
+V-1199,09/06/2026,Cali,Accesorios,Cargador universal,10,119000,32,$ 809.200,Efectivo,5
+V-1359,2026-05-02,Barranquilla,Audio,Audifonos bluetooth,7,349000,21,1929970,Tarjeta credito,5
+V-1291,2026-07-16,  CARTAGENA ,Perifericos,Teclado mecanico,7,289000,19,1638630,PSE,4
+V-1113,2026-04-12,Medellin,Computadores,Todo en uno 24,5,2190000,14,9417000,Efectivo,3
+V-1286,2026-05-30,  BARRANQUILLA ,Almacenamiento,Disco SSD 1 TB,4,389000,11,1384840,Tarjeta credito,3
+V-1072,2026-02-01,Barranquilla,Perifericos,Mouse inalambrico,6,96000,18,472320,Tarjeta debito,5
+V-1408,2026-02-26,  CALI ,Perifericos,Mouse inalambrico,3,96000,11,$ 256.320,Transferencia,5
+V-1283,2026-08-05,Pereira,perifericos,Teclado mecanico,5,289000,20,1156000,Tarjeta credito,5
+V-1335,2026-01-24,Medellin,Perifericos,Mouse inalambrico,5,96000,12,422400,Tarjeta debito,4
+V-1173,2026-05-21,Medellin,Almacenamiento,Disco SSD 1 TB,2,$389.000,1,770220,Efectivo,2
+V-1067,2026-08-01,Cali,accesorios,Cargador universal,7,119000,20,666400,PSE,4
+V-1373,2026-08-18,  BOGOTA ,Perifericos,Teclado mecanico,3,289000,5,823650,Tarjeta credito,2
+V-1305,2026-03-27,Bogota,Computadores,Todo en uno 24,1,2190000,0,$ 2.190.000,Tarjeta debito,4
+V-1246,2026-03-15,Bogota,Accesorios,Base refrigerante,3,139000,0,417000,TRANSFERENCIA,3
+V-1118,21/02/2026,Pereira,Perifericos,Monitor 27 pulgadas,6,1090000,11,5820600,Tarjeta credito,4
+V-1055,07/05/2026,Barranquilla,Perifericos,Monitor 27 pulgadas,4,1090000,4,4185600,PSE,4
+V-1365,24-02-2026,  CARTAGENA ,Perifericos,Monitor 27 pulgadas,11,1090000,40,7194000,Tarjeta credito,4
+V-1356,2026-07-26,Bogota,Almacenamiento,Memoria USB 128 GB,8,79000,26,467680,PSE,4
+V-1316,2026-05-06,Cartagena,Computadores,Todo en uno 24,5,2190000,16,9198000,TARJETA CREDITO,
+V-1329,2026-02-09,Cali,Audio,Microfono USB,2,419000,0,838000,Transferencia,3
+V-1233,2026-07-19,Pereira,Accesorios,Maletin para portatil,8,169000,34,892320,Efectivo,5
+V-1460,2026-05-08,Cali,Audio,Microfono USB,4,,9,1525160,TRANSFERENCIA,4
+V-1225,26-04-2026,Barranquilla,Accesorios,Maletin para portatil,9,169000,29,1079910,EFECTIVO,3
+V-1018,13-02-2026,  PEREIRA ,Perifericos,Monitor 27 pulgadas,11,1090000,25,$ 8.992.500,Tarjeta debito,5
+V-1082,2026-05-16,  CARTAGENA ,Accesorios,Cargador universal,3,119000,9,324870,PSE,
+V-1219,01/05/2026,Bucaramanga,Audio,Audifonos bluetooth,4,349000,14,1200560,Transferencia,4
+V-1101,2026-05-15,  CARTAGENA ,Almacenamiento,Memoria USB 128 GB,4,79000,14,271760,Efectivo,4
+V-1119,2026-04-18,  PEREIRA ,Audio,Microfono USB,9,419000,30,2639700,Efectivo,5
+V-1462,07/09/2026,  BOGOTA ,Computadores,Todo en uno 24,11,2190000,39,14694900,PSE,4
+V-1247,07-01-2026,Pereira,Almacenamiento,Memoria USB 128 GB,9,$79.000,27,519030,Tarjeta credito,4
+V-1297,2026-03-01,Cartagena,Accesorios,Maletin para portatil,8,$169.000,40,811200,Transferencia,4
+V-1296,2026-04-20,  BUCARAMANGA ,Audio,Audifonos bluetooth,3,349000,9,952770,Tarjeta debito,4
+V-1235,2026-07-28,Cali,Audio,Microfono USB,9,419000,25,2828250,Tarjeta debito,4
+V-1322,10-09-2026,  BOGOTA ,Accesorios,Base refrigerante,6,139000,13,725580,Transferencia,4
+V-1267,2026-08-11,Bogota,Accesorios,Cargador universal,3,119000,5,339150,Efectivo,5
+V-1433,2026-02-08,Medellin,Accesorios,Cargador universal,9,119000,23,824670,PSE,3
+V-1324,2026-05-02,Bogota,Accesorios,Cargador universal,3,119000,7,332010,Tarjeta credito,
+V-1001,2026-08-05,  BOGOTA ,Computadores,Portatil 14 pulgadas,7,2450000,15,14577500,Transferencia,2
+V-1035,2026-05-25,Barranquilla,Audio,Parlante portatil,8,259000,26,,PSE,5
+V-1103,2026-04-14,Pereira,Perifericos,Teclado mecanico,4,289000,0,$ 1.156.000,Tarjeta credito,
+V-1197,24/05/2026,  CALI ,Computadores,Portatil 14 pulgadas,3,2450000,5,6982500,PSE,4
+V-1136,2026-08-04,  BUCARAMANGA ,Audio,Parlante portatil,11,259000,35,$ 1.851.850,Tarjeta debito,5
+V-1257,2026-07-14,  CALI ,Audio,Parlante portatil,7,259000,29,1287230,Tarjeta debito,4
+V-1107,2026-06-04,Bucaramanga,Computadores,Portatil 14 pulgadas,4,,7,9114000,Efectivo,4
+V-1030,2026-06-19,  BARRANQUILLA ,perifericos,Monitor 27 pulgadas,1,,0,1090000,Tarjeta credito,3
+V-1188,18/03/2026,Cartagena,Almacenamiento,Disco SSD 1 TB,4,389000,12,1369280,Tarjeta credito,4
+V-1142,2026-03-06,Bogota,Computadores,Portatil 14 pulgadas,7,2450000,23,$ 13.205.500,Transferencia,5
+V-1160,2026-04-04,Pereira,Audio,Parlante portatil,3,259000,5,738150,PSE,4
+V-1140,2026-06-07,Bucaramanga,perifericos,Mouse inalambrico,6,96000,17,478080,TARJETA CREDITO,4
+V-1338,2026-04-01,Bogota,Computadores,Portatil gamer,5,4890000,22,19071000,Transferencia,5
+V-1114,2026-09-02,Bogota,Computadores,Portatil gamer,3,4890000,8,13496400,Tarjeta debito,5

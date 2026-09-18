@@ -1,0 +1,15 @@
+{
+  "name": "evidencia-aa2-ev03",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Kit para grabar la evidencia AA2-EV03: analitica de datos con Gemini",
+  "scripts": {
+    "dataset": "node scripts/generar_dataset.js",
+    "referencia": "node scripts/resultados_esperados.js",
+    "video": "node scripts/grabar_guia.mjs",
+    "pdf": "node scripts/generar_pdf.mjs"
+  },
+  "dependencies": {
+    "playwright": "^1.63.0"
+  }
+}
